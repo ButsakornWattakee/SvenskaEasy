@@ -2,40 +2,44 @@
 
 def get_custom_css(theme="Dark"):
     if theme == "Light":
-        bg_color = "#f8fafc"
-        text_color = "#0f172a"
-        muted_text = "#475569"
-        card_bg = "#ffffff"
-        sidebar_bg = "#f1f5f9"
+        bg_color = "#f4f6fa"           # Soft pastel grey-blue background
+        text_color = "#1e293b"         # Deep slate for high contrast readability
+        muted_text = "#475569"         # Muted slate grey
+        card_bg = "#ffffff"            # Pure white cards
+        sidebar_bg = "#e9ecef"         # Muted sidebar background
         form_bg = "#ffffff"
         border_color = "rgba(0, 0, 0, 0.08)"
         input_bg = "#ffffff"
-        tab_bg = "#f1f5f9"
-        chat_bg = "#f1f5f9"
-        success_bg = "rgba(40, 167, 69, 0.08)"
-        error_bg = "rgba(220, 53, 69, 0.08)"
-        success_border = "#28A745"
-        error_border = "#DC3545"
-        text_on_light_success = "#155724"
-        text_on_light_error = "#721c24"
+        tab_bg = "#e9ecef"
+        chat_bg = "#e9ecef"
+        success_bg = "rgba(16, 185, 129, 0.1)"  # Soft emerald green bg
+        error_bg = "rgba(239, 68, 68, 0.1)"     # Soft rose red bg
+        success_border = "#10b981"
+        error_border = "#ef4444"
+        text_on_light_success = "#065f46"
+        text_on_light_error = "#991b1b"
+        hover_bg = "#dbeafe"           # Very soft pastel blue
+        hover_text = "#004B87"          # Dark Swedish Blue
     else:
         # Default Dark Theme
-        bg_color = "#0b0f19"
-        text_color = "#f8fafc"
-        muted_text = "#cbd5e1"
-        card_bg = "#1b2234"
-        sidebar_bg = "#121826"
-        form_bg = "#121826"
+        bg_color = "#0f172a"           # Deep slate dark background
+        text_color = "#f1f5f9"         # Bright soft grey
+        muted_text = "#94a3b8"         # Muted lavender-grey
+        card_bg = "#1e293b"            # Slate blue-grey cards
+        sidebar_bg = "#0b0f19"         # Darker slate sidebar
+        form_bg = "#1e293b"
         border_color = "rgba(255, 255, 255, 0.08)"
-        input_bg = "#1b2234"
-        tab_bg = "#121826"
-        chat_bg = "#121826"
-        success_bg = "rgba(40, 167, 69, 0.15)"
-        error_bg = "rgba(220, 53, 69, 0.15)"
-        success_border = "#28A745"
-        error_border = "#DC3545"
-        text_on_light_success = "#f8fafc"
-        text_on_light_error = "#f8fafc"
+        input_bg = "#1e293b"
+        tab_bg = "#0b0f19"
+        chat_bg = "#1e293b"
+        success_bg = "rgba(52, 211, 153, 0.15)"
+        error_bg = "rgba(248, 113, 113, 0.15)"
+        success_border = "#34d399"
+        error_border = "#f87171"
+        text_on_light_success = "#34d399"
+        text_on_light_error = "#f87171"
+        hover_bg = "#334155"           # Muted slate blue
+        hover_text = "#facc15"          # Warm pastel Swedish Yellow
 
     return f"""
     <style>
@@ -58,9 +62,10 @@ def get_custom_css(theme="Dark"):
     }}
 
     /* General text overrides */
-    p, span, li, a, label {{
+    p, li, a, [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li {{
         color: {muted_text} !important;
     }}
+
 
     /* Headings */
     h1, h2, h3, h4, h5, h6 {{
@@ -208,8 +213,13 @@ def get_custom_css(theme="Dark"):
 
     /* Hover effect on dropdown menu items */
     li[role="option"]:hover, [data-baseweb="menu"] li:hover, [role="option"][aria-selected="true"] {{
-        background-color: {card_bg} !important;
-        color: #FFCD00 !important;
+        background-color: {hover_bg} !important;
+        color: {hover_text} !important;
+    }}
+
+    /* Ensure sub-options inherit the hover color */
+    li[role="option"]:hover *, [data-baseweb="menu"] li:hover *, [role="option"][aria-selected="true"] * {{
+        color: {hover_text} !important;
     }}
 
     /* Tabs Styling */
@@ -244,11 +254,16 @@ def get_custom_css(theme="Dark"):
     }}
 
     div.stButton > button:hover {{
-        background-color: #FFCD00 !important;
-        color: #004B87 !important;
-        border-color: #FFCD00 !important;
+        background-color: {hover_bg} !important;
+        color: {hover_text} !important;
+        border-color: {hover_bg} !important;
         transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(255, 205, 0, 0.2);
+        box-shadow: 0 4px 10px rgba(0, 75, 135, 0.15);
+    }}
+
+    /* Ensure inner button elements inherit colors correctly */
+    div.stButton > button * {{
+        color: inherit !important;
     }}
 
     /* Custom progress bar accent color */

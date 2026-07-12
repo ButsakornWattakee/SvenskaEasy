@@ -1111,5 +1111,561 @@ VOCABULARY = [
         "category": "คำคุณศัพท์",
         "example_swedish": "Det är för dyrt, jag har inte råd.",
         "example_thai": "มันแพงมากเกินไป ฉันจ่ายเงินซื้อไม่ไหวหรอก"
+    },
+    # --- Colors (สีสัน) ---
+    {
+        "swedish": "röd",
+        "pronunciation": "เริด",
+        "thai": "สีแดง",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Min bil är röd.",
+        "example_thai": "รถยนต์ของฉันมีสีแดง"
+    },
+    {
+        "swedish": "blå",
+        "pronunciation": "โบล",
+        "thai": "สีน้ำเงิน / สีฟ้า",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Himlen är blå idag.",
+        "example_thai": "วันนี้ท้องฟ้าเป็นสีน้ำเงิน"
+    },
+    {
+        "swedish": "grön",
+        "pronunciation": "เกริน",
+        "thai": "สีเขียว",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Gräset är grönt på sommaren.",
+        "example_thai": "หญ้ามีสีเขียวในฤดูร้อน"
+    },
+    {
+        "swedish": "gul",
+        "pronunciation": "กูล",
+        "thai": "สีเหลือง",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Solen är gul och varm.",
+        "example_thai": "ดวงอาทิตย์มีสีเหลืองและอบอุ่น"
+    },
+    {
+        "swedish": "svart",
+        "pronunciation": "สวาร์ต",
+        "thai": "สีดำ",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Han bär en svart jacka.",
+        "example_thai": "เขาสวมเสื้อแจ็คเก็ตสีดำ"
+    },
+    {
+        "swedish": "vit",
+        "pronunciation": "วีต",
+        "thai": "สีขาว",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Snön är helt vit.",
+        "example_thai": "หิมะมีสีขาวบริสุทธิ์"
+    },
+    {
+        "swedish": "rosa",
+        "pronunciation": "รู-ซา",
+        "thai": "สีชมพู",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Hon älskar rosa rosor.",
+        "example_thai": "เธอชอบดอกกุหลาบสีชมพูมาก"
+    },
+    {
+        "swedish": "grå",
+        "pronunciation": "โกร",
+        "thai": "สีเทา",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Det är ett grått moln på himlen.",
+        "example_thai": "มีเมฆสีเทาก้อนหนึ่งอยู่บนท้องฟ้า"
+    },
+    {
+        "swedish": "orange",
+        "pronunciation": "ออ-รังช์",
+        "thai": "สีส้ม",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Frukten är rund och orange.",
+        "example_thai": "ผลไม้ผลนี้มีลักษณะกลมและสีส้ม"
+    },
+    {
+        "swedish": "brun",
+        "pronunciation": "บรูน",
+        "thai": "สีน้ำตาล",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "สีสัน",
+        "example_swedish": "Vår hund är brun och vit.",
+        "example_thai": "สุนัขของพวกเรามีสีน้ำตาลและสีขาว"
+    },
+    # --- Numbers (ตัวเลข) ---
+    {
+        "swedish": "noll",
+        "pronunciation": "น็อล",
+        "thai": "ศูนย์ (0)",
+        "pos": "คำนาม",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Temperaturen är noll grader.",
+        "example_thai": "อุณหภูมิอยู่ที่ศูนย์องศา"
+    },
+    {
+        "swedish": "en",
+        "pronunciation": "เอน",
+        "thai": "หนึ่ง (1) - เพศทั่วไป (en-ord)",
+        "pos": "คำนำหน้านาม / ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Jag har en katt.",
+        "example_thai": "ฉันมีแมวหนึ่งตัว"
+    },
+    {
+        "swedish": "ett",
+        "pronunciation": "เอ็ด",
+        "thai": "หนึ่ง (1) - เพศกลาง (ett-ord)",
+        "pos": "คำนำหน้านาม / ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Vi bor i ett hus.",
+        "example_thai": "พวกเราอาศัยอยู่ในบ้านหนึ่งหลัง"
+    },
+    {
+        "swedish": "två",
+        "pronunciation": "ทโว",
+        "thai": "สอง (2)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Jag har två bröder.",
+        "example_thai": "ฉันมีพี่ชาย/น้องชายสองคน"
+    },
+    {
+        "swedish": "tre",
+        "pronunciation": "ทรี",
+        "thai": "สาม (3)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Det finns tre äpplen på bordet.",
+        "example_thai": "มีแอปเปิ้ลสามผลอยู่บนโต๊ะ"
+    },
+    {
+        "swedish": "fyra",
+        "pronunciation": "ฟือ-รา",
+        "thai": "สี่ (4)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Bilen har fyra hjul.",
+        "example_thai": "รถยนต์มีสี่ล้อ"
+    },
+    {
+        "swedish": "fem",
+        "pronunciation": "เฟ็ม",
+        "thai": "ห้า (5)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Klockan är fem på eftermiddagen.",
+        "example_thai": "เป็นเวลาห้าโมงเย็นแล้ว"
+    },
+    {
+        "swedish": "sex",
+        "pronunciation": "เซ็กส์",
+        "thai": "หก (6)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Han köpte sex flaskor vatten.",
+        "example_thai": "เขาซื้อน้ำดื่มหกขวด"
+    },
+    {
+        "swedish": "sju",
+        "pronunciation": "ชู",
+        "thai": "เจ็ด (7)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "En vecka har sju dagar.",
+        "example_thai": "หนึ่งสัปดาห์มีเจ็ดวัน"
+    },
+    {
+        "swedish": "åtta",
+        "pronunciation": "อ็อต-ตา",
+        "thai": "แปด (8)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Barnet är åtta år gammalt.",
+        "example_thai": "เด็กคนนี้อายุแปดขวบ"
+    },
+    {
+        "swedish": "nio",
+        "pronunciation": "นี-โอ",
+        "thai": "เก้า (9)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Butiken stänger klockan nio.",
+        "example_thai": "ร้านค้าปิดทำการตอนเก้าโมง"
+    },
+    {
+        "swedish": "tio",
+        "pronunciation": "ที-โอ",
+        "thai": "สิบ (10)",
+        "pos": "ตัวเลข",
+        "level": "ง่าย",
+        "category": "ตัวเลข",
+        "example_swedish": "Det var tio personer i rummet.",
+        "example_thai": "มีคนสิบคนอยู่ในห้องเรียน/ห้องประชุม"
+    },
+    # --- Days of the Week (วันในรอบสัปดาห์) ---
+    {
+        "swedish": "måndag",
+        "pronunciation": "มน-ดัก",
+        "thai": "วันจันทร์",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Jag börjar arbeta på måndag.",
+        "example_thai": "ฉันเริ่มทำงานในวันจันทร์"
+    },
+    {
+        "swedish": "tisdag",
+        "pronunciation": "ทิส-ดัก",
+        "thai": "วันอังคาร",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Vi har lektion på tisdag.",
+        "example_thai": "พวกเรามีเรียนในวันอังคาร"
+    },
+    {
+        "swedish": "onsdag",
+        "pronunciation": "อุนส์-ดัก",
+        "thai": "วันพุธ",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Onsdag är mitt i veckan.",
+        "example_thai": "วันพุธเป็นวันกลางสัปดาห์"
+    },
+    {
+        "swedish": "torsdag",
+        "pronunciation": "ทูร์ส-ดัก",
+        "thai": "วันพฤหัสบดี",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "På torsdag äter vi ärtsoppa.",
+        "example_thai": "ในวันพฤหัสบดีพวกเรากินซุปถั่วลันเตา"
+    },
+    {
+        "swedish": "fredag",
+        "pronunciation": "ฟรี-ดัก",
+        "thai": "วันศุกร์",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Äntligen fredag! Trevlig helg!",
+        "example_thai": "ในที่สุดก็ถึงวันศุกร์แล้ว! ขอให้มีความสุขในวันหยุดสุดสัปดาห์นะ!"
+    },
+    {
+        "swedish": "lördag",
+        "pronunciation": "เลอร์-ดัก",
+        "thai": "วันเสาร์",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Barn äter godis på lördagar.",
+        "example_thai": "เด็กๆ กินขนมหวาน/ลูกกวาดในวันเสาร์"
+    },
+    {
+        "swedish": "söndag",
+        "pronunciation": "เซิน-ดัก",
+        "thai": "วันอาทิตย์",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Söndag är en vilodag.",
+        "example_thai": "วันอาทิตย์เป็นวันแห่งการพักผ่อน"
+    },
+    # --- Common Daily Verbs (คำกริยาประจำวัน) ---
+    {
+        "swedish": "äta",
+        "pronunciation": "เอ-ตา",
+        "thai": "รับประทาน / กิน",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Jag gillar att äta köttbullar.",
+        "example_thai": "ฉันชอบทานลูกชิ้นเนื้อสวีเดน (Köttbullar)"
+    },
+    {
+        "swedish": "dricka",
+        "pronunciation": "ดริก-กา",
+        "thai": "ดื่ม",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Vill du dricka ett glas vatten?",
+        "example_thai": "คุณต้องการดื่มน้ำสักแก้วไหม?"
+    },
+    {
+        "swedish": "sova",
+        "pronunciation": "ซู-วา",
+        "thai": "นอนหลับ",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Barnet måste sova åtta timmar.",
+        "example_thai": "เด็กจำเป็นต้องนอนหลับแปดชั่วโมง"
+    },
+    {
+        "swedish": "tala",
+        "pronunciation": "ทา-ลา",
+        "thai": "พูด / สนทนา",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Jag talar lite svenska.",
+        "example_thai": "ฉันพูดภาษาสวีเดนได้นิดหน่อยครับ/ค่ะ"
+    },
+    {
+        "swedish": "förstå",
+        "pronunciation": "เฟอร์-สโต",
+        "thai": "เข้าใจ",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Jag förstår inte vad du säger.",
+        "example_thai": "ฉันไม่เข้าใจสิ่งที่คุณพูดเลยครับ/ค่ะ"
+    },
+    {
+        "swedish": "lära",
+        "pronunciation": "แล-รา",
+        "thai": "เรียนรู้ / สอน",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Jag vill lära mig svenska språket.",
+        "example_thai": "ฉันต้องการเรียนรู้ภาษาสวีเดนด้วยตนเอง"
+    },
+    {
+        "swedish": "springa",
+        "pronunciation": "สปริง-งา",
+        "thai": "วิ่ง",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Jag brukar springa i parken på morgonen.",
+        "example_thai": "ฉันมักจะไปวิ่งในสวนสาธารณะในตอนเช้า"
+    },
+    {
+        "swedish": "gå",
+        "pronunciation": "โก",
+        "thai": "เดิน / ไป",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Ska vi gå till biblioteket nu?",
+        "example_thai": "พวกเราไปห้องสมุดกันตอนนี้เลยไหม?"
+    },
+    {
+        "swedish": "skriva",
+        "pronunciation": "สครี-วา",
+        "thai": "เขียน",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Kan du skriva ner ditt telefonnummer?",
+        "example_thai": "คุณช่วยเขียนหมายเลขโทรศัพท์ของคุณลงตรงนี้หน่อยได้ไหม?"
+    },
+    {
+        "swedish": "läsa",
+        "pronunciation": "แล-ซา",
+        "thai": "อ่าน / เรียนหนังสือ",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Jag gillar att läsa böcker på kvällen.",
+        "example_thai": "ฉันชอบอ่านหนังสือในตอนเย็น"
+    },
+    {
+        "swedish": "köpa",
+        "pronunciation": "เชอ-ปา",
+        "thai": "ซื้อ",
+        "pos": "คำกริยา (Verb)",
+        "level": "ง่าย",
+        "category": "คำกริยาทั่วไป",
+        "example_swedish": "Jag ska köpa mat i affären.",
+        "example_thai": "ฉันจะไปซื้ออาหารที่ร้านขายของชำ"
+    },
+    # --- Feelings & Adjectives (ความรู้สึกและคำคุณศัพท์) ---
+    {
+        "swedish": "glad",
+        "pronunciation": "กลัด",
+        "thai": "ดีใจ / มีความสุข",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Jag är glad att se dig!",
+        "example_thai": "ฉันดีใจมากที่ได้พบคุณนะ!"
+    },
+    {
+        "swedish": "ledsen",
+        "pronunciation": "เล็ด-เซน",
+        "thai": "เสียใจ / เศร้าใจ",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Varför är du så ledsen idag?",
+        "example_thai": "ทำไมวันนี้คุณดูเศร้า/เสียใจจัง?"
+    },
+    {
+        "swedish": "trött",
+        "pronunciation": "เตริด",
+        "thai": "เหนื่อย / ง่วงนอน",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Efter jobbet är jag alltid trött.",
+        "example_thai": "หลังจากเลิกงานแล้ว ฉันเหนื่อยมากทุกทีเลย"
+    },
+    {
+        "swedish": "arg",
+        "pronunciation": "อาร์ย",
+        "thai": "โกรธ / โมโห",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Bli inte arg på mig, är du snäll.",
+        "example_thai": "ได้โปรดอย่าโกรธฉันเลยนะ"
+    },
+    {
+        "swedish": "varm",
+        "pronunciation": "วาร์ม",
+        "thai": "อบอุ่น / ร้อน",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Solen är varm på sommaren.",
+        "example_thai": "แสงแดดให้ความรู้สึกร้อนอบอุ่นในฤดูร้อน"
+    },
+    {
+        "swedish": "kall",
+        "pronunciation": "คัล",
+        "thai": "หนาว / เย็น",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Vattnet i sjön är väldigt kallt.",
+        "example_thai": "น้ำในทะเลสาบหนาวเย็นมากจริงๆ"
+    },
+    {
+        "swedish": "stor",
+        "pronunciation": "สตูร์",
+        "thai": "ใหญ่ / โต",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Huset är mycket stort.",
+        "example_thai": "บ้านหลังนี้ใหญ่โตมาก"
+    },
+    {
+        "swedish": "liten",
+        "pronunciation": "ลี-เตน",
+        "thai": "เล็ก / น้อย",
+        "pos": "คำคุณศัพท์",
+        "level": "ง่าย",
+        "category": "ความรู้สึกและลักษณะ",
+        "example_swedish": "Katten är söt och liten.",
+        "example_thai": "แมวตัวนี้ช่างเล็กและน่ารัก"
+    },
+    # --- Time & Seasons (เวลาและฤดูกาล) ---
+    {
+        "swedish": "dag",
+        "pronunciation": "ดัก",
+        "thai": "วัน / กลางวัน",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Ha en bra dag!",
+        "example_thai": "ขอให้เป็นวันที่ดีนะ!"
+    },
+    {
+        "swedish": "natt",
+        "pronunciation": "นัต",
+        "thai": "กลางคืน / คืน",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "God natt och sov gott!",
+        "example_thai": "ราตรีสวัสดิ์และนอนหลับฝันดีนะ!"
+    },
+    {
+        "swedish": "år",
+        "pronunciation": "โอร",
+        "thai": "ปี",
+        "pos": "คำนาม (ett-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Gott nytt år!",
+        "example_thai": "สวัสดีปีใหม่!"
+    },
+    {
+        "swedish": "sommar",
+        "pronunciation": "ซอม-มาร์",
+        "thai": "ฤดูร้อน",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Jag älskar den svenska sommaren.",
+        "example_thai": "ฉันรักฤดูร้อนของประเทศสวีเดนมาก"
+    },
+    {
+        "swedish": "vinter",
+        "pronunciation": "วิน-เทอร์",
+        "thai": "ฤดูหนาว",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Det är mycket snö på vintern.",
+        "example_thai": "มีหิมะตกเยอะมากในช่วงฤดูหนาว"
+    },
+    {
+        "swedish": "vår",
+        "pronunciation": "โวร",
+        "thai": "ฤดูใบไม้ผลิ",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Blommorna kommer på våren.",
+        "example_thai": "ดอกไม้ต่างๆ เริ่มผลิบานในฤดูใบไม้ผลิ"
+    },
+    {
+        "swedish": "höst",
+        "pronunciation": "เฮิสต์",
+        "thai": "ฤดูใบไม้ร่วง",
+        "pos": "คำนาม (en-ord)",
+        "level": "ง่าย",
+        "category": "วันและเวลา",
+        "example_swedish": "Bladen faller på hösten.",
+        "example_thai": "ใบไม้เริ่มร่วงหล่นลงมาในฤดูใบไม้ร่วง"
     }
 ]
