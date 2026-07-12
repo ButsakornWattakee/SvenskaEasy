@@ -16,5 +16,5 @@
 
 2. รันโปรแกรมด้วย Streamlit:
    ```bash
-   streamlit run app.py
+   py -m streamlit run app.py
    ```
