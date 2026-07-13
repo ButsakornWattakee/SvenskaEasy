@@ -22,12 +22,12 @@ import vocabulary_data
 import db_helper
 from streamlit_cookies_controller import CookieController
 
-# Force reload local modules on each rerun to ensure edits are applied immediately
-importlib.reload(lessons_data)
-importlib.reload(css_styles)
-importlib.reload(chat_agent)
-importlib.reload(vocabulary_data)
-importlib.reload(db_helper)
+# Force reload local modules on each rerun to ensure edits are applied immediately (Commented in production for fast loading)
+# importlib.reload(lessons_data)
+# importlib.reload(css_styles)
+# importlib.reload(chat_agent)
+# importlib.reload(vocabulary_data)
+# importlib.reload(db_helper)
 
 # Initialize database
 db_helper.init_db()

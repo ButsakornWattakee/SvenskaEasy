@@ -11,22 +11,36 @@ FALLBACK_FILE = "users_fallback.json"
 DELETED_COLLECTION_NAME = "deleted_users"
 DELETED_FALLBACK_FILE = "deleted_users_fallback.json"
 
-def is_mongodb_online():
-    try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1000)
-        client.admin.command('ping')
-        client.close()
-        return True
-    except Exception:
-        return False
+_cached_client = None
 
 def get_db_client():
+    global _cached_client
+    if _cached_client is not None:
+        try:
+            _cached_client.admin.command('ping')
+            return _cached_client, None
+        except Exception:
+            _cached_client = None
+            
     try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1500)
+        class SharedMongoClient(MongoClient):
+            def close(self):
+                # No-op to preserve connection pooling across Streamlit reruns
+                pass
+                
+        client = SharedMongoClient(MONGO_URI, serverSelectionTimeoutMS=1500)
         client.admin.command('ping')
+        _cached_client = client
         return client, None
     except Exception as e:
         return None, str(e)
+
+def is_mongodb_online():
+    try:
+        client, err = get_db_client()
+        return client is not None
+    except Exception:
+        return False
 
 # --- FALLBACK JSON DB METHODS ---
 def load_fallback_deleted_users():
