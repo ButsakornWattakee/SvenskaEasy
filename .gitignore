@@ -143,3 +143,8 @@ config/*.key
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Project-specific ignores
+extracted_*_avatar.png
+users_fallback.json
+

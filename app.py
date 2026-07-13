@@ -20,6 +20,7 @@ import css_styles
 import chat_agent
 import vocabulary_data
 import db_helper
+from streamlit_cookies_controller import CookieController
 
 # Force reload local modules on each rerun to ensure edits are applied immediately
 importlib.reload(lessons_data)
@@ -30,6 +31,10 @@ importlib.reload(db_helper)
 
 # Initialize database
 db_helper.init_db()
+
+# Initialize Cookie Controller
+cookie_controller = CookieController()
+
 
 def get_all_vocabulary():
     # Start with our curated vocabulary list
@@ -116,6 +121,29 @@ if "api_key" not in st.session_state:
 if "active_lesson_id" not in st.session_state:
     st.session_state.active_lesson_id = 1
 
+# Check for auto-login cookie
+if not st.session_state.logged_in:
+    cookie_user = None
+    try:
+        # st.context.cookies is synchronous and available instantly on page reload/refresh
+        cookie_user = st.context.cookies.get("logged_in_username")
+    except Exception:
+        pass
+        
+    if not cookie_user:
+        try:
+            cookie_user = cookie_controller.get("logged_in_username")
+        except Exception:
+            pass
+            
+    if cookie_user:
+        user_data = db_helper.get_user(cookie_user)
+        if user_data:
+            st.session_state.logged_in = True
+            st.session_state.current_user = cookie_user
+            st.session_state.completed_lessons = set(user_data.get("completed_lessons", []))
+            st.session_state.quiz_scores = {str(k): v for k, v in user_data.get("quiz_scores", {}).items()}
+
 # Inject Custom CSS
 st.markdown(css_styles.get_custom_css(), unsafe_allow_html=True)
 
@@ -158,11 +186,18 @@ if not st.session_state.logged_in:
                         else:
                             user_data = db_helper.get_user(username_clean)
                             if user_data and user_data.get("password") == password:
+                                # Save login state in cookie
+                                cookie_controller.set("logged_in_username", username_clean)
+                                
                                 st.session_state.logged_in = True
                                 st.session_state.current_user = username_clean
                                 st.session_state.completed_lessons = set(user_data.get("completed_lessons", []))
                                 st.session_state.quiz_scores = {str(k): v for k, v in user_data.get("quiz_scores", {}).items()}
                                 st.success("เข้าสู่ระบบสำเร็จ!")
+                                
+                                # A small delay to ensure the browser saves the cookie before Python triggers the rerun
+                                import time
+                                time.sleep(0.3)
                                 st.rerun()
                             else:
                                 st.error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
@@ -203,8 +238,11 @@ if not st.session_state.logged_in:
     st.stop()
 
 
-# Define navigation links
-PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "ตั้งค่าระบบ"]
+# Define navigation links based on user role
+if st.session_state.current_user == "admin":
+    PAGES = ["แดชบอร์ดผู้ดูแลระบบ", "ตั้งค่าระบบ"]
+else:
+    PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "โปรไฟล์ส่วนตัว"]
 
 # Sidebar Navigation
 with st.sidebar:
@@ -258,14 +296,85 @@ with st.sidebar:
     
     st.markdown("---")
     if st.button("ออกจากระบบ (Logout)", key="logout_btn", use_container_width=True):
+        # Remove login state cookie (with safety workaround for library key errors)
+        try:
+            cookie_controller.set("logged_in_username", "")
+            cookie_controller.remove("logged_in_username")
+        except Exception:
+            pass
+        
         st.session_state.logged_in = False
         st.session_state.current_user = ""
         st.session_state.completed_lessons = set()
         st.session_state.quiz_scores = {}
+        
+        # A small delay to ensure browser removes the cookie before rerun
+        import time
+        time.sleep(0.3)
         st.rerun()
 
+# ----------------- 0. ADMIN DASHBOARD PAGE -----------------
+if st.session_state.current_page == "แดชบอร์ดผู้ดูแลระบบ":
+    st.markdown("# 👑 แดชบอร์ดผู้ดูแลระบบ (Admin Dashboard)")
+    st.markdown("ระบบจัดการผู้ใช้และติดตามความคืบหน้าของบทเรียนและคะแนนควิซทั้งหมดในระบบ")
+    
+    # Get all users
+    users_list = db_helper.get_all_users()
+    
+    # Render Metrics
+    total_users = len(users_list)
+    total_completed = sum(len(u.get("completed_lessons", [])) for u in users_list)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(
+            f"""
+            <div class="dashboard-card">
+                <span class="sweden-badge">จำนวนสมาชิก</span>
+                <h2 style='margin:10px 0;'>{total_users} คน</h2>
+                <p style='margin:0; opacity: 0.8;'>ผู้ใช้ที่ลงทะเบียนในระบบทั้งหมด</p>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+    with col2:
+        st.markdown(
+            f"""
+            <div class="dashboard-card">
+                <span class="sweden-badge" style="background-color: #FFCD00; color: #004B87;">บทเรียนที่เรียนจบ</span>
+                <h2 style='margin:10px 0;'>{total_completed} ครั้ง</h2>
+                <p style='margin:0; opacity: 0.8;'>จำนวนบทเรียนรวมที่สมาชิกกดเรียนเสร็จสิ้น</p>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+    st.markdown("### 📋 รายชื่อผู้เรียนในระบบ")
+    
+    # Convert users list to a pandas DataFrame for displaying beautifully
+    if users_list:
+        table_data = []
+        for u in users_list:
+            # Calculate average score
+            scores = u.get("quiz_scores", {})
+            avg_score = int(sum(scores.values()) / len(scores)) if scores else 0
+            
+            table_data.append({
+                "ชื่อผู้ใช้ (Username)": u["username"],
+                "อีเมล (Email)": u["email"],
+                "เบอร์โทรศัพท์ (Phone)": u.get("phone", "ไม่ได้ระบุ"),
+                "เรียนจบแล้ว (Completed Lessons)": f"{len(u.get('completed_lessons', []))} บทเรียน",
+                "คะแนนควิซเฉลี่ย (Avg Quiz Score)": f"{avg_score}%"
+            })
+            
+        import pandas as pd
+        df = pd.DataFrame(table_data)
+        st.dataframe(df, use_container_width=True)
+    else:
+        st.info("ยังไม่มีผู้ใช้งานคนอื่นสมัครสมาชิกในระบบ")
+
 # ----------------- 1. DASHBOARD PAGE -----------------
-if st.session_state.current_page == "Dashboard":
+elif st.session_state.current_page == "Dashboard":
     st.markdown("# แดชบอร์ดผู้เรียน (Välkommen!)")
     st.markdown("ยินดีต้อนรับสู่ห้องเรียนภาษาสวีเดนแบบโต้ตอบ ที่นี่คุณจะได้เรียนรู้ทักษะที่จำเป็นและมีครู AI คอยให้ความช่วยเหลือตลอดเวลา")
     
@@ -935,3 +1044,59 @@ elif st.session_state.current_page == "ตั้งค่าระบบ":
         4. คัดลอกรหัสคีย์ (มักขึ้นต้นด้วย `AIzaSy`) นำมาใส่ช่องกรอกด้านบนและกดบันทึก
         """
     )
+
+# ----------------- 6. USER PROFILE PAGE -----------------
+elif st.session_state.current_page == "โปรไฟล์ส่วนตัว":
+    st.markdown("# 👤 โปรไฟล์ผู้ใช้งาน (User Profile)")
+    st.markdown("จัดการข้อมูลส่วนตัว อัปโหลดรูปภาพโปรไฟล์ และเบอร์โทรศัพท์ของคุณ")
+    
+    # Load fresh user data
+    user_data = db_helper.get_user(st.session_state.current_user)
+    
+    if user_data:
+        col_avatar, col_fields = st.columns([1, 2])
+        
+        with col_avatar:
+            st.markdown("### รูปโปรไฟล์ปัจจุบัน")
+            avatar_bytes = user_data.get("avatar")
+            if avatar_bytes:
+                st.image(avatar_bytes, width=200, output_format="PNG")
+            else:
+                # Fallback default user placeholder image
+                st.image("https://www.w3schools.com/howto/img_avatar.png", width=200)
+                
+            uploaded_file = st.file_uploader(
+                "อัปโหลดรูปภาพใหม่ (PNG, JPG, JPEG):", 
+                type=["png", "jpg", "jpeg"], 
+                key="avatar_uploader"
+            )
+            
+        with col_fields:
+            st.markdown("### ข้อมูลส่วนตัว")
+            
+            with st.form("profile_form"):
+                st.text_input("ชื่อผู้ใช้ (Username) - เปลี่ยนแปลงไม่ได้", value=user_data["username"], disabled=True)
+                st.text_input("อีเมล (Email) - เปลี่ยนแปลงไม่ได้", value=user_data["email"], disabled=True)
+                
+                phone_value = user_data.get("phone", "")
+                phone_input = st.text_input("เบอร์โทรศัพท์ (Phone Number)", value=phone_value, placeholder="เช่น 0891234567")
+                
+                save_submit = st.form_submit_button("บันทึกข้อมูลส่วนตัว (Save Profile)", use_container_width=True)
+                
+                if save_submit:
+                    new_avatar_bytes = None
+                    if uploaded_file is not None:
+                        new_avatar_bytes = uploaded_file.read()
+                    else:
+                        # Retain existing avatar if no new file uploaded
+                        new_avatar_bytes = avatar_bytes
+                        
+                    # Update profile in DB
+                    success = db_helper.update_user_profile(st.session_state.current_user, phone_input, new_avatar_bytes)
+                    if success:
+                        st.success("บันทึกข้อมูลส่วนตัวและรูปโปรไฟล์สำเร็จ!")
+                        st.rerun()
+                    else:
+                        st.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลส่วนตัว")
+    else:
+        st.error("ไม่พบข้อมูลผู้ใช้งานนี้ในระบบ")

@@ -96,7 +96,14 @@ def get_user(username):
     if client is None:
         # Fallback to JSON database
         users = load_fallback_users()
-        return users.get(username.strip())
+        user = users.get(username.strip())
+        if user and "avatar" in user and user["avatar"]:
+            import base64
+            try:
+                user["avatar"] = base64.b64decode(user["avatar"])
+            except Exception:
+                pass
+        return user
         
     try:
         db = client[DB_NAME]
@@ -215,3 +222,69 @@ def update_user_quiz_scores(username, quiz_scores):
         return False
     finally:
         client.close()
+
+def get_all_users():
+    client, err = get_db_client()
+    if client is None:
+        # Fallback to JSON database
+        users = load_fallback_users()
+        # Decode base64 avatar for all users
+        users_list = []
+        import base64
+        for u in users.values():
+            u_copy = dict(u)
+            if u_copy.get("avatar"):
+                try:
+                    u_copy["avatar"] = base64.b64decode(u_copy["avatar"])
+                except Exception:
+                    pass
+            users_list.append(u_copy)
+        return users_list
+        
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
+        users_list = list(users_col.find({}))
+        return users_list
+    except Exception as e:
+        print(f"❌ Error getting all users from MongoDB: {str(e)}", file=sys.stderr)
+        return []
+    finally:
+        client.close()
+
+def update_user_profile(username, phone, avatar_bytes):
+    client, err = get_db_client()
+    
+    if client is None:
+        # Fallback to JSON database
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean in users:
+            users[username_clean]["phone"] = phone
+            if avatar_bytes:
+                import base64
+                users[username_clean]["avatar"] = base64.b64encode(avatar_bytes).decode('utf-8')
+            else:
+                users[username_clean]["avatar"] = None
+            return save_fallback_users(users)
+        return False
+        
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
+        
+        update_data = {"phone": phone}
+        if avatar_bytes:
+            update_data["avatar"] = avatar_bytes
+            
+        users_col.update_one(
+            {"username": username.strip()},
+            {"$set": update_data}
+        )
+        return True
+    except Exception as e:
+        print(f"❌ Error updating profile for {username} in MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
