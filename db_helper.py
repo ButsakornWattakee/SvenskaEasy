@@ -4,7 +4,22 @@ import os
 import json
 import sys
 
-MONGO_URI = "mongodb://localhost:27017/"
+def get_mongo_uri():
+    try:
+        import streamlit as st
+        if "MONGO_URI" in st.secrets:
+            return st.secrets["MONGO_URI"]
+    except Exception:
+        pass
+        
+    env_uri = os.environ.get("MONGO_URI")
+    # If the system has a generic localhost environment variable set, bypass it to use our Cloud Database
+    if env_uri and "localhost" not in env_uri and "127.0.0.1" not in env_uri:
+        return env_uri
+        
+    return "mongodb+srv://admin_easy:mypassword123@cluster0.e7pd0y4.mongodb.net/svenska_easy?retryWrites=true&w=majority"
+
+MONGO_URI = get_mongo_uri()
 DB_NAME = "svenska_easy"
 COLLECTION_NAME = "users"
 FALLBACK_FILE = "users_fallback.json"
@@ -12,8 +27,37 @@ DELETED_COLLECTION_NAME = "deleted_users"
 DELETED_FALLBACK_FILE = "deleted_users_fallback.json"
 
 _cached_client = None
+_mongodb_online_status = None
+_mongodb_last_checked = 0
+CHECK_INTERVAL_SECONDS = 30  # Re-ping MongoDB connectivity every 30 seconds
+
+def is_mongodb_online_cached():
+    global _mongodb_online_status, _mongodb_last_checked
+    import time
+    now = time.time()
+    
+    if _mongodb_online_status is not None and (now - _mongodb_last_checked) < CHECK_INTERVAL_SECONDS:
+        return _mongodb_online_status
+        
+    status = False
+    try:
+        # Increased timeout to 5000ms to allow DNS SRV lookup and secure TCP connection for MongoDB Atlas
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+        client.admin.command('ping')
+        client.close()
+        status = True
+    except Exception as e:
+        print(f"⚠️ MongoDB Connection Check Failed: {e}", file=sys.stderr)
+        status = False
+        
+    _mongodb_online_status = status
+    _mongodb_last_checked = now
+    return status
 
 def get_db_client():
+    if not is_mongodb_online_cached():
+        return None, "MongoDB offline (cached)"
+        
     global _cached_client
     if _cached_client is not None:
         try:
@@ -28,19 +72,16 @@ def get_db_client():
                 # No-op to preserve connection pooling across Streamlit reruns
                 pass
                 
-        client = SharedMongoClient(MONGO_URI, serverSelectionTimeoutMS=1500)
+        client = SharedMongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
         client.admin.command('ping')
         _cached_client = client
         return client, None
     except Exception as e:
+        print(f"⚠️ SharedMongoClient Connection Failed: {e}", file=sys.stderr)
         return None, str(e)
 
 def is_mongodb_online():
-    try:
-        client, err = get_db_client()
-        return client is not None
-    except Exception:
-        return False
+    return is_mongodb_online_cached()
 
 # --- FALLBACK JSON DB METHODS ---
 def load_fallback_deleted_users():
