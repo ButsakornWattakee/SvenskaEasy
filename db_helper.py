@@ -288,3 +288,27 @@ def update_user_profile(username, phone, avatar_bytes):
     finally:
         client.close()
 
+def delete_user(username):
+    client, err = get_db_client()
+    
+    if client is None:
+        # Fallback to JSON database
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean in users:
+            del users[username_clean]
+            return save_fallback_users(users)
+        return False
+        
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
+        result = users_col.delete_one({"username": username.strip()})
+        return result.deleted_count > 0
+    except Exception as e:
+        print(f"❌ Error deleting user {username} from MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
+
