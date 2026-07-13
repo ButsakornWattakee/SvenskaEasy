@@ -114,34 +114,80 @@ st.markdown(css_styles.get_custom_css(), unsafe_allow_html=True)
 
 # Login flow
 if not st.session_state.logged_in:
+    if "registered_users" not in st.session_state:
+        st.session_state.registered_users = {"admin": "admin"}
+        
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
+        # Elegant Header Card with Swedish theme
         st.markdown(
             """
-            <div style='text-align: center; margin-top: 50px; margin-bottom: 20px;'>
-                <h1 style='font-size: 3rem; margin-bottom: 0;'>SvenskaEasy</h1>
-                <p style='font-size: 1.2rem; opacity: 0.8;'>เว็บไซต์การเรียนภาษาสวีเดนง่ายๆ</p>
+            <div style="background: linear-gradient(135deg, #004B87 0%, #002B5C 100%); 
+                        color: white; 
+                        padding: 35px 25px; 
+                        border-radius: 16px 16px 0 0; 
+                        text-align: center; 
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+                        border-bottom: 5px solid #FFCD00;">
+                <h1 style="margin: 0; font-size: 2.8rem; font-weight: 800; color: #ffffff; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">🇸🇪 SvenskaEasy</h1>
+                <p style="margin: 8px 0 0 0; font-size: 1.25rem; color: #e2e8f0; opacity: 0.9;">เว็บไซต์การเรียนภาษาสวีเดนง่ายๆ</p>
             </div>
             """, 
             unsafe_allow_html=True
         )
         
-        with st.form("login_form"):
-            st.markdown("<h3 style='text-align: center; margin-bottom: 10px;'>เข้าสู่ระบบ / Login</h3>", unsafe_allow_html=True)
-            username = st.text_input("ชื่อผู้ใช้ (Username)", placeholder="admin")
-            password = st.text_input("รหัสผ่าน (Password)", type="password", placeholder="admin")
-            submit = st.form_submit_button("เข้าสู่ระบบ (Sign In)", use_container_width=True)
+        # Form Container
+        with st.container(border=True):
+            tab_login, tab_register = st.tabs(["🔐 เข้าสู่ระบบ (Login)", "📝 สมัครสมาชิก (Sign Up)"])
             
-            if submit:
-                if username == "admin" and password == "admin":
-                    st.session_state.logged_in = True
-                    st.success("เข้าสู่ระบบสำเร็จ!")
-                    st.rerun()
-                else:
-                    st.error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+            with tab_login:
+                with st.form("login_form"):
+                    st.markdown("<h4 style='margin-bottom: 10px; font-weight: 500;'>เข้าสู่ระบบผู้เรียน</h4>", unsafe_allow_html=True)
+                    username = st.text_input("ชื่อผู้ใช้ (Username)", placeholder="กรอกชื่อผู้ใช้ เช่น admin", key="login_username")
+                    password = st.text_input("รหัสผ่าน (Password)", type="password", placeholder="กรอกรหัสผ่าน", key="login_password")
+                    submit = st.form_submit_button("เข้าสู่ระบบ (Sign In)", use_container_width=True)
                     
-        st.markdown("<div style='text-align: center; margin-top: 30px; opacity: 0.6;'>พัฒนาขึ้นเพื่อช่วยให้คนไทยเข้าใจภาษาชวีเดนได้ง่ายขึ้น</div>", unsafe_allow_html=True)
+                    if submit:
+                        username_clean = username.strip()
+                        if not username_clean:
+                            st.error("กรุณาระบุชื่อผู้ใช้")
+                        elif username_clean in st.session_state.registered_users and st.session_state.registered_users[username_clean] == password:
+                            st.session_state.logged_in = True
+                            st.success("เข้าสู่ระบบสำเร็จ!")
+                            st.rerun()
+                        else:
+                            st.error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+                            
+            with tab_register:
+                with st.form("register_form"):
+                    st.markdown("<h4 style='margin-bottom: 10px; font-weight: 500;'>สร้างบัญชีผู้เรียนใหม่</h4>", unsafe_allow_html=True)
+                    reg_username = st.text_input("ชื่อผู้ใช้ใหม่ (New Username)", placeholder="ตัวอักษรภาษาอังกฤษหรือตัวเลข", key="reg_username")
+                    reg_password = st.text_input("รหัสผ่าน (Password)", type="password", placeholder="รหัสผ่านอย่างน้อย 4 ตัวอักษร", key="reg_password")
+                    reg_password_confirm = st.text_input("ยืนยันรหัสผ่าน (Confirm Password)", type="password", placeholder="กรอกรหัสผ่านอีกครั้ง", key="reg_password_confirm")
+                    submit_reg = st.form_submit_button("สมัครสมาชิก (Sign Up)", use_container_width=True)
+                    
+                    if submit_reg:
+                        new_user = reg_username.strip()
+                        new_pass = reg_password
+                        new_pass_confirm = reg_password_confirm
+                        
+                        if not new_user:
+                            st.error("กรุณาระบุชื่อผู้ใช้")
+                        elif len(new_user) < 3:
+                            st.error("ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร")
+                        elif len(new_pass) < 4:
+                            st.error("รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร")
+                        elif new_pass != new_pass_confirm:
+                            st.error("รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน")
+                        elif new_user in st.session_state.registered_users:
+                            st.error(f"ชื่อผู้ใช้ '{new_user}' มีอยู่ในระบบแล้ว กรุณาใช้ชื่ออื่น")
+                        else:
+                            st.session_state.registered_users[new_user] = new_pass
+                            st.success("สมัครสมาชิกสำเร็จ! กรุณาสลับไปที่แท็บ 'เข้าสู่ระบบ' เพื่อลงชื่อเข้าใช้งาน")
+                            
+        st.markdown("<div style='text-align: center; margin-top: 20px; opacity: 0.6; font-size: 0.9rem;'>พัฒนาขึ้นเพื่อช่วยให้คนไทยเข้าใจภาษาสวีเดนได้ง่ายขึ้น</div>", unsafe_allow_html=True)
     st.stop()
+
 
 # Define navigation links
 PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "ตั้งค่าระบบ"]
