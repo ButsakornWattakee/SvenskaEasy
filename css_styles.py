@@ -28,17 +28,7 @@ def get_custom_css(theme=None):
 
     /* Global Background and Colors */
     html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], [data-testid="stHeader"], .main, .stApp {{
-        background-color: {bg_color} !important;
-        background-image: none !important;
-        background: {bg_color} !important;
-        color: {text_color} !important;
         font-family: 'Kanit', 'Outfit', sans-serif;
-    }}
-
-    /* Block Container background */
-    [data-testid="stBlockContainer"], .block-container {{
-        background-color: {bg_color} !important;
-        color: {text_color} !important;
     }}
 
     /* General text overrides */
@@ -56,8 +46,6 @@ def get_custom_css(theme=None):
 
     /* Force Sidebar Background and Text */
     [data-testid="stSidebar"], [data-testid="stSidebar"] > div, [data-testid="stSidebarNav"] {{
-        background-color: {sidebar_bg} !important;
-        background: {sidebar_bg} !important;
         border-right: 1px solid {border_color} !important;
     }}
 
