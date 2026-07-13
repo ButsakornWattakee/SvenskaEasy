@@ -1,4 +1,4 @@
-# Learn Swedish App (learnswedish)
+# SvenskaEasy - เว็บไซต์การเรียนภาษาสวีเดนง่ายๆ (learnswedish)
 
 แอพพลิเคชันสำหรับเรียนภาษาชวีเดนด้วยตนเองสำหรับคนไทย พัฒนาด้วย Python และ Streamlit
 
