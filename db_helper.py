@@ -1,40 +1,82 @@
 # -*- coding: utf-8 -*-
 from pymongo import MongoClient
+import os
+import json
 import sys
 
 MONGO_URI = "mongodb://localhost:27017/"
 DB_NAME = "svenska_easy"
 COLLECTION_NAME = "users"
+FALLBACK_FILE = "users_fallback.json"
+
+def is_mongodb_online():
+    try:
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1000)
+        client.admin.command('ping')
+        client.close()
+        return True
+    except Exception:
+        return False
 
 def get_db_client():
     try:
-        # Set a short server selection timeout so it fails quickly if MongoDB is not running
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=2000)
-        # Test connection by pinging
+        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=1500)
         client.admin.command('ping')
-        return client
+        return client, None
     except Exception as e:
-        print(f"❌ Failed to connect to MongoDB at {MONGO_URI}: {str(e)}", file=sys.stderr)
-        return None
+        return None, str(e)
 
-def init_db():
-    client = get_db_client()
-    if client is None:
-        return False
-    
-    db = client[DB_NAME]
-    users_col = db[COLLECTION_NAME]
-    
-    # Ensure unique index on username
+# --- FALLBACK JSON DB METHODS ---
+def load_fallback_users():
+    if not os.path.exists(FALLBACK_FILE):
+        default_users = {
+            "admin": {
+                "username": "admin",
+                "email": "admin@svenskaeasy.com",
+                "password": "admin",
+                "completed_lessons": [],
+                "quiz_scores": {}
+            }
+        }
+        save_fallback_users(default_users)
+        return default_users
     try:
-        users_col.create_index("username", unique=True)
+        with open(FALLBACK_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
     except Exception:
-        pass
+        return {}
+
+def save_fallback_users(users_dict):
+    try:
+        with open(FALLBACK_FILE, 'w', encoding='utf-8') as f:
+            json.dump(users_dict, f, ensure_ascii=False, indent=4)
+        return True
+    except Exception as e:
+        print(f"❌ Error saving fallback users: {str(e)}", file=sys.stderr)
+        return False
+
+# --- MAIN DATABASE INTERFACES ---
+def init_db():
+    client, err = get_db_client()
+    if client is None:
+        # Initialize JSON fallback database
+        load_fallback_users()
+        print("⚠️ MongoDB offline. Initialized local JSON fallback.")
+        return True
+    
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
         
-    # Seed default admin user if not present
-    admin_user = users_col.find_one({"username": "admin"})
-    if not admin_user:
+        # Ensure unique index on username
         try:
+            users_col.create_index("username", unique=True)
+        except Exception:
+            pass
+            
+        # Seed default admin user if not present
+        admin_user = users_col.find_one({"username": "admin"})
+        if not admin_user:
             users_col.insert_one({
                 "username": "admin",
                 "email": "admin@svenskaeasy.com",
@@ -42,37 +84,65 @@ def init_db():
                 "completed_lessons": [],
                 "quiz_scores": {}
             })
-            print("🌱 Default admin user seeded successfully.")
-        except Exception as e:
-            print(f"❌ Error seeding admin user: {str(e)}", file=sys.stderr)
-            
-    client.close()
+            print("🌱 Default admin user seeded in MongoDB.")
+    except Exception as e:
+        print(f"❌ Error during MongoDB initialization: {str(e)}", file=sys.stderr)
+    finally:
+        client.close()
     return True
 
 def get_user(username):
-    client = get_db_client()
+    client, err = get_db_client()
     if client is None:
-        return None
+        # Fallback to JSON database
+        users = load_fallback_users()
+        return users.get(username.strip())
+        
     try:
         db = client[DB_NAME]
         users_col = db[COLLECTION_NAME]
         user = users_col.find_one({"username": username.strip()})
         return user
     except Exception as e:
-        print(f"❌ Error getting user {username}: {str(e)}", file=sys.stderr)
+        print(f"❌ Error getting user {username} from MongoDB: {str(e)}", file=sys.stderr)
         return None
     finally:
         client.close()
 
 def create_user(username, email, password):
-    client = get_db_client()
+    client, err = get_db_client()
     if client is None:
-        return False, "ไม่สามารถเชื่อมต่อฐานข้อมูลได้"
+        # Fallback to JSON database
+        users = load_fallback_users()
+        username_clean = username.strip()
+        email_clean = email.strip().lower()
+        
+        # Check if username or email exists in fallback
+        if username_clean in users:
+            return False, f"ชื่อผู้ใช้ '{username_clean}' ถูกใช้งานไปแล้ว"
+            
+        for u in users.values():
+            if u.get("email") == email_clean:
+                return False, f"อีเมล '{email_clean}' ถูกใช้งานไปแล้ว"
+                
+        users[username_clean] = {
+            "username": username_clean,
+            "email": email_clean,
+            "password": password,
+            "completed_lessons": [],
+            "quiz_scores": {}
+        }
+        
+        if save_fallback_users(users):
+            return True, "สมัครสมาชิกสำเร็จ (บันทึกข้อมูลในโหมดจำลองชั่วคราว)"
+        else:
+            return False, "เกิดข้อผิดพลาดในการบันทึกข้อมูลโหมดจำลอง"
+            
     try:
         db = client[DB_NAME]
         users_col = db[COLLECTION_NAME]
         
-        # Check if username or email already exists
+        # Check if username or email already exists in MongoDB
         if users_col.find_one({"username": username.strip()}):
             return False, f"ชื่อผู้ใช้ '{username}' ถูกใช้งานไปแล้ว"
             
@@ -88,35 +158,50 @@ def create_user(username, email, password):
         })
         return True, "สมัครสมาชิกสำเร็จ"
     except Exception as e:
-        print(f"❌ Error creating user {username}: {str(e)}", file=sys.stderr)
-        return False, f"เกิดข้อผิดพลาด: {str(e)}"
+        print(f"❌ Error creating user {username} in MongoDB: {str(e)}", file=sys.stderr)
+        return False, f"เกิดข้อผิดพลาด MongoDB: {str(e)}"
     finally:
         client.close()
 
 def update_user_progress(username, completed_lessons):
-    client = get_db_client()
+    client, err = get_db_client()
+    lessons_list = list(completed_lessons)
+    
     if client is None:
+        # Fallback to JSON database
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean in users:
+            users[username_clean]["completed_lessons"] = lessons_list
+            return save_fallback_users(users)
         return False
+        
     try:
         db = client[DB_NAME]
         users_col = db[COLLECTION_NAME]
-        # completed_lessons is a set in session_state, convert to list for mongodb
-        lessons_list = list(completed_lessons)
         users_col.update_one(
             {"username": username.strip()},
             {"$set": {"completed_lessons": lessons_list}}
         )
         return True
     except Exception as e:
-        print(f"❌ Error updating progress for {username}: {str(e)}", file=sys.stderr)
+        print(f"❌ Error updating progress for {username} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
 
 def update_user_quiz_scores(username, quiz_scores):
-    client = get_db_client()
+    client, err = get_db_client()
+    
     if client is None:
+        # Fallback to JSON database
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean in users:
+            users[username_clean]["quiz_scores"] = quiz_scores
+            return save_fallback_users(users)
         return False
+        
     try:
         db = client[DB_NAME]
         users_col = db[COLLECTION_NAME]
@@ -126,7 +211,7 @@ def update_user_quiz_scores(username, quiz_scores):
         )
         return True
     except Exception as e:
-        print(f"❌ Error updating quiz scores for {username}: {str(e)}", file=sys.stderr)
+        print(f"❌ Error updating quiz scores for {username} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()

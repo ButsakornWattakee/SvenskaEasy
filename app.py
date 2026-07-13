@@ -248,7 +248,13 @@ with st.sidebar:
     else:
         st.info("Sandbox Mode (โหมดจำลองคำตอบ)")
         
-    st.caption("จัดทำขึ้นเพื่อช่วยให้คนไทยเข้าใจภาษาชวีเดนได้ง่ายขึ้น")
+    # Database connection status indicator
+    if db_helper.is_mongodb_online():
+        st.success("Database: MongoDB (Online)")
+    else:
+        st.warning("Database: Local JSON (Offline Fallback)")
+        
+    st.caption("จัดทำขึ้นเพื่อช่วยให้คนไทยเข้าใจภาษาสวีเดนได้ง่ายขึ้น")
     
     st.markdown("---")
     if st.button("ออกจากระบบ (Logout)", key="logout_btn", use_container_width=True):
