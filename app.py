@@ -106,13 +106,11 @@ if "chat_history" not in st.session_state:
 if "api_key" not in st.session_state:
     # Try loading from environment variable first
     st.session_state.api_key = os.getenv("GEMINI_API_KEY", "")
-if "theme" not in st.session_state:
-    st.session_state.theme = "Dark"
 if "active_lesson_id" not in st.session_state:
     st.session_state.active_lesson_id = 1
 
 # Inject Custom CSS
-st.markdown(css_styles.get_custom_css(st.session_state.theme), unsafe_allow_html=True)
+st.markdown(css_styles.get_custom_css(), unsafe_allow_html=True)
 
 # Login flow
 if not st.session_state.logged_in:
@@ -171,22 +169,6 @@ with st.sidebar:
         st.session_state.current_page = selected_page
         st.rerun()
         
-    st.markdown("---")
-    
-    # Display settings / theme selector
-    theme_options = ["โหมดมืด (Dark Mode)", "โหมดสว่าง (Light Mode)"]
-    theme_idx = 0 if st.session_state.theme == "Dark" else 1
-    selected_theme = st.selectbox(
-        "เลือกโหมดการแสดงผล (Theme):",
-        theme_options,
-        index=theme_idx,
-        key="theme_selector"
-    )
-    new_theme = "Dark" if "โหมดมืด" in selected_theme else "Light"
-    if new_theme != st.session_state.theme:
-        st.session_state.theme = new_theme
-        st.rerun()
-
     st.markdown("---")
     
     # Progress Section
@@ -397,7 +379,7 @@ elif st.session_state.current_page == "คลังคำศัพท์":
     
     # Search Box
     search_query = st.text_input(
-        "ค้นหาคำศัพท์ (พิมพ์คำเขียน คำอ่าน หรือคำแปลภาษาไทย):",
+        "ค้นหาคำศัพท์ (พิมพ์คำเขียน คำอ่านภาษาไทย หรือคำแปลภาษาไทย):",
         placeholder="เช่น hej, สวัสดี, พยาบาล, วี เซส..."
     ).strip().lower()
     
@@ -462,7 +444,7 @@ elif st.session_state.current_page == "คลังคำศัพท์":
                             </div>
                         </div>
                         <p style="margin: 2px 0;">📂 <b>หมวดหมู่:</b> {vocab['category']}</p>
-                        <p style="margin: 2px 0; font-size: 1.1rem;">🗣️ <b>คำอ่าน:</b> <span style="background-color: rgba(255,205,0,0.1); padding: 2px 6px; border-radius: 4px; color: #FFCD00; font-weight: 500;">{vocab['pronunciation']}</span></p>
+                        <p style="margin: 2px 0; font-size: 1.1rem;">🗣️ <b>คำอ่านภาษาไทย:</b> <span style="background-color: rgba(255,205,0,0.1); padding: 2px 6px; border-radius: 4px; color: #FFCD00; font-weight: 500;">{vocab['pronunciation']}</span></p>
                         <p style="margin: 2px 0; font-size: 1.2rem;">📝 <b>คำแปล:</b> <b>{vocab['thai']}</b></p>
                         <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); font-style: italic;">
                             <p style="margin: 2px 0; color: #a1a1aa;">💬 <b>ตัวอย่างประโยค:</b></p>

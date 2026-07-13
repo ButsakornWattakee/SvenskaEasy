@@ -1,45 +1,25 @@
 # -*- coding: utf-8 -*-
 
-def get_custom_css(theme="Dark"):
-    if theme == "Light":
-        bg_color = "#f4f6fa"           # Soft pastel grey-blue background
-        text_color = "#1e293b"         # Deep slate for high contrast readability
-        muted_text = "#475569"         # Muted slate grey
-        card_bg = "#ffffff"            # Pure white cards
-        sidebar_bg = "#e9ecef"         # Muted sidebar background
-        form_bg = "#ffffff"
-        border_color = "rgba(0, 0, 0, 0.08)"
-        input_bg = "#ffffff"
-        tab_bg = "#e9ecef"
-        chat_bg = "#e9ecef"
-        success_bg = "rgba(16, 185, 129, 0.1)"  # Soft emerald green bg
-        error_bg = "rgba(239, 68, 68, 0.1)"     # Soft rose red bg
-        success_border = "#10b981"
-        error_border = "#ef4444"
-        text_on_light_success = "#065f46"
-        text_on_light_error = "#991b1b"
-        hover_bg = "#dbeafe"           # Very soft pastel blue
-        hover_text = "#004B87"          # Dark Swedish Blue
-    else:
-        # Default Dark Theme
-        bg_color = "#0f172a"           # Deep slate dark background
-        text_color = "#f1f5f9"         # Bright soft grey
-        muted_text = "#94a3b8"         # Muted lavender-grey
-        card_bg = "#1e293b"            # Slate blue-grey cards
-        sidebar_bg = "#0b0f19"         # Darker slate sidebar
-        form_bg = "#1e293b"
-        border_color = "rgba(255, 255, 255, 0.08)"
-        input_bg = "#1e293b"
-        tab_bg = "#0b0f19"
-        chat_bg = "#1e293b"
-        success_bg = "rgba(52, 211, 153, 0.15)"
-        error_bg = "rgba(248, 113, 113, 0.15)"
-        success_border = "#34d399"
-        error_border = "#f87171"
-        text_on_light_success = "#34d399"
-        text_on_light_error = "#f87171"
-        hover_bg = "#334155"           # Muted slate blue
-        hover_text = "#facc15"          # Warm pastel Swedish Yellow
+def get_custom_css(theme=None):
+    # Use Streamlit's native CSS variables to automatically adapt to any Streamlit theme
+    bg_color = "var(--background-color)"
+    text_color = "var(--text-color)"
+    muted_text = "var(--text-color)"
+    card_bg = "var(--secondary-background-color)"
+    sidebar_bg = "var(--secondary-background-color)"
+    form_bg = "var(--secondary-background-color)"
+    border_color = "rgba(128, 128, 128, 0.15)"
+    input_bg = "var(--background-color)"
+    tab_bg = "var(--secondary-background-color)"
+    chat_bg = "var(--secondary-background-color)"
+    success_bg = "rgba(46, 204, 113, 0.1)"
+    error_bg = "rgba(231, 76, 60, 0.1)"
+    success_border = "#2ecc71"
+    error_border = "#e74c3c"
+    text_on_light_success = "var(--text-color)"
+    text_on_light_error = "var(--text-color)"
+    hover_bg = "rgba(128, 128, 128, 0.1)"
+    hover_text = "var(--text-color)"
 
     return f"""
     <style>
@@ -62,8 +42,9 @@ def get_custom_css(theme="Dark"):
     }}
 
     /* General text overrides */
-    p, li, a, [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li {{
-        color: {muted_text} !important;
+    p, li, [data-testid="stMarkdownContainer"] p, [data-testid="stMarkdownContainer"] li {{
+        color: {text_color} !important;
+        opacity: 0.8 !important;
     }}
 
 
@@ -229,13 +210,15 @@ def get_custom_css(theme="Dark"):
         border-bottom: 2px solid {border_color} !important;
     }}
     [data-baseweb="tab"] {{
-        color: {muted_text} !important;
+        color: {text_color} !important;
+        opacity: 0.7 !important;
         background-color: transparent !important;
     }}
     [data-baseweb="tab"][aria-selected="true"] {{
-        color: #004B87 !important;
+        color: var(--primary-color) !important;
+        opacity: 1 !important;
         font-weight: bold !important;
-        border-bottom-color: #004B87 !important;
+        border-bottom-color: var(--primary-color) !important;
     }}
 
     /* Radio button containers */
