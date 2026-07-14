@@ -29,7 +29,7 @@ DELETED_FALLBACK_FILE = "deleted_users_fallback.json"
 _cached_client = None
 _mongodb_online_status = None
 _mongodb_last_checked = 0
-CHECK_INTERVAL_SECONDS = 30  # Re-ping MongoDB connectivity every 30 seconds
+CHECK_INTERVAL_SECONDS = 300  # Only re-verify connectivity status every 5 minutes
 
 def is_mongodb_online_cached():
     global _mongodb_online_status, _mongodb_last_checked
@@ -39,28 +39,18 @@ def is_mongodb_online_cached():
     if _mongodb_online_status is not None and (now - _mongodb_last_checked) < CHECK_INTERVAL_SECONDS:
         return _mongodb_online_status
         
-    status = False
-    try:
-        # Increased timeout to 5000ms to allow DNS SRV lookup and secure TCP connection for MongoDB Atlas
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-        client.admin.command('ping')
-        client.close()
-        status = True
-    except Exception as e:
-        print(f"⚠️ MongoDB Connection Check Failed: {e}", file=sys.stderr)
-        status = False
-        
+    client, err = get_db_client_direct()
+    status = (client is not None)
+    
     _mongodb_online_status = status
     _mongodb_last_checked = now
     return status
 
-def get_db_client():
-    if not is_mongodb_online_cached():
-        return None, "MongoDB offline (cached)"
-        
+def get_db_client_direct():
     global _cached_client
     if _cached_client is not None:
         try:
+            # Quick ping to verify cached connection is still active (only done during background status checks/reconnects)
             _cached_client.admin.command('ping')
             return _cached_client, None
         except Exception:
@@ -79,6 +69,14 @@ def get_db_client():
     except Exception as e:
         print(f"⚠️ SharedMongoClient Connection Failed: {e}", file=sys.stderr)
         return None, str(e)
+
+def get_db_client():
+    global _cached_client
+    # Return cached client immediately without pinging to eliminate query latency
+    if _cached_client is not None:
+        return _cached_client, None
+        
+    return get_db_client_direct()
 
 def is_mongodb_online():
     return is_mongodb_online_cached()
@@ -433,8 +431,10 @@ def delete_user(username):
         if user_data:
             user_data["deleted_at"] = deleted_time
             # Keep avatar as binary if it exists
-            # Save to deleted_users collection
-            deleted_col.replace_one({"username": username.strip()}, user_data, upsert=True)
+            # Delete any existing document in deleted_col with this username first to avoid _id conflict
+            deleted_col.delete_many({"username": username.strip()})
+            # Insert to deleted_users collection
+            deleted_col.insert_one(user_data)
             # Remove from users collection
             result = users_col.delete_one({"username": username.strip()})
             return result.deleted_count > 0
@@ -504,8 +504,10 @@ def restore_user(username):
         user_data = deleted_col.find_one({"username": username.strip()})
         if user_data:
             user_data.pop("deleted_at", None)
+            # Delete any existing document in users_col with this username first to avoid _id conflict
+            users_col.delete_many({"username": username.strip()})
             # Restore to users collection
-            users_col.replace_one({"username": username.strip()}, user_data, upsert=True)
+            users_col.insert_one(user_data)
             # Remove from deleted collection
             deleted_col.delete_one({"username": username.strip()})
             return True
