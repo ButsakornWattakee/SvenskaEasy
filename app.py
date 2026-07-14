@@ -202,34 +202,7 @@ completed_count = len(st.session_state.completed_lessons) if "completed_lessons"
 # Inject Custom CSS
 st.markdown(css_styles.get_custom_css(), unsafe_allow_html=True)
 
-# Custom Sidebar Toggle Button (Only when logged in)
-if st.session_state.logged_in:
-    if "trigger_sidebar_toggle" not in st.session_state:
-        st.session_state.trigger_sidebar_toggle = False
-        
-    st.markdown('<div class="sidebar-toggle-anchor"></div>', unsafe_allow_html=True)
-    if st.button("☰ เปิด/ปิดเมนู (Sidebar)", key="custom_sidebar_toggle_btn"):
-        st.session_state.trigger_sidebar_toggle = True
-        
-    if st.session_state.trigger_sidebar_toggle:
-        import streamlit.components.v1 as components
-        components.html(
-            """
-            <script>
-            const parentDoc = window.parent.document;
-            const closeBtn = parentDoc.querySelector("button[data-testid='stSidebarCollapseButton']");
-            const openBtn = parentDoc.querySelector("button[data-testid='collapsedControl']");
-            if (closeBtn) {
-                closeBtn.click();
-            } else if (openBtn) {
-                openBtn.click();
-            }
-            </script>
-            """,
-            height=0,
-            width=0
-        )
-        st.session_state.trigger_sidebar_toggle = False
+
 
 # Login flow
 if not st.session_state.logged_in:

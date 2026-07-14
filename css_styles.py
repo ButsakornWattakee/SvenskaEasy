@@ -289,18 +289,7 @@ def get_custom_css(theme=None):
         margin-top: 15px;
     }}
 
-    /* Hide default Streamlit developer toolbar, edit icons, and footer */
-    [data-testid="stHeader"] {{
-        background-color: transparent !important;
-    }}
-    [data-testid="stHeader"] [data-testid="stToolbar"],
-    [data-testid="stHeader"] button[title="View app"],
-    [data-testid="stHeader"] a {{
-        display: none !important;
-    }}
-    [data-testid="stToolbar"] {{
-        display: none !important;
-    }}
+    /* Hide footer and viewer badges, but keep stHeader and MainMenu visible */
     footer {{
         display: none !important;
     }}
@@ -309,29 +298,6 @@ def get_custom_css(theme=None):
     }}
     div[data-testid="stConnectionStatus"] {{
         display: none !important;
-    }}
-    #MainMenu {{
-        visibility: hidden;
-    }}
-
-    /* Sibling selector to position custom sidebar toggle button */
-    div:has(> .sidebar-toggle-anchor) {{
-        display: none !important;
-    }}
-    div:has(> .sidebar-toggle-anchor) + div {{
-        position: absolute !important;
-        top: 10px !important;
-        left: 20px !important;
-        z-index: 99999 !important;
-    }}
-    div:has(> .sidebar-toggle-anchor) + div button {{
-        border-radius: 20px !important;
-        padding: 6px 16px !important;
-        font-size: 0.95rem !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-        border: 1px solid {border_color} !important;
-        background-color: {card_bg} !important;
-        color: {text_color} !important;
     }}
 
     </style>
