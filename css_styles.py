@@ -1,25 +1,63 @@
 # -*- coding: utf-8 -*-
 
 def get_custom_css(theme=None):
-    # Use Streamlit's native CSS variables to automatically adapt to any Streamlit theme
-    bg_color = "var(--background-color)"
-    text_color = "var(--text-color)"
-    muted_text = "var(--text-color)"
-    card_bg = "var(--secondary-background-color)"
-    sidebar_bg = "var(--secondary-background-color)"
-    form_bg = "var(--secondary-background-color)"
-    border_color = "rgba(128, 128, 128, 0.15)"
-    input_bg = "var(--background-color)"
-    tab_bg = "var(--secondary-background-color)"
-    chat_bg = "var(--secondary-background-color)"
-    success_bg = "rgba(46, 204, 113, 0.1)"
-    error_bg = "rgba(231, 76, 60, 0.1)"
-    success_border = "#2ecc71"
-    error_border = "#e74c3c"
-    text_on_light_success = "var(--text-color)"
-    text_on_light_error = "var(--text-color)"
-    hover_bg = "rgba(128, 128, 128, 0.1)"
-    hover_text = "var(--text-color)"
+    if theme == "Light":
+        bg_color = "#f8fafc"
+        text_color = "#0f172a"
+        muted_text = "#475569"
+        card_bg = "#ffffff"
+        sidebar_bg = "#f1f5f9"
+        form_bg = "#ffffff"
+        border_color = "rgba(15, 23, 42, 0.08)"
+        input_bg = "#ffffff"
+        tab_bg = "#f8fafc"
+        chat_bg = "#f1f5f9"
+        success_bg = "rgba(46, 204, 113, 0.1)"
+        error_bg = "rgba(231, 76, 60, 0.1)"
+        success_border = "#2ecc71"
+        error_border = "#e74c3c"
+        text_on_light_success = "#27ae60"
+        text_on_light_error = "#c0392b"
+        hover_bg = "rgba(0, 75, 135, 0.1)"
+        hover_text = "#004B87"
+    elif theme == "Sweden Blue":
+        bg_color = "#002b5c"
+        text_color = "#ffffff"
+        muted_text = "#cbd5e1"
+        card_bg = "#003d7c"
+        sidebar_bg = "#001f44"
+        form_bg = "#003d7c"
+        input_bg = "#001f44"
+        border_color = "rgba(255, 205, 0, 0.2)"
+        tab_bg = "#002b5c"
+        chat_bg = "#003d7c"
+        success_bg = "rgba(46, 204, 113, 0.15)"
+        error_bg = "rgba(231, 76, 60, 0.15)"
+        success_border = "#ffcd00"
+        error_border = "#e74c3c"
+        text_on_light_success = "#ffcd00"
+        text_on_light_error = "#ff4d4d"
+        hover_bg = "#ffcd00"
+        hover_text = "#002b5c"
+    else: # Dark (Default)
+        bg_color = "#0f172a"
+        text_color = "#f8fafc"
+        muted_text = "#94a3b8"
+        card_bg = "#1e293b"
+        sidebar_bg = "#1e293b"
+        form_bg = "#1e293b"
+        border_color = "rgba(255, 255, 255, 0.08)"
+        input_bg = "#0f172a"
+        tab_bg = "#1e293b"
+        chat_bg = "#1e293b"
+        success_bg = "rgba(46, 204, 113, 0.1)"
+        error_bg = "rgba(231, 76, 60, 0.1)"
+        success_border = "#2ecc71"
+        error_border = "#e74c3c"
+        text_on_light_success = "#2ecc71"
+        text_on_light_error = "#e74c3c"
+        hover_bg = "rgba(0, 75, 135, 0.1)"
+        hover_text = "#ffffff"
 
     return f"""
     <style>
@@ -27,8 +65,10 @@ def get_custom_css(theme=None):
     @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@200;300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
     /* Global Background and Colors */
-    html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], [data-testid="stHeader"], .main, .stApp {{
+    html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"], .main, .stApp {{
         font-family: 'Kanit', 'Outfit', sans-serif;
+        background-color: {bg_color} !important;
+        color: {text_color} !important;
     }}
 
     /* General text overrides */
@@ -46,6 +86,7 @@ def get_custom_css(theme=None):
 
     /* Force Sidebar Background and Text */
     [data-testid="stSidebar"], [data-testid="stSidebar"] > div, [data-testid="stSidebarNav"] {{
+        background-color: {sidebar_bg} !important;
         border-right: 1px solid {border_color} !important;
     }}
 
@@ -291,6 +332,11 @@ def get_custom_css(theme=None):
 
     /* Hide default Streamlit developer toolbar, edit icons, and footer */
     [data-testid="stHeader"] {{
+        background-color: transparent !important;
+    }}
+    [data-testid="stHeader"] [data-testid="stToolbar"],
+    [data-testid="stHeader"] button[title="View app"],
+    [data-testid="stHeader"] a {{
         display: none !important;
     }}
     [data-testid="stToolbar"] {{
@@ -307,6 +353,25 @@ def get_custom_css(theme=None):
     }}
     #MainMenu {{
         visibility: hidden;
+    }}
+
+    /* CSS Sibling trick to float theme selector at top right corner */
+    div:has(> .theme-selector-anchor) {{
+        display: none !important;
+    }}
+    div:has(> .theme-selector-anchor) + div {{
+        position: fixed !important;
+        top: 15px !important;
+        right: 20px !important;
+        width: 170px !important;
+        z-index: 999999 !important;
+    }}
+    /* Style the selectbox inside the theme selector for a premium pill button look */
+    div:has(> .theme-selector-anchor) + div [data-baseweb="select"] {{
+        border-radius: 20px !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25) !important;
+        border: 2px solid {border_color} !important;
+        background-color: {card_bg} !important;
     }}
 
     </style>
