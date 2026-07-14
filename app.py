@@ -370,7 +370,7 @@ with st.sidebar:
                     </div>
                     <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-color); margin-top: 3px;">{u_data['username']}</div>
                     <div style="margin-top: 4px;">
-                        <span style="background-color: {role_color}; color: {role_text_color}; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block;">{role_th}</span>
+                        <span style="background-color: {role_color} !important; color: {role_text_color} !important; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block;">{role_th}</span>
                     </div>
                 </div>
                 """,
@@ -1171,44 +1171,68 @@ elif st.session_state.current_page == "คลังคำศัพท์":
         st.info("ไม่พบคำศัพท์ที่ตรงกับการค้นหาและตัวกรองของคุณ ลองเปลี่ยนคำค้นหาหรือตั้งค่าตัวกรองเป็น 'ทั้งหมด' นะครับ")
     else:
         # Display as cards
+        import base64
         for vocab in filtered_vocab:
             sw_key = vocab["swedish"].strip().lower()
             custom_img = db_images.get(sw_key)
             default_img_path = default_images_map.get(sw_key)
             
-            with st.container():
-                details_html = f"""
-                <div class="lesson-section" style="margin-bottom: 15px; border-left: 5px solid #FFCD00 !important;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                        <span style="font-size: 1.6rem; font-weight: bold;">{vocab['swedish']}</span>
-                        <div>
-                            <span class="sweden-badge" style="font-size: 0.75rem; padding: 2px 8px; margin-right: 5px;">{vocab['level']}</span>
-                            <span class="thai-badge" style="font-size: 0.75rem; padding: 2px 8px; background-color: #004B87 !important; color: #FFCD00 !important;">{vocab['pos']}</span>
+            img_src = None
+            if custom_img:
+                try:
+                    if isinstance(custom_img, bytes):
+                        encoded_str = base64.b64encode(custom_img).decode('utf-8')
+                        img_src = f"data:image/png;base64,{encoded_str}"
+                    else:
+                        img_src = custom_img
+                except Exception:
+                    pass
+            elif default_img_path:
+                try:
+                    with open(default_img_path, "rb") as img_file:
+                        encoded_str = base64.b64encode(img_file.read()).decode('utf-8')
+                        img_src = f"data:image/png;base64,{encoded_str}"
+                except Exception:
+                    pass
+            
+            image_html = ""
+            if img_src:
+                image_html = f"""
+                <div class="vocab-image" style="background-image: url('{img_src}');"></div>
+                """
+            
+            card_html = f"""
+            <div class="vocab-card">
+                <div style="
+                    flex: 1;
+                    padding: 20px;
+                    border-left: 5px solid #FFCD00;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                ">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span style="font-size: 1.6rem; font-weight: bold; color: var(--text-color);">{vocab['swedish']}</span>
+                            <div>
+                                <span class="sweden-badge" style="font-size: 0.75rem; padding: 2px 8px; margin-right: 5px; display: inline-block;">{vocab['level']}</span>
+                                <span class="thai-badge" style="font-size: 0.75rem; padding: 2px 8px; background-color: #004B87 !important; color: #FFFFFF !important; display: inline-block;">{vocab['pos']}</span>
+                            </div>
                         </div>
+                        <p style="margin: 2px 0; color: var(--text-color); opacity: 0.85;">📂 <b>หมวดหมู่:</b> {vocab['category']}</p>
+                        <p style="margin: 2px 0; font-size: 1.1rem; color: var(--text-color); opacity: 0.85;">🗣️ <b>คำอ่านภาษาไทย:</b> <span style="background-color: rgba(255,205,0,0.1); padding: 2px 6px; border-radius: 4px; color: #FFCD00; font-weight: 500;">{vocab['pronunciation']}</span></p>
+                        <p style="margin: 2px 0; font-size: 1.2rem; color: var(--text-color); opacity: 0.85;">📝 <b>คำแปล:</b> <b>{vocab['thai']}</b></p>
                     </div>
-                    <p style="margin: 2px 0;">📂 <b>หมวดหมู่:</b> {vocab['category']}</p>
-                    <p style="margin: 2px 0; font-size: 1.1rem;">🗣️ <b>คำอ่านภาษาไทย:</b> <span style="background-color: rgba(255,205,0,0.1); padding: 2px 6px; border-radius: 4px; color: #FFCD00; font-weight: 500;">{vocab['pronunciation']}</span></p>
-                    <p style="margin: 2px 0; font-size: 1.2rem;">📝 <b>คำแปล:</b> <b>{vocab['thai']}</b></p>
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.05); font-style: italic;">
-                        <p style="margin: 2px 0; color: #a1a1aa;">💬 <b>ตัวอย่างประโยค:</b></p>
-                        <p style="margin: 2px 0; font-size: 1.05rem;">🇸🇪 {vocab['example_swedish']}</p>
-                        <p style="margin: 2px 0; color: #cbd5e1;">🇹🇭 {vocab['example_thai']}</p>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(128,128,128,0.1); font-style: italic;">
+                        <p style="margin: 2px 0; color: #a1a1aa; font-size: 0.9rem;">💬 <b>ตัวอย่างประโยค:</b></p>
+                        <p style="margin: 2px 0; font-size: 1.05rem; color: var(--text-color); opacity: 0.9;">🇸🇪 {vocab['example_swedish']}</p>
+                        <p style="margin: 2px 0; color: var(--text-color); opacity: 0.75; font-size: 0.95rem;">🇹🇭 {vocab['example_thai']}</p>
                     </div>
                 </div>
-                """
-                
-                if custom_img or default_img_path:
-                    col_details, col_image = st.columns([3, 1])
-                    with col_details:
-                        st.markdown(details_html, unsafe_allow_html=True)
-                    with col_image:
-                        st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
-                        if custom_img:
-                            st.image(custom_img, use_container_width=True)
-                        else:
-                            st.image(default_img_path, use_container_width=True)
-                else:
-                    st.markdown(details_html, unsafe_allow_html=True)
+                {image_html}
+            </div>
+            """
+            st.markdown(card_html, unsafe_allow_html=True)
 
 # ----------------- 3. QUIZZES PAGE -----------------
 elif st.session_state.current_page == "แบบฝึกหัดและควิซ":

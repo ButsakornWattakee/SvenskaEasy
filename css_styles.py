@@ -49,7 +49,11 @@ def get_custom_css(theme=None):
         border-right: 1px solid {border_color} !important;
     }}
 
-    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4, [data-testid="stSidebar"] p, [data-testid="stSidebar"] span, [data-testid="stSidebar"] label {{
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3, [data-testid="stSidebar"] h4, [data-testid="stSidebar"] p, [data-testid="stSidebar"] label {{
+        color: {text_color} !important;
+    }}
+    /* Sidebar spans: exclude badge spans that have their own background-color */
+    [data-testid="stSidebar"] span:not([style*="background-color"]) {{
         color: {text_color} !important;
     }}
 
@@ -298,6 +302,42 @@ def get_custom_css(theme=None):
     }}
     div[data-testid="stConnectionStatus"] {{
         display: none !important;
+    }}
+
+    /* Vocabulary card responsive styles */
+    .vocab-card {{
+        display: flex;
+        background-color: var(--secondary-background-color);
+        border: 1px solid rgba(128, 128, 128, 0.15);
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+        overflow: hidden;
+        min-height: 180px;
+        transition: all 0.3s ease;
+    }}
+    .vocab-card:hover {{
+        box-shadow: 0 8px 25px rgba(0, 75, 135, 0.15);
+        transform: translateY(-2px);
+    }}
+    .vocab-image {{
+        width: 280px;
+        min-width: 280px;
+        background-size: cover;
+        background-position: center;
+        border-left: 1px solid rgba(128, 128, 128, 0.1);
+    }}
+    @media (max-width: 768px) {{
+        .vocab-card {{
+            flex-direction: column !important;
+        }}
+        .vocab-image {{
+            width: 100% !important;
+            min-width: 100% !important;
+            height: 220px !important;
+            border-left: none !important;
+            border-top: 1px solid rgba(128, 128, 128, 0.15) !important;
+        }}
     }}
 
     </style>
