@@ -45,8 +45,8 @@ def get_ai_response(api_key, message, chat_history):
     # If api_key is available, use Google Gemini
     if api_key and len(api_key.strip()) > 10:
         try:
-            genai.configure(api_key=api_key.strip())
-            model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SYSTEM_INSTRUCTION)
+            genai.configure(api_key=api_key.strip())  # type: ignore
+            model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SYSTEM_INSTRUCTION)  # type: ignore
             
             # Format history for Gemini API
             formatted_history = []

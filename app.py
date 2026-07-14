@@ -193,6 +193,10 @@ if st.session_state.logged_in and st.session_state.current_user:
             pass
         st.rerun()
 
+# Initialize progress metrics to avoid static analysis issues and ensure availability across pages
+total_lessons = len(lessons_data.LESSONS)
+completed_count = len(st.session_state.completed_lessons) if "completed_lessons" in st.session_state else 0
+
 # Inject Custom CSS
 st.markdown(css_styles.get_custom_css(), unsafe_allow_html=True)
 
