@@ -1171,68 +1171,47 @@ elif st.session_state.current_page == "คลังคำศัพท์":
         st.info("ไม่พบคำศัพท์ที่ตรงกับการค้นหาและตัวกรองของคุณ ลองเปลี่ยนคำค้นหาหรือตั้งค่าตัวกรองเป็น 'ทั้งหมด' นะครับ")
     else:
         # Display as cards
-        import base64
         for vocab in filtered_vocab:
             sw_key = vocab["swedish"].strip().lower()
             custom_img = db_images.get(sw_key)
             default_img_path = default_images_map.get(sw_key)
             
-            img_src = None
-            if custom_img:
-                try:
-                    if isinstance(custom_img, bytes):
-                        encoded_str = base64.b64encode(custom_img).decode('utf-8')
-                        img_src = f"data:image/png;base64,{encoded_str}"
-                    else:
-                        img_src = custom_img
-                except Exception:
-                    pass
-            elif default_img_path:
-                try:
-                    with open(default_img_path, "rb") as img_file:
-                        encoded_str = base64.b64encode(img_file.read()).decode('utf-8')
-                        img_src = f"data:image/png;base64,{encoded_str}"
-                except Exception:
-                    pass
+            has_image = custom_img or default_img_path
             
-            image_html = ""
-            if img_src:
-                image_html = f"""
-                <div class="vocab-image" style="background-image: url('{img_src}');"></div>
-                """
-            
-            card_html = f"""
-            <div class="vocab-card">
-                <div style="
-                    flex: 1;
-                    padding: 20px;
-                    border-left: 5px solid #FFCD00;
-                    display: flex;
-                    flex-direction: column;
-                    justify-content: space-between;
-                ">
-                    <div>
+            with st.container(border=True):
+                if has_image:
+                    col_text, col_img = st.columns([4, 1])
+                else:
+                    col_text = st.container()
+                    col_img = None
+                
+                with col_text:
+                    st.markdown(f"""
+                    <div style="border-left: 5px solid #FFCD00; padding-left: 15px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                             <span style="font-size: 1.6rem; font-weight: bold; color: var(--text-color);">{vocab['swedish']}</span>
                             <div>
                                 <span class="sweden-badge" style="font-size: 0.75rem; padding: 2px 8px; margin-right: 5px; display: inline-block;">{vocab['level']}</span>
-                                <span class="thai-badge" style="font-size: 0.75rem; padding: 2px 8px; background-color: #004B87 !important; color: #FFFFFF !important; display: inline-block;">{vocab['pos']}</span>
+                                <span style="font-size: 0.75rem; padding: 2px 8px; background-color: #004B87 !important; color: #FFFFFF !important; border-radius: 20px; font-weight: 500; display: inline-block;">{vocab['pos']}</span>
                             </div>
                         </div>
-                        <p style="margin: 2px 0; color: var(--text-color); opacity: 0.85;">📂 <b>หมวดหมู่:</b> {vocab['category']}</p>
-                        <p style="margin: 2px 0; font-size: 1.1rem; color: var(--text-color); opacity: 0.85;">🗣️ <b>คำอ่านภาษาไทย:</b> <span style="background-color: rgba(255,205,0,0.1); padding: 2px 6px; border-radius: 4px; color: #FFCD00; font-weight: 500;">{vocab['pronunciation']}</span></p>
-                        <p style="margin: 2px 0; font-size: 1.2rem; color: var(--text-color); opacity: 0.85;">📝 <b>คำแปล:</b> <b>{vocab['thai']}</b></p>
+                        <p style="margin: 3px 0; color: var(--text-color); opacity: 0.85;">📂 <b>หมวดหมู่:</b> {vocab['category']}</p>
+                        <p style="margin: 3px 0; font-size: 1.1rem; color: var(--text-color); opacity: 0.85;">🗣️ <b>คำอ่านภาษาไทย:</b> <span style="background-color: rgba(255,205,0,0.15); padding: 2px 8px; border-radius: 4px; color: #FFCD00; font-weight: 600;">{vocab['pronunciation']}</span></p>
+                        <p style="margin: 3px 0; font-size: 1.2rem; color: var(--text-color); opacity: 0.85;">📝 <b>คำแปล:</b> <b>{vocab['thai']}</b></p>
+                        <div style="margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(128,128,128,0.15); font-style: italic;">
+                            <p style="margin: 2px 0; color: #a1a1aa; font-size: 0.9rem;">💬 <b>ตัวอย่างประโยค:</b></p>
+                            <p style="margin: 2px 0; font-size: 1.0rem; color: var(--text-color); opacity: 0.9;">🇸🇪 {vocab['example_swedish']}</p>
+                            <p style="margin: 2px 0; color: var(--text-color); opacity: 0.7; font-size: 0.95rem;">🇹🇭 {vocab['example_thai']}</p>
+                        </div>
                     </div>
-                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(128,128,128,0.1); font-style: italic;">
-                        <p style="margin: 2px 0; color: #a1a1aa; font-size: 0.9rem;">💬 <b>ตัวอย่างประโยค:</b></p>
-                        <p style="margin: 2px 0; font-size: 1.05rem; color: var(--text-color); opacity: 0.9;">🇸🇪 {vocab['example_swedish']}</p>
-                        <p style="margin: 2px 0; color: var(--text-color); opacity: 0.75; font-size: 0.95rem;">🇹🇭 {vocab['example_thai']}</p>
-                    </div>
-                </div>
-                {image_html}
-            </div>
-            """
-            st.markdown(card_html, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
+                
+                if col_img is not None:
+                    with col_img:
+                        if custom_img:
+                            st.image(custom_img, use_container_width=True)
+                        elif default_img_path:
+                            st.image(default_img_path, use_container_width=True)
 
 # ----------------- 3. QUIZZES PAGE -----------------
 elif st.session_state.current_page == "แบบฝึกหัดและควิซ":
