@@ -379,63 +379,6 @@ with st.sidebar:
         unsafe_allow_html=True
     )
     
-    # Circular Profile Photo & Details Widget
-    if st.session_state.logged_in and st.session_state.current_user:
-        u_data = db_helper.get_user(st.session_state.current_user)
-        if u_data:
-            avatar_data = u_data.get("avatar")
-            role_th = "ผู้เรียนทั่วไป" if u_data.get("role") == "User" else "ผู้ดูแลระบบ"
-            role_color = "#FFCD00" if u_data.get("role") == "Admin" else "#004B87"
-            role_text_color = "#004B87" if u_data.get("role") == "Admin" else "#FFFFFF"
-            
-            st.markdown(
-                """
-                <div style="text-align: center; margin-bottom: 20px; padding: 15px; background-color: var(--secondary-background-color); border: 1px solid rgba(128, 128, 128, 0.15); border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
-                    <div style="display: flex; justify-content: center; margin-bottom: 10px;">
-                """,
-                unsafe_allow_html=True
-            )
-            
-            if avatar_data:
-                import base64
-                try:
-                    if isinstance(avatar_data, str):
-                        encoded_avatar = avatar_data
-                    else:
-                        encoded_avatar = base64.b64encode(avatar_data).decode('utf-8')
-                    st.markdown(
-                        f"""
-                        <img src="data:image/png;base64,{encoded_avatar}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid {role_color}; box-shadow: 0 3px 8px rgba(0,0,0,0.12);" />
-                        """,
-                        unsafe_allow_html=True
-                    )
-                except Exception:
-                    st.markdown(
-                        f"""
-                        <img src="https://www.w3schools.com/howto/img_avatar.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid {role_color}; box-shadow: 0 3px 8px rgba(0,0,0,0.12);" />
-                        """,
-                        unsafe_allow_html=True
-                    )
-            else:
-                st.markdown(
-                    f"""
-                    <img src="https://www.w3schools.com/howto/img_avatar.png" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid {role_color}; box-shadow: 0 3px 8px rgba(0,0,0,0.12);" />
-                    """,
-                    unsafe_allow_html=True
-                )
-                
-            st.markdown(
-                f"""
-                    </div>
-                    <div style="font-weight: 600; font-size: 1.1rem; color: var(--text-color); margin-top: 3px;">{u_data['username']}</div>
-                    <div style="margin-top: 4px;">
-                        <span style="background-color: {role_color} !important; color: {role_text_color} !important; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block;">{role_th}</span>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-            
     # Radio navigation styled as menu
     if st.session_state.current_page not in PAGES:
         st.session_state.current_page = PAGES[0]
