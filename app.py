@@ -402,7 +402,7 @@ with st.sidebar:
     if db_helper.is_mongodb_online():
         st.success("Database: MongoDB (Online)")
     else:
-        st.warning("Database: Local JSON (Offline Fallback)")
+        st.error("Database: Offline (Local Fallback Active)")
         
     st.caption("จัดทำขึ้นเพื่อช่วยให้คนไทยเข้าใจภาษาสวีเดนได้ง่ายขึ้น")
     
