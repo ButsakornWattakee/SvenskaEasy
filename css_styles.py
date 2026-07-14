@@ -272,5 +272,25 @@ def get_custom_css(theme=None):
         margin-top: 15px;
     }}
 
+    /* Hide default Streamlit developer toolbar, edit icons, and footer */
+    [data-testid="stHeader"] {{
+        display: none !important;
+    }}
+    [data-testid="stToolbar"] {{
+        display: none !important;
+    }}
+    footer {{
+        display: none !important;
+    }}
+    div[class^="viewerBadge"] {{
+        display: none !important;
+    }}
+    div[data-testid="stConnectionStatus"] {{
+        display: none !important;
+    }}
+    #MainMenu {{
+        visibility: hidden;
+    }}
+
     </style>
     """
