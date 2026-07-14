@@ -3,6 +3,7 @@ from pymongo import MongoClient
 import os
 import json
 import sys
+import streamlit as st
 
 def get_mongo_uri():
     try:
@@ -565,6 +566,12 @@ def save_fallback_game_images(images):
         return False
 
 def save_game_image(swedish_word, image_bytes):
+    # Clear streamlit cache so the updated image is loaded immediately
+    try:
+        st.cache_data.clear()
+    except Exception:
+        pass
+
     word_key = swedish_word.strip().lower()
     client, err = get_db_client()
     
@@ -594,6 +601,7 @@ def save_game_image(swedish_word, image_bytes):
     finally:
         client.close()
 
+@st.cache_data(ttl=600, max_entries=100)
 def get_game_image(swedish_word):
     word_key = swedish_word.strip().lower()
     client, err = get_db_client()
@@ -625,6 +633,40 @@ def get_game_image(swedish_word):
     finally:
         client.close()
 
+@st.cache_data(ttl=600, max_entries=10)
+def get_all_game_images_dict():
+    client, err = get_db_client()
+    import base64
+    if client is None:
+        images = load_fallback_game_images()
+        res = {}
+        for k, v in images.items():
+            if "image_data" in v:
+                try:
+                    res[k] = base64.b64decode(v["image_data"])
+                except Exception:
+                    pass
+        return res
+        
+    try:
+        db = client[DB_NAME]
+        col = db[GAME_IMAGES_COLLECTION_NAME]
+        docs = col.find({})
+        res = {}
+        for doc in docs:
+            w = doc.get("swedish")
+            if w and "image_data" in doc:
+                try:
+                    res[w] = base64.b64decode(doc["image_data"])
+                except Exception:
+                    pass
+        return res
+    except Exception as e:
+        print(f"❌ Error getting all game images dict from MongoDB: {str(e)}", file=sys.stderr)
+        return {}
+    finally:
+        client.close()
+
 def get_all_game_images():
     client, err = get_db_client()
     if client is None:
@@ -643,6 +685,12 @@ def get_all_game_images():
         client.close()
 
 def delete_game_image(swedish_word):
+    # Clear streamlit cache so the updated image is loaded immediately
+    try:
+        st.cache_data.clear()
+    except Exception:
+        pass
+
     word_key = swedish_word.strip().lower()
     client, err = get_db_client()
     if client is None:

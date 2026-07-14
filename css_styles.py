@@ -64,19 +64,18 @@ def get_custom_css(theme=None):
 
     /* Glassmorphic Cards for Dashboard and Lessons */
     .dashboard-card {{
-        background-color: {card_bg} !important;
-        background: {card_bg} !important;
+        background: linear-gradient(145deg, {card_bg}, rgba(255,255,255,0.02)) !important;
         border-radius: 16px;
         padding: 24px;
         border: 1px solid {border_color} !important;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
         margin-bottom: 20px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }}
     
     .dashboard-card:hover {{
-        transform: translateY(-3px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 12px 30px rgba(0, 75, 135, 0.25);
         border: 1px solid #FFCD00 !important;
     }}
 
@@ -149,10 +148,14 @@ def get_custom_css(theme=None):
         background-color: {input_bg} !important;
         color: {text_color} !important;
         border: 1px solid {border_color} !important;
+        border-radius: 10px !important;
+        padding: 10px 14px !important;
+        transition: all 0.2s ease-in-out;
     }}
 
-    [data-testid="stTextInput"] input:focus, [data-testid="stTextArea"] textarea:focus {{
+    [data-testid="stTextInput"] input:focus, [data-testid="stTextArea"] textarea:focus, [data-baseweb="input"] input:focus {{
         border-color: #FFCD00 !important;
+        box-shadow: 0 0 8px rgba(255, 205, 0, 0.2) !important;
     }}
 
     /* Selectboxes and dropdowns styling */
@@ -216,20 +219,34 @@ def get_custom_css(theme=None):
 
     /* Custom Streamlit button adjustments */
     div.stButton > button {{
-        border-radius: 8px;
-        font-weight: 500;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
         background-color: {card_bg} !important;
         color: {text_color} !important;
         border: 1px solid {border_color} !important;
-        transition: all 0.2s ease;
+        padding: 8px 16px !important;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }}
 
     div.stButton > button:hover {{
-        background-color: {hover_bg} !important;
-        color: {hover_text} !important;
-        border-color: {hover_bg} !important;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px rgba(0, 75, 135, 0.15);
+        background-color: #004B87 !important;
+        color: #ffffff !important;
+        border-color: #004B87 !important;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(0, 75, 135, 0.3) !important;
+    }}
+    
+    /* Primary buttons custom styling */
+    div.stButton > button[kind="primary"] {{
+        background-color: #004B87 !important;
+        color: #ffffff !important;
+        border: 1px solid #004B87 !important;
+    }}
+    
+    div.stButton > button[kind="primary"]:hover {{
+        background-color: #003660 !important;
+        border-color: #003660 !important;
+        box-shadow: 0 6px 15px rgba(0, 54, 96, 0.4) !important;
     }}
 
     /* Ensure inner button elements inherit colors correctly */

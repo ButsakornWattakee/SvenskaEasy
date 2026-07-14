@@ -40,7 +40,19 @@ LESSONS = [
                 "answer": "Ö",
                 "explanation": "ตัว Ö ออกเสียงใกล้เคียงกับ สระเออ โดยต้องทำปากกลมขณะออกเสียง"
             }
-        ]
+        ,
+            {
+                "question": 'คำศัพท์ ja (ใช่) ออกเสียงสระยาวเพราะสาเหตุใด?',
+                "options": ['ตามด้วยพยัญชนะสะกดสองตัว', 'ตามด้วยพยัญชนะสะกดตัวเดียว', 'เป็นเสียงสระสั้นเสมอ', 'ไม่มีเสียงพยัญชนะสะกด'],
+                "answer": 'ตามด้วยพยัญชนะสะกดตัวเดียว',
+                "explanation": 'คำว่า ja หรือ tal ออกเสียงสระยาวเนื่องจากตามด้วยพยัญชนะตัวเดียวหรือไม่มีพยัญชนะซ้อนกัน'
+            },
+            {
+                "question": 'ตัวอักษร Ä ในภาษาสวีเดนออกเสียงเหมือนสระใดในภาษาไทย?',
+                "options": ['สระเอ', 'สระแอ', 'สระโอ', 'สระไอ'],
+                "answer": 'สระแอ',
+                "explanation": 'ตัว Ä ออกเสียงใกล้เคียงกับ สระแอ ในภาษาไทย เช่น äta (กิน)'
+            }]
     },
     {
         "id": 2,
@@ -83,7 +95,19 @@ LESSONS = [
                 "answer": "Varsågod",
                 "explanation": "Varsågod (วา-ซอ-กูด) ใช้ตอบรับคำขอบคุณ แปลว่า ยินดี หรือ ไม่เป็นไร"
             }
-        ]
+        ,
+            {
+                "question": "ถ้าคุณต้องการพูดว่า 'สวัสดีตอนเย็น' ในภาษาสวีเดน ควรพูดว่าอย่างไร?",
+                "options": ['God natt', 'God kväll', 'God morgon', 'Hej då'],
+                "answer": 'God kväll',
+                "explanation": 'God kväll แปลว่า สวัสดีตอนเย็น'
+            },
+            {
+                "question": "วลี 'Vi ses' แปลว่าอะไร?",
+                "options": ['ขอบคุณ', 'ยินดีต้อนรับ', 'แล้วเจอกัน', 'ลาก่อน'],
+                "answer": 'แล้วเจอกัน',
+                "explanation": 'Vi ses แปลว่า แล้วพบกันใหม่ หรือ แล้วเจอกัน'
+            }]
     },
     {
         "id": 3,
@@ -124,7 +148,19 @@ LESSONS = [
                 "answer": "ยินดีที่ได้รู้จัก",
                 "explanation": "Trevligt att träffas แปลว่า ยินดีที่ได้รู้จัก"
             }
-        ]
+        ,
+            {
+                "question": "ประโยค 'Trevligt att träffas' แปลว่าอะไร?",
+                "options": ['ยินดีที่ได้รู้จัก', 'คุณชื่ออะไร', 'ลาก่อน', 'สบายดีไหม'],
+                "answer": 'ยินดีที่ได้รู้จัก',
+                "explanation": 'Trevligt att träffas แปลว่า ยินดีที่ได้รู้จัก'
+            },
+            {
+                "question": "คำว่า 'namn' ในภาษาสวีเดนตรงกับความหมายใด?",
+                "options": ['ชื่อ', 'นามสกุล', 'อายุ', 'ประเทศ'],
+                "answer": 'ชื่อ',
+                "explanation": 'namn แปลว่า ชื่อ'
+            }]
     },
     {
         "id": 4,
@@ -165,7 +201,19 @@ LESSONS = [
                 "answer": "ett hundra",
                 "explanation": "ett hundra แปลว่า 100"
             }
-        ]
+        ,
+            {
+                "question": 'เลข 8 (แปด) ในภาษาสวีเดนเขียนอย่างไร?',
+                "options": ['sju', 'åtta', 'nio', 'tio'],
+                "answer": 'åtta',
+                "explanation": 'åtta แปลว่า 8'
+            },
+            {
+                "question": 'เลข 12 (สิบสอง) ในภาษาสวีเดนเขียนอย่างไร?',
+                "options": ['elva', 'tolv', 'tretton', 'fjorton'],
+                "answer": 'tolv',
+                "explanation": 'tolv แปลว่า 12'
+            }]
     },
     {
         "id": 5,
@@ -210,7 +258,19 @@ LESSONS = [
                 "answer": "Vad är klockan?",
                 "explanation": "Vad är klockan? แปลว่า กี่โมงแล้ว"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'dag' แปลว่าอะไร?",
+                "options": ['วัน', 'เวลา', 'เดือน', 'ปี'],
+                "answer": 'วัน',
+                "explanation": 'dag แปลว่า วัน (plural: dagar)'
+            },
+            {
+                "question": "คำว่า 'vinter' แปลว่าฤดูอะไร?",
+                "options": ['ฤดูร้อน', 'ฤดูหนาว', 'ฤดูใบไม้ผลิ', 'ฤดูใบไม้ร่วง'],
+                "answer": 'ฤดูหนาว',
+                "explanation": 'vinter แปลว่า ฤดูหนาว'
+            }]
     },
     {
         "id": 6,
@@ -250,7 +310,19 @@ LESSONS = [
                 "answer": "สีเหลือง",
                 "explanation": "gul แปลว่า สีเหลือง"
             }
-        ]
+        ,
+            {
+                "question": 'สีเขียวในภาษาสวีเดนเขียนอย่างไร?',
+                "options": ['grön', 'vit', 'svart', 'gul'],
+                "answer": 'grön',
+                "explanation": 'grön แปลว่า สีเขียว'
+            },
+            {
+                "question": 'สีขาวในภาษาสวีเดนคือคำใด?',
+                "options": ['vit', 'svart', 'grå', 'röd'],
+                "answer": 'vit',
+                "explanation": 'vit แปลว่า สีขาว'
+            }]
     },
     {
         "id": 7,
@@ -295,7 +367,19 @@ LESSONS = [
                 "answer": "farfar",
                 "explanation": "farfar มาจาก far (พ่อ) + far (พ่อ) แปลว่า ปู่"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'bror' แปลว่าอะไร?",
+                "options": ['พี่ชาย/น้องชาย', 'พี่สาว/น้องสาว', 'ปู่/ตา', 'ย่า/ยาย'],
+                "answer": 'พี่ชาย/น้องชาย',
+                "explanation": 'bror ย่อมาจาก broder แปลว่า พี่ชายหรือน้องชาย'
+            },
+            {
+                "question": "คำว่า 'syster' แปลว่าอะไร?",
+                "options": ['พี่สาว/น้องสาว', 'พี่ชาย/น้องชาย', 'ลุง/น้า', 'ป้า/น้า'],
+                "answer": 'พี่สาว/น้องสาว',
+                "explanation": 'syster แปลว่า พี่สาวหรือน้องสาว'
+            }]
     },
     {
         "id": 8,
@@ -339,7 +423,19 @@ LESSONS = [
                 "answer": "สุนัข",
                 "explanation": "hund แปลว่า สุนัข"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'häst' แปลว่าสัตว์ชนิดใด?",
+                "options": ['ม้า', 'วัว', 'แกะ', 'หมู'],
+                "answer": 'ม้า',
+                "explanation": 'häst แปลว่า ม้า'
+            },
+            {
+                "question": "คำว่า 'fisk' แปลว่าสัตว์ชนิดใด?",
+                "options": ['ปลา', 'นก', 'หนู', 'เป็ด'],
+                "answer": 'ปลา',
+                "explanation": 'fisk แปลว่า ปลา'
+            }]
     },
     {
         "id": 9,
@@ -384,7 +480,19 @@ LESSONS = [
                 "answer": "bröd",
                 "explanation": "bröd แปลว่า ขนมปัง"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'kaffe' แปลว่าเครื่องดื่มชนิดใด?",
+                "options": ['กาแฟ', 'ชา', 'น้ำเปล่า', 'น้ำผลไม้'],
+                "answer": 'กาแฟ',
+                "explanation": 'kaffe แปลว่า กาแฟ'
+            },
+            {
+                "question": "คำว่า 'vatten' แปลว่าอะไร?",
+                "options": ['น้ำเปล่า', 'นม', 'เบียร์', 'ไวน์'],
+                "answer": 'น้ำเปล่า',
+                "explanation": 'vatten แปลว่า น้ำ'
+            }]
     },
     {
         "id": 10,
@@ -429,7 +537,19 @@ LESSONS = [
                 "answer": "หน้าต่าง",
                 "explanation": "fönster แปลว่า หน้าต่าง"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'hus' แปลว่าอะไร?",
+                "options": ['บ้าน', 'สวน', 'รถยนต์', 'ห้องน้ำ'],
+                "answer": 'บ้าน',
+                "explanation": 'hus แปลว่า บ้าน'
+            },
+            {
+                "question": "คำว่า 'bord' แปลว่าเฟอร์นิเจอร์ชนิดใด?",
+                "options": ['โต๊ะ', 'เก้าอี้', 'ตู้เสื้อผ้า', 'เตียงนอน'],
+                "answer": 'โต๊ะ',
+                "explanation": 'bord แปลว่า โต๊ะ'
+            }]
     },
     {
         "id": 11,
@@ -472,7 +592,19 @@ LESSONS = [
                 "answer": "mössa",
                 "explanation": "mössa คือ หมวกไหมพรมกันหนาว"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'jacka' แปลว่าเสื้อผ้าชนิดใด?",
+                "options": ['เสื้อแจ็กเกต', 'กางเกง', 'กระโปรง', 'ถุงเท้า'],
+                "answer": 'เสื้อแจ็กเกต',
+                "explanation": 'jacka แปลว่า เสื้อแจ็กเกต/เสื้อหนาวตัวนอก'
+            },
+            {
+                "question": "คำว่า 'byxor' แปลว่าอะไร?",
+                "options": ['กางเกง', 'หมวก', 'รองเท้า', 'ถุงมือ'],
+                "answer": 'กางเกง',
+                "explanation": 'byxor แปลว่า กางเกง'
+            }]
     },
     {
         "id": 12,
@@ -515,7 +647,19 @@ LESSONS = [
                 "answer": "โปรแกรมเมอร์",
                 "explanation": "programmerare แปลว่า โปรแกรมเมอร์"
             }
-        ]
+        ,
+            {
+                "question": "อาชีพ 'วิศวกร' ในภาษาสวีเดนเขียนอย่างไร?",
+                "options": ['ingenjör', 'läkare', 'polis', 'brandman'],
+                "answer": 'ingenjör',
+                "explanation": 'ingenjör แปลว่า วิศวกร'
+            },
+            {
+                "question": "คำว่า 'polis' แปลว่าอาชีพใด?",
+                "options": ['ตำรวจ', 'พยาบาล', 'ทหาร', 'พ่อค้า'],
+                "answer": 'ตำรวจ',
+                "explanation": 'polis แปลว่า ตำรวจ'
+            }]
     },
     {
         "id": 13,
@@ -559,7 +703,19 @@ LESSONS = [
                 "answer": "han",
                 "explanation": "han แปลว่า เขา (ผู้ชาย) ส่วน hon แปลว่า หล่อน (ผู้หญิง)"
             }
-        ]
+        ,
+            {
+                "question": "สรรพนามบุรุษที่ 3 'เขา (ผู้ชาย)' ในภาษาสวีเดนใช้คำใด?",
+                "options": ['han', 'hon', 'de', 'vi'],
+                "answer": 'han',
+                "explanation": 'han แปลว่า เขา (ผู้ชาย)'
+            },
+            {
+                "question": "สรรพนามบุรุษที่ 3 'หล่อน (ผู้หญิง)' ในภาษาสวีเดนใช้คำใด?",
+                "options": ['hon', 'han', 'de', 'ni'],
+                "answer": 'hon',
+                "explanation": 'hon (ฮูน) แปลว่า เธอ/หล่อน (ผู้หญิง)'
+            }]
     },
     {
         "id": 14,
@@ -603,7 +759,19 @@ LESSONS = [
                 "answer": "เดิน/ไป",
                 "explanation": "går มาจาก gå แปลว่า ไป หรือ เดิน"
             }
-        ]
+        ,
+            {
+                "question": "คำกริยา 'เขียน' ในภาษาสวีเดนสะกดอย่างไร?",
+                "options": ['skriva', 'läsa', 'tala', 'lyssna'],
+                "answer": 'skriva',
+                "explanation": 'skriva แปลว่า เขียน (เช่น skriva ett brev - เขียนจดหมาย)'
+            },
+            {
+                "question": "คำกริยา 'พูด' ในภาษาสวีเดนคือคำใด?",
+                "options": ['prata', 'äta', 'sova', 'gå'],
+                "answer": 'prata',
+                "explanation": 'prata แปลว่า พูด หรือ สนทนา'
+            }]
     },
     {
         "id": 15,
@@ -642,7 +810,19 @@ LESSONS = [
                 "answer": "คำกริยาหลักต้องอยู่ตำแหน่งที่ 2 ในประโยคบอกเล่า",
                 "explanation": "กฎ V2 (Verb Second) หมายถึงคำกริยาแท้ต้องถูกวางอยู่ในตำแหน่งที่สองของประโยค"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'ที่ไหน' ในภาษาสวีเดนสะกดอย่างไร?",
+                "options": ['var', 'vad', 'vem', 'när'],
+                "answer": 'var',
+                "explanation": 'var แปลว่า ที่ไหน (เช่น Var bor du? - คุณอาศัยอยู่ที่ไหน?)'
+            },
+            {
+                "question": "คำว่า 'อย่างไร' ในภาษาสวีเดนสะกดอย่างไร?",
+                "options": ['hur', 'vad', 'varför', 'när'],
+                "answer": 'hur',
+                "explanation": 'hur แปลว่า อย่างไร (เช่น Hur mår du? - คุณเป็นอย่างไรบ้าง?)'
+            }]
     },
     {
         "id": 16,
@@ -684,7 +864,19 @@ LESSONS = [
                 "answer": "liten",
                 "explanation": "liten แปลว่า เล็ก"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'เศร้า' หรือ 'เสียใจ' ในภาษาสวีเดนสะกดอย่างไร?",
+                "options": ['ledsen', 'glad', 'arg', 'trött'],
+                "answer": 'ledsen',
+                "explanation": 'ledsen แปลว่า เศร้า หรือ เสียใจ'
+            },
+            {
+                "question": "คำว่า 'เหนื่อย' ในภาษาสวีเดนคือคำใด?",
+                "options": ['trött', 'glad', 'pigg', 'stark'],
+                "answer": 'trött',
+                "explanation": 'trött แปลว่า เหนื่อย หรือ ง่วงนอน'
+            }]
     },
     {
         "id": 17,
@@ -726,7 +918,19 @@ LESSONS = [
                 "answer": "เงินสด",
                 "explanation": "kontant แปลว่า จ่ายสด หรือ เงินสด"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'แพง' ในภาษาสวีเดนเขียนอย่างไร?",
+                "options": ['dyr', 'billig', 'gratis', 'stor'],
+                "answer": 'dyr',
+                "explanation": 'dyr แปลว่า แพง'
+            },
+            {
+                "question": "คำว่า 'ถูก (ราคาประหยัด)' ในภาษาสวีเดนเขียนอย่างไร?",
+                "options": ['billig', 'dyr', 'bra', 'liten'],
+                "answer": 'billig',
+                "explanation": 'billig แปลว่า ถูก/ราคาไม่แพง'
+            }]
     },
     {
         "id": 18,
@@ -771,7 +975,19 @@ LESSONS = [
                 "answer": "สถานีรถไฟตั้งอยู่ตรงไหน",
                 "explanation": "Var ligger... แปลว่า...ตั้งอยู่ที่ไหน และ stationen หมายถึงสถานี"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'รถยนต์' ในภาษาสวีเดนเขียนอย่างไร?",
+                "options": ['bil', 'buss', 'cykel', 'båt'],
+                "answer": 'bil',
+                "explanation": 'bil แปลว่า รถยนต์ (en bil)'
+            },
+            {
+                "question": "คำกริยา 'เดินทาง' ในภาษาสวีเดนคือคำใด?",
+                "options": ['resa', 'köra', 'åka', 'flyga'],
+                "answer": 'resa',
+                "explanation": 'resa แปลว่า เดินทาง หรือ ท่องเที่ยว'
+            }]
     },
     {
         "id": 19,
@@ -818,7 +1034,19 @@ LESSONS = [
                 "answer": "hus",
                 "explanation": "คำนามเพศ ett ลงท้ายด้วยพยัญชนะ เมื่อผันรูปเป็นพหูพจน์ทั่วไปจะคงรูปเดิมคือ hus"
             }
-        ]
+        ,
+            {
+                "question": 'คำนำหน้านาม (Articles) ในภาษาสวีเดนแบ่งออกเป็นกี่ประเภทหลัก?',
+                "options": ['2 ประเภท (en และ ett)', '3 ประเภท (en, ett, และ ett-plural)', 'ไม่มีการแบ่งประเภท', 'ตามพยัญชนะตัวแรก'],
+                "answer": '2 ประเภท (en และ ett)',
+                "explanation": 'ภาษาสวีเดนแบ่งเพศของคำนามเป็น 2 กลุ่มคือ en (Utram) และ ett (Neutrum)'
+            },
+            {
+                "question": "คำศัพท์ 'แอปเปิ้ล' (äpple) เป็นคำนามเพศใด?",
+                "options": ['ett (ett äpple)', 'en (en äpple)', 'ไม่มีเพศ', 'เป็นได้ทั้ง en และ ett'],
+                "answer": 'ett (ett äpple)',
+                "explanation": 'äpple เป็นคำนามเพศ ett เวลาผันเป็นรูปชี้เฉพาะคือ äpplet'
+            }]
     },
     {
         "id": 20,
@@ -858,7 +1086,19 @@ LESSONS = [
                 "answer": "skrev",
                 "explanation": "skriva เป็นกริยากลุ่มพิเศษ (strong verb) ผันอดีตโดยเปลี่ยนเสียงสระภายในคำกลายเป็น skrev"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'เมื่อวานนี้' ในภาษาสวีเดนคือคำใด?",
+                "options": ['i går', 'i dag', 'i morgon', 'nu'],
+                "answer": 'i går',
+                "explanation": 'i går แปลว่า เมื่อวานนี้'
+            },
+            {
+                "question": "คำว่า 'พรุ่งนี้' ในภาษาสวีเดนเขียนอย่างไร?",
+                "options": ['i morgon', 'i dag', 'i går', 'sedan'],
+                "answer": 'i morgon',
+                "explanation": 'i morgon แปลว่า วันพรุ่งนี้'
+            }]
     },
     {
         "id": 21,
@@ -896,7 +1136,19 @@ LESSONS = [
                 "answer": "ฉันไม่สบาย / ป่วย",
                 "explanation": "sjuk แปลว่า ป่วย หรือ ไม่สบาย"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'โรงเรียน' ในภาษาสวีเดนคือข้อใด?",
+                "options": ['skola', 'bank', 'bio', 'kyrka'],
+                "answer": 'skola',
+                "explanation": 'skola แปลว่า โรงเรียน (en skola)'
+            },
+            {
+                "question": "คำว่า 'ธนาคาร' ในภาษาสวีเดนเขียนอย่างไร?",
+                "options": ['bank', 'affär', 'station', 'torg'],
+                "answer": 'bank',
+                "explanation": 'bank แปลว่า ธนาคาร (en bank)'
+            }]
     },
     {
         "id": 22,
@@ -938,7 +1190,19 @@ LESSONS = [
                 "answer": "Ett ögonblick",
                 "explanation": "Ett ögonblick แปลว่า รอสักครู่ (เปรียบเทียบคือช่วงกระพริบตาเดียว)"
             }
-        ]
+        ,
+            {
+                "question": "คำศัพท์ 'ที่ทำงาน' หรือ 'สำนักงาน' ในภาษาสวีเดนเขียนอย่างไร?",
+                "options": ['kontor', 'skola', 'affär', 'fabrik'],
+                "answer": 'kontor',
+                "explanation": 'kontor แปลว่า ที่ทำงาน หรือ ออฟฟิศ (ett kontor)'
+            },
+            {
+                "question": "คำว่า 'เพื่อนร่วมงาน' ในภาษาสวีเดนคือข้อใด?",
+                "options": ['kollega', 'kompis', 'chef', 'kund'],
+                "answer": 'kollega',
+                "explanation": 'kollega แปลว่า เพื่อนร่วมงาน'
+            }]
     },
     {
         "id": 23,
@@ -981,7 +1245,19 @@ LESSONS = [
                 "answer": "ร้านค้าปิดทำการ",
                 "explanation": "stängt แปลว่า ปิดทำการ"
             }
-        ]
+        ,
+            {
+                "question": "คำว่า 'Varning' บนป้ายเตือนหมายถึงอะไร?",
+                "options": ['คำเตือน/อันตราย', 'ทางเข้า', 'ยินดีต้อนรับ', 'ทางออก'],
+                "answer": 'คำเตือน/อันตราย',
+                "explanation": 'Varning แปลว่า คำเตือน หรือ ระวังอันตราย'
+            },
+            {
+                "question": "ป้าย 'Öppet' บนกระจกร้านค้าบอกว่าอย่างไร?",
+                "options": ['เปิดทำการ', 'ปิดทำการ', 'ลดราคา', 'ย้ายร้าน'],
+                "answer": 'เปิดทำการ',
+                "explanation": 'öppet แปลว่า เปิดทำการ หรือ เปิดอยู่'
+            }]
     },
     {
         "id": 24,
@@ -1016,7 +1292,19 @@ LESSONS = [
                 "answer": "นำ en ไปต่อท้ายคำนาม",
                 "explanation": "คำนามเพศ en เมื่อชี้เฉพาะเจาะจง ให้นำ en ไปเชื่อมต่อเป็นส่วนท้ายของคำ เช่น en bil -> bilar -> biken (รถคันนั้น)"
             }
-        ]
+        ,
+            {
+                "question": "คำศัพท์ใดแปลว่า 'สีแดง' ในภาษาสวีเดน?",
+                "options": ['röd', 'blå', 'gul', 'grön'],
+                "answer": 'röd',
+                "explanation": 'röd แปลว่า สีแดง ส่วน blå = สีน้ำเงิน, gul = สีเหลือง, grön = สีเขียว'
+            },
+            {
+                "question": "คำสรรพนาม 'Vi' ในภาษาสวีเดนหมายถึงใคร?",
+                "options": ['พวกเรา', 'พวกคุณ', 'พวกเขา', 'เธอ'],
+                "answer": 'พวกเรา',
+                "explanation": 'vi แปลว่า พวกเรา'
+            }]
     }
 ]
 
