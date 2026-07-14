@@ -20,6 +20,7 @@ import css_styles
 import chat_agent
 import vocabulary_data
 import db_helper
+import achievements as achievements_mod
 from streamlit_cookies_controller import CookieController
 
 # Force reload local modules on each rerun to ensure edits are applied immediately (Commented in production for fast loading)
@@ -28,6 +29,11 @@ from streamlit_cookies_controller import CookieController
 # importlib.reload(chat_agent)
 # importlib.reload(vocabulary_data)
 # importlib.reload(db_helper)
+
+# One-time hot-reload: if db_helper was cached before the password-encryption update,
+# force a reload so verify_password / hash_password / is_hashed are available.
+if not hasattr(db_helper, "verify_password"):
+    importlib.reload(db_helper)
 
 # Initialize database
 db_helper.init_db()
@@ -183,6 +189,19 @@ if "active_lesson_id" not in st.session_state:
     st.session_state.active_lesson_id = 1
 if "app_theme" not in st.session_state:
     st.session_state.app_theme = "Dark"
+if "shown_achievement_ids" not in st.session_state:
+    # Track which achievement popups have already been shown in this session
+    st.session_state.shown_achievement_ids = set()
+if "scroll_to_achievements" not in st.session_state:
+    st.session_state.scroll_to_achievements = False
+if "final_exam_questions" not in st.session_state:
+    st.session_state.final_exam_questions = []
+if "final_exam_answers" not in st.session_state:
+    st.session_state.final_exam_answers = {}
+if "final_exam_submitted" not in st.session_state:
+    st.session_state.final_exam_submitted = False
+if "final_exam_score" not in st.session_state:
+    st.session_state.final_exam_score = 0
 
 # Check for auto-login cookie
 if not st.session_state.logged_in:
@@ -287,10 +306,35 @@ if not st.session_state.logged_in:
             unsafe_allow_html=True
         )
         
-        # Form Container
+        # ── Allowed email domains ──────────────────────────────────────────────
+        _ALLOWED_DOMAINS = {
+            "gmail.com", "hotmail.com", "outlook.com", "yahoo.com",
+            "live.com", "icloud.com", "me.com", "hotmail.co.th",
+            "yahoo.co.th", "protonmail.com", "msn.com",
+        }
+
+        def _is_valid_email(email: str) -> tuple[bool, str]:
+            """Return (valid, error_msg). Checks format + known provider domain."""
+            email = email.strip().lower()
+            if "@" not in email or "." not in email:
+                return False, "รูปแบบอีเมลไม่ถูกต้อง"
+            parts = email.split("@")
+            if len(parts) != 2 or not parts[0] or not parts[1]:
+                return False, "รูปแบบอีเมลไม่ถูกต้อง"
+            domain = parts[1]
+            if domain not in _ALLOWED_DOMAINS:
+                allowed = ", ".join(sorted(_ALLOWED_DOMAINS))
+                return False, f"ต้องใช้อีเมลจากผู้ให้บริการที่รองรับเท่านั้น:\n{allowed}"
+            local = parts[0]
+            if len(local) < 2:
+                return False, "ชื่ออีเมลสั้นเกินไป"
+            return True, ""
+
+        # ── Form Container ─────────────────────────────────────────────────────
         with st.container(border=True):
             tab_login, tab_register = st.tabs(["🔐 เข้าสู่ระบบ (Login)", "📝 สมัครสมาชิก (Sign Up)"])
             
+            # ── LOGIN TAB ──────────────────────────────────────────────────────
             with tab_login:
                 with st.form("login_form"):
                     st.markdown("<h4 style='margin-bottom: 10px; font-weight: 500;'>เข้าสู่ระบบผู้เรียน</h4>", unsafe_allow_html=True)
@@ -304,48 +348,120 @@ if not st.session_state.logged_in:
                             st.error("กรุณาระบุชื่อผู้ใช้")
                         else:
                             user_data = db_helper.get_user(username_clean)
-                            if user_data and user_data.get("password") == password:
-                                # Save login state in cookie
+                            stored_pw = user_data.get("password", "") if user_data else ""
+                            if user_data and db_helper.verify_password(password, stored_pw):
+                                # Transparent migration: upgrade plaintext → bcrypt hash
+                                if not db_helper.is_hashed(stored_pw):
+                                    db_helper.update_user_password(
+                                        username_clean,
+                                        db_helper.hash_password(password)
+                                    )
                                 cookie_controller.set("logged_in_username", username_clean)
-                                
                                 st.session_state.logged_in = True
                                 st.session_state.current_user = username_clean
                                 st.session_state.user_role = user_data.get("role", "User")
                                 st.session_state.completed_lessons = set(user_data.get("completed_lessons", []))
                                 st.session_state.quiz_scores = {str(k): v for k, v in user_data.get("quiz_scores", {}).items()}
                                 st.success("เข้าสู่ระบบสำเร็จ!")
-                                
-                                # A small delay to ensure the browser saves the cookie before Python triggers the rerun
                                 import time
                                 time.sleep(0.3)
                                 st.rerun()
                             else:
                                 st.error("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
-                            
+
+                # ── Forgot Password expander ───────────────────────────────────
+                with st.expander("🔑 ลืมรหัสผ่าน? คลิกที่นี่"):
+                    st.markdown(
+                        """
+                        <div style="background:rgba(0,75,135,0.1); border-left:3px solid #FFCD00;
+                                    border-radius:8px; padding:10px 14px; margin-bottom:12px; font-size:0.88rem;">
+                            กรอก <b>ชื่อผู้ใช้</b> และ <b>อีเมล</b> ที่ลงทะเบียนไว้ เพื่อยืนยันตัวตนและตั้งรหัสผ่านใหม่
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                    fp_step = st.session_state.get("fp_step", 1)
+
+                    if fp_step == 1:
+                        with st.form("forgot_pw_verify"):
+                            fp_user = st.text_input("ชื่อผู้ใช้ (Username)", key="fp_username")
+                            fp_email = st.text_input("อีเมลที่ลงทะเบียน (Email)", key="fp_email")
+                            fp_verify = st.form_submit_button("✅ ยืนยันตัวตน", use_container_width=True)
+                            if fp_verify:
+                                fp_u = fp_user.strip()
+                                fp_e = fp_email.strip().lower()
+                                if not fp_u or not fp_e:
+                                    st.error("กรุณากรอกทั้งชื่อผู้ใช้และอีเมล")
+                                else:
+                                    found = db_helper.get_user(fp_u)
+                                    if found and found.get("email", "").lower() == fp_e:
+                                        st.session_state["fp_step"] = 2
+                                        st.session_state["fp_verified_user"] = fp_u
+                                        st.rerun()
+                                    else:
+                                        st.error("ไม่พบบัญชีที่ตรงกับชื่อผู้ใช้และอีเมลนี้ในระบบ")
+
+                    elif fp_step == 2:
+                        verified_user = st.session_state.get("fp_verified_user", "")
+                        st.success(f"✅ ยืนยันตัวตนสำเร็จ — กำลังรีเซ็ตรหัสผ่านสำหรับ **{verified_user}**")
+                        with st.form("forgot_pw_reset"):
+                            new_pw1 = st.text_input("รหัสผ่านใหม่", type="password", key="fp_new_pw1")
+                            new_pw2 = st.text_input("ยืนยันรหัสผ่านใหม่", type="password", key="fp_new_pw2")
+                            fp_save = st.form_submit_button("💾 บันทึกรหัสผ่านใหม่", use_container_width=True, type="primary")
+                            if fp_save:
+                                if len(new_pw1) < 4:
+                                    st.error("รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร")
+                                elif new_pw1 != new_pw2:
+                                    st.error("รหัสผ่านและการยืนยันไม่ตรงกัน")
+                                else:
+                                    new_hash = db_helper.hash_password(new_pw1)
+                                    db_helper.update_user_password(verified_user, new_hash)
+                                    st.session_state.pop("fp_step", None)
+                                    st.session_state.pop("fp_verified_user", None)
+                                    st.success("🎉 เปลี่ยนรหัสผ่านสำเร็จ! กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่")
+                                    import time; time.sleep(0.6)
+                                    st.rerun()
+                        if st.button("↩ ยกเลิก / กลับ", key="fp_cancel"):
+                            st.session_state.pop("fp_step", None)
+                            st.session_state.pop("fp_verified_user", None)
+                            st.rerun()
+
+            # ── REGISTER TAB ───────────────────────────────────────────────────
             with tab_register:
+                st.markdown(
+                    """
+                    <div style="background:rgba(255,205,0,0.07); border:1px solid rgba(255,205,0,0.25);
+                                border-radius:10px; padding:10px 14px; margin-bottom:12px; font-size:0.85rem;">
+                        📧 รองรับเฉพาะอีเมลจาก: <b>Gmail, Hotmail, Outlook, Yahoo, Live, iCloud, ProtonMail</b>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
                 with st.form("register_form"):
                     st.markdown("<h4 style='margin-bottom: 10px; font-weight: 500;'>สร้างบัญชีผู้เรียนใหม่</h4>", unsafe_allow_html=True)
                     reg_username = st.text_input("ชื่อผู้ใช้ใหม่ (New Username)", placeholder="ตัวอักษรภาษาอังกฤษหรือตัวเลข", key="reg_username")
-                    reg_email = st.text_input("อีเมล (Email)", placeholder="กรอกอีเมล เช่น user@example.com", key="reg_email")
+                    reg_email = st.text_input("อีเมล (Email)", placeholder="เช่น user@gmail.com", key="reg_email")
                     reg_password = st.text_input("รหัสผ่าน (Password)", type="password", placeholder="รหัสผ่านอย่างน้อย 4 ตัวอักษร", key="reg_password")
                     reg_password_confirm = st.text_input("ยืนยันรหัสผ่าน (Confirm Password)", type="password", placeholder="กรอกรหัสผ่านอีกครั้ง", key="reg_password_confirm")
                     submit_reg = st.form_submit_button("สมัครสมาชิก (Sign Up)", use_container_width=True)
                     
                     if submit_reg:
-                        new_user = reg_username.strip()
+                        new_user  = reg_username.strip()
                         new_email = reg_email.strip()
-                        new_pass = reg_password
-                        new_pass_confirm = reg_password_confirm
-                        
+                        new_pass  = reg_password
+                        new_confirm = reg_password_confirm
+
+                        email_ok, email_err = _is_valid_email(new_email)
+
                         if not new_user:
                             st.error("กรุณาระบุชื่อผู้ใช้")
                         elif len(new_user) < 3:
                             st.error("ชื่อผู้ใช้ต้องมีความยาวอย่างน้อย 3 ตัวอักษร")
-                        elif not new_email or "@" not in new_email or "." not in new_email:
-                            st.error("กรุณาระบุอีเมลที่ถูกต้อง")
+                        elif not email_ok:
+                            st.error(f"❌ {email_err}")
                         elif len(new_pass) < 4:
                             st.error("รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร")
-                        elif new_pass != new_pass_confirm:
+                        elif new_pass != new_confirm:
                             st.error("รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน")
                         else:
                             success, msg = db_helper.create_user(new_user, new_email, new_pass)
@@ -359,26 +475,65 @@ if not st.session_state.logged_in:
 
 
 # Define navigation links based on user role
+_all_done = (len(st.session_state.completed_lessons) >= len(lessons_data.LESSONS)) and len(lessons_data.LESSONS) > 0
 if st.session_state.user_role == "Admin":
     PAGES = ["แดชบอร์ดผู้ดูแลระบบ", "เพิ่มผู้ใช้งานใหม่", "ลบผู้ใช้งานและประวัติการลบ", "จัดการรูปเกมจับคู่", "โปรไฟล์ส่วนตัว", "ตั้งค่าระบบ"]
 else:
     PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "โปรไฟล์ส่วนตัว"]
+    if _all_done:
+        PAGES.append("📝 สอบวัดระดับ (Final Exam)")
 
 # Sidebar Navigation
 with st.sidebar:
-    st.markdown('<div class="sidebar-title"><h1>SvenskaEasy</h1><p>เว็บไซต์การเรียนภาษาสวีเดนง่ายๆ</p></div>', unsafe_allow_html=True)
-    
-    # Beautiful Swedish Flag banner in HTML
+    # ── Mini-Profile Card ──────────────────────────────────────────
+    if st.session_state.logged_in:
+        _sidebar_user = st.session_state.get("cached_user_data") or {}
+        _avatar_bytes = _sidebar_user.get("avatar")
+        _sidebar_completed = len(st.session_state.completed_lessons)
+        _sidebar_total = len(lessons_data.LESSONS)
+        _earned_achs = achievements_mod.get_earned_achievements(_sidebar_completed, _sidebar_total)
+        _top_ach = _earned_achs[-1] if _earned_achs else None
+
+        import base64 as _b64
+        if _avatar_bytes:
+            try:
+                if isinstance(_avatar_bytes, bytes):
+                    _avatar_src = f"data:image/png;base64,{_b64.b64encode(_avatar_bytes).decode()}"
+                else:
+                    _avatar_src = f"data:image/png;base64,{_avatar_bytes}"
+            except Exception:
+                _avatar_src = "https://www.w3schools.com/howto/img_avatar.png"
+        else:
+            _avatar_src = "https://www.w3schools.com/howto/img_avatar.png"
+
+        _level_html = ""
+        if _top_ach:
+            _level_html = f"""<span class="level-badge" style="background:{_top_ach['color']}22; color:{_top_ach['color']}; border:1px solid {_top_ach['color']}55;">{_top_ach['icon']} {_top_ach['title_en']}</span>"""
+        else:
+            _level_html = """<span class="level-badge" style="background:rgba(128,128,128,0.12); color:#888; border:1px solid rgba(128,128,128,0.2);">🔰 เริ่มต้น</span>"""
+
+        st.markdown(
+            f"""
+            <div class="mini-profile-card">
+                <img src="{_avatar_src}" class="mini-profile-avatar" />
+                <p class="mini-profile-name">👤 {st.session_state.current_user}</p>
+                {_level_html}
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Swedish Flag stripe
     st.markdown(
         """
-        <div style="background-color: #004B87; height: 12px; border-radius: 4px 4px 0 0; position: relative; margin-bottom: 20px;">
-            <div style="background-color: #FFCD00; width: 12px; height: 100%; position: absolute; left: 30px;"></div>
-            <div style="background-color: #FFCD00; width: 100%; height: 3px; position: absolute; top: 4px;"></div>
+        <div style="background-color: #004B87; height: 10px; border-radius: 4px; position: relative; margin-bottom: 16px;">
+            <div style="background-color: #FFCD00; width: 10px; height: 100%; position: absolute; left: 28px;"></div>
+            <div style="background-color: #FFCD00; width: 100%; height: 3px; position: absolute; top: 3px;"></div>
         </div>
         """,
         unsafe_allow_html=True
     )
-    
+
     # Radio navigation styled as menu
     if st.session_state.current_page not in PAGES:
         st.session_state.current_page = PAGES[0]
@@ -386,7 +541,7 @@ with st.sidebar:
     if selected_page != st.session_state.current_page:
         st.session_state.current_page = selected_page
         st.rerun()
-        
+
     st.markdown("---")
     
     # Progress Section
@@ -399,6 +554,26 @@ with st.sidebar:
         st.progress(progress_percentage / 100)
         st.write(f"เรียนเสร็จแล้ว {completed_count} จากทั้งหมด {total_lessons} บทเรียน ({progress_percentage}%)")
         
+        # Clickable achievement count badge
+        earned_count = len(achievements_mod.get_earned_achievements(completed_count, total_lessons))
+        total_ach = len(achievements_mod.get_all_achievements(total_lessons))
+        if st.button(
+            f"🏆 {earned_count} / {total_ach} รางวัลที่ได้รับ",
+            key="sidebar_ach_btn",
+            use_container_width=True,
+            help="คลิกเพื่อดูรางวัลทั้งหมดของคุณ"
+        ):
+            st.session_state.current_page = "โปรไฟล์ส่วนตัว"
+            st.session_state.scroll_to_achievements = True
+            st.rerun()
+
+        # Hint if not all lessons done yet
+        if not _all_done:
+            remaining = total_lessons - completed_count
+            st.caption(f"📝 เรียนอีก {remaining} บทเพื่อปลดล็อกการสอบวัดระดับ")
+        else:
+            st.caption("✅ เรียนครบแล้ว! ไปสอบวัดระดับเพื่อรับใบเกียรติบัตรได้เลย")
+
         st.markdown("---")
     
     # Connection status indicator (Only visible to Admin)
@@ -1001,6 +1176,37 @@ elif st.session_state.current_page == "Dashboard":
                     )
                 st.markdown(f"<p style='margin: 0px 10px; font-size:0.95rem; opacity:0.8;'>{lesson['description']}</p>", unsafe_allow_html=True)
 
+    # --- Achievements Grid on Dashboard ---
+    st.markdown("---")
+    st.markdown("### 🏆 รางวัลของคุณ (Your Achievements)")
+    
+    all_ach = achievements_mod.get_all_achievements(total_lessons)
+    earned_ids = {a["id"] for a in achievements_mod.get_earned_achievements(completed_count, total_lessons)}
+    
+    # Display in rows of 4
+    ach_cols_per_row = 4
+    for row_start in range(0, len(all_ach), ach_cols_per_row):
+        row_achs = all_ach[row_start : row_start + ach_cols_per_row]
+        row_cols = st.columns(len(row_achs))
+        for col, ach in zip(row_cols, row_achs):
+            with col:
+                is_earned = ach["id"] in earned_ids
+                card_class = "achievement-card earned" if is_earned else "achievement-card locked"
+                lock_icon = "" if is_earned else " 🔒"
+                req_label = f"{ach['required']} บทเรียน"
+                st.markdown(
+                    f"""
+                    <div class="{card_class}">
+                        <span class="achievement-icon">{ach['icon']}{lock_icon}</span>
+                        <p class="achievement-title">{ach['title_en']}</p>
+                        <p class="achievement-title" style="font-size:0.8rem; opacity:0.85;">{ach['title_th']}</p>
+                        <p class="achievement-desc">{ach['description']}</p>
+                        <span class="achievement-req">{req_label}</span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
 # ----------------- 2. LESSONS PAGE -----------------
 elif st.session_state.current_page == "บทเรียนทั้งหมด":
     st.markdown("# บทเรียนภาษาชวีเดน (Svenska lektioner)")
@@ -1084,13 +1290,36 @@ elif st.session_state.current_page == "บทเรียนทั้งหม�
     with col_mark:
         is_completed = l_id in st.session_state.completed_lessons
         if is_completed:
-            st.success("คุณเรียนจบบทนี้แล้ว!")
+            st.success("✅ คุณเรียนจบบทนี้แล้ว!")
         else:
             if st.button("เรียนเสร็จสิ้นแล้ว! (Mark as Completed)", key=f"mark_comp_{l_id}"):
+                prev_count = len(st.session_state.completed_lessons)
                 st.session_state.completed_lessons.add(l_id)
+                new_count = len(st.session_state.completed_lessons)
                 st.session_state.pop("cached_user_data", None)
                 db_helper.update_user_progress(st.session_state.current_user, st.session_state.completed_lessons)
-                st.success("เยี่ยมมาก! ระบบบันทึกความก้าวหน้าของคุณเรียบร้อยแล้ว ลองไปทำแบบฝึกหัดเพื่อทดสอบความรู้กันเถอะ!")
+                
+                # --- Achievement Detection ---
+                newly_earned = achievements_mod.get_newly_earned(prev_count, new_count, total_lessons)
+                newly_earned = [a for a in newly_earned if a["id"] not in st.session_state.shown_achievement_ids]
+                
+                if newly_earned:
+                    st.balloons()
+                    for ach in newly_earned:
+                        st.session_state.shown_achievement_ids.add(ach["id"])
+                        st.markdown(
+                            f"""
+                            <div class="achievement-popup">
+                                <span class="popup-icon">{ach['icon']}</span>
+                                <h3>🎉 รางวัลใหม่! {ach['title_en']}</h3>
+                                <p style="font-size:1.1rem; font-weight:600; color:#FFCD00 !important; margin-bottom:6px !important;">{ach['title_th']}</p>
+                                <p>{ach['description']}</p>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+                else:
+                    st.success("เยี่ยมมาก! ระบบบันทึกความก้าวหน้าของคุณเรียบร้อยแล้ว ลองไปทำแบบฝึกหัดเพื่อทดสอบความรู้กันเถอะ!")
                 st.rerun()
                 
     with col_next:
@@ -1800,5 +2029,309 @@ elif st.session_state.current_page == "โปรไฟล์ส่วนตั�
                         st.rerun()
                     else:
                         st.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลส่วนตัว")
+
+        # --- Achievements Showcase ---
+        st.markdown("---")
+        st.markdown("### 🏆 รางวัลที่ได้รับ (Achievements)")
+        
+        _total_lessons = len(lessons_data.LESSONS)
+        _completed_count = len(st.session_state.completed_lessons)
+        all_ach_profile = achievements_mod.get_all_achievements(_total_lessons)
+        earned_ids_profile = {a["id"] for a in achievements_mod.get_earned_achievements(_completed_count, _total_lessons)}
+        earned_count_profile = len(earned_ids_profile)
+        
+        # Summary banner
+        next_ach = next((a for a in all_ach_profile if a["id"] not in earned_ids_profile), None)
+        st.markdown(
+            f"""
+            <div style="background: linear-gradient(135deg, #004B87 0%, #002B5C 100%); 
+                        border-radius: 14px; padding: 18px 22px; margin-bottom: 18px;
+                        border: 1px solid rgba(255,205,0,0.3);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <span style="font-size:1.6rem;">🏆</span>
+                        <span style="font-size:1.3rem; font-weight:700; color:#FFCD00; margin-left:8px;"
+                        >{earned_count_profile} / {len(all_ach_profile)} รางวัล</span>
+                        <p style="margin:4px 0 0 0; color:#e2e8f0; opacity:0.85; font-size:0.9rem;">รางวัลที่ได้รับทั้งหมด</p>
+                    </div>
+                    {'<div style="color:#e2e8f0; font-size:0.9rem;">🎯 รางวัลถัดไป: <b style="color:#FFCD00;">' + next_ach["icon"] + " " + next_ach["title_en"] + '</b><br><span style="opacity:0.7;">เรียนอีก ' + str(next_ach["required"] - _completed_count) + " บทเรียนเพื่อปลดล็อก</span></div>" if next_ach else '<div style="color:#FFCD00; font-weight:700; font-size:1rem;">🎉 คุณปลดล็อกรางวัลทั้งหมดแล้ว!</div>'}
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+        
+        # Achievements grid — 4 per row
+        ach_cols_per_row = 4
+        for row_start in range(0, len(all_ach_profile), ach_cols_per_row):
+            row_achs = all_ach_profile[row_start : row_start + ach_cols_per_row]
+            row_cols = st.columns(len(row_achs))
+            for col, ach in zip(row_cols, row_achs):
+                with col:
+                    is_earned = ach["id"] in earned_ids_profile
+                    card_class = "achievement-card earned" if is_earned else "achievement-card locked"
+                    lock_icon = "" if is_earned else " 🔒"
+                    req_label = f"{ach['required']} บทเรียน"
+                    st.markdown(
+                        f"""
+                        <div class="{card_class}">
+                            <span class="achievement-icon">{ach['icon']}{lock_icon}</span>
+                            <p class="achievement-title">{ach['title_en']}</p>
+                            <p class="achievement-title" style="font-size:0.8rem; opacity:0.85;">{ach['title_th']}</p>
+                            <p class="achievement-desc">{ach['description']}</p>
+                            <span class="achievement-req">{req_label}</span>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
     else:
         st.error("ไม่พบข้อมูลผู้ใช้งานนี้ในระบบ")
+
+
+# ----------------- 7. FINAL EXAM PAGE -----------------
+elif st.session_state.current_page == "📝 สอบวัดระดับ (Final Exam)":
+    from datetime import datetime
+    import random
+
+    PASS_THRESHOLD = 0.80   # 80 %
+    TOTAL_Q = 20            # questions per attempt
+
+    st.markdown(
+        """
+        <div style="background: linear-gradient(135deg, #004B87 0%, #002B5C 100%);
+                    color: white; padding: 32px; border-radius: 16px; margin-bottom: 24px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.2); border-left: 6px solid #FFCD00;
+                    position: relative; overflow: hidden;">
+            <div style="position:absolute; right:-20px; bottom:-20px; font-size:8rem; opacity:0.08;">📝</div>
+            <span style="background:#FFCD00; color:#004B87; padding:4px 12px; border-radius:20px;
+                         font-weight:bold; font-size:0.85rem;">FINAL EXAM</span>
+            <h1 style="margin:10px 0 5px 0; color:#ffffff; font-weight:800; font-family:'Outfit','Kanit',sans-serif; border:none; font-size:2rem;">
+                สอบวัดระดับภาษาสวีเดน
+            </h1>
+            <p style="margin:0; color:#e2e8f0; opacity:0.9; font-size:1.05rem;">
+                ทดสอบความรู้ครบทุกบทเรียน — 20 ข้อ, ต้องผ่าน 80% เพื่อรับใบเกียรติบัตร
+            </p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # ── Build question pool from all lessons ──────────────────────────────────
+    def _build_question_pool():
+        pool = []
+        for lesson in lessons_data.LESSONS:
+            for q in lesson.get("quiz", []):
+                if q.get("question") and q.get("options") and q.get("answer"):
+                    pool.append({
+                        "question":    q["question"],
+                        "options":     q["options"],
+                        "answer":      q["answer"],
+                        "explanation": q.get("explanation", ""),
+                        "lesson":      lesson["title"],
+                    })
+        return pool
+
+    # ── Initialise / re-seed questions for this attempt ───────────────────────
+    if not st.session_state.final_exam_questions or st.session_state.get("_exam_reset"):
+        pool = _build_question_pool()
+        if len(pool) >= TOTAL_Q:
+            seed_val = hash(st.session_state.current_user + str(st.session_state.get("_exam_attempt", 0)))
+            rng = random.Random(seed_val)
+            selected = rng.sample(pool, TOTAL_Q)
+        else:
+            selected = pool  # use all if < 20 available
+        st.session_state.final_exam_questions = selected
+        st.session_state.final_exam_answers   = {}
+        st.session_state.final_exam_submitted  = False
+        st.session_state.final_exam_score      = 0
+        st.session_state["_exam_reset"]        = False
+
+    questions = st.session_state.final_exam_questions
+
+    # ── RESULTS VIEW ──────────────────────────────────────────────────────────
+    if st.session_state.final_exam_submitted:
+        score     = st.session_state.final_exam_score
+        total_q   = len(questions)
+        pct       = score / total_q if total_q else 0
+        passed    = pct >= PASS_THRESHOLD
+        pass_num  = int(PASS_THRESHOLD * total_q)
+
+        if passed:
+            st.balloons()
+            _exam_date = datetime.now().strftime("%d %B %Y")
+
+            # ── CERTIFICATE ───────────────────────────────────────────────────
+            st.markdown(
+                f"""
+                <div class="certificate-wrapper" id="certificate">
+                    <!-- Decorative corner ornaments -->
+                    <div style="position:absolute; top:18px; left:18px; font-size:1.8rem; opacity:0.35;">✦</div>
+                    <div style="position:absolute; top:18px; right:18px; font-size:1.8rem; opacity:0.35;">✦</div>
+                    <div style="position:absolute; bottom:18px; left:18px; font-size:1.8rem; opacity:0.35;">✦</div>
+                    <div style="position:absolute; bottom:18px; right:18px; font-size:1.8rem; opacity:0.35;">✦</div>
+
+                    <div style="font-size:3rem; margin-bottom:8px;">🇸🇪</div>
+                    <p class="certificate-subtitle">ใบเกียรติบัตรรับรองความสำเร็จ</p>
+                    <p class="certificate-title">Certificate of Achievement</p>
+                    <hr class="certificate-divider"/>
+
+                    <p style="color:#c8d8e8; font-size:1rem; margin:0 0 6px 0;">มอบให้แก่</p>
+                    <p class="certificate-name">{st.session_state.current_user}</p>
+
+                    <p class="certificate-body">
+                        ได้สำเร็จการเรียนรู้ภาษาสวีเดนครบทุกบทเรียน<br>
+                        และผ่านการทดสอบวัดระดับ <strong style="color:#FFCD00;">SvenskaEasy Final Exam</strong><br>
+                        ด้วยความมุ่งมั่นและความพยายามอย่างสม่ำเสมอ
+                    </p>
+
+                    <div class="certificate-score-badge">🏅 {score}/{total_q} ({int(pct*100)}%)</div>
+
+                    <hr class="certificate-divider"/>
+
+                    <div style="display:flex; justify-content:space-around; margin-top:16px; flex-wrap:wrap; gap:12px;">
+                        <div style="text-align:center;">
+                            <p style="color:#FFCD00; font-size:1.4rem; margin:0;">🇸🇪</p>
+                            <p style="color:#a0b8cc; font-size:0.8rem; margin:4px 0 0 0;">SvenskaEasy</p>
+                        </div>
+                        <div style="text-align:center;">
+                            <p class="certificate-date">วันที่ออกใบเกียรติบัตร</p>
+                            <p style="color:#e2e8f0; font-weight:700; margin:2px 0 0 0;">{_exam_date}</p>
+                        </div>
+                        <div style="text-align:center;">
+                            <p style="color:#FFCD00; font-size:1.4rem; margin:0;">👑</p>
+                            <p style="color:#a0b8cc; font-size:0.8rem; margin:4px 0 0 0;">Swedish Master</p>
+                        </div>
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # Print / Save button using JS
+            col_print, col_retry = st.columns([1, 1])
+            with col_print:
+                st.markdown(
+                    """
+                    <button onclick="window.print()"
+                        style="width:100%; padding:12px; background:linear-gradient(135deg,#FFCD00,#f0a800);
+                               color:#002B5C; border:none; border-radius:10px; font-size:1rem;
+                               font-weight:700; cursor:pointer; font-family:'Outfit','Kanit',sans-serif;">
+                        🖨️ พิมพ์ / บันทึกใบเกียรติบัตร
+                    </button>
+                    """,
+                    unsafe_allow_html=True
+                )
+            with col_retry:
+                if st.button("🔄 ทำแบบทดสอบอีกครั้ง", key="exam_retry_pass", use_container_width=True):
+                    st.session_state["_exam_attempt"] = st.session_state.get("_exam_attempt", 0) + 1
+                    st.session_state["_exam_reset"] = True
+                    st.rerun()
+
+        else:
+            # ── FAIL VIEW ─────────────────────────────────────────────────────
+            st.markdown(
+                f"""
+                <div style="background:linear-gradient(135deg,#2c0a0a,#3d1111); border:2px solid #e74c3c;
+                            border-radius:16px; padding:28px; text-align:center; margin-bottom:20px;">
+                    <div style="font-size:3rem; margin-bottom:10px;">😔</div>
+                    <h2 style="color:#e74c3c; margin:0 0 8px 0; font-family:'Outfit','Kanit',sans-serif;">ยังไม่ผ่านการทดสอบ</h2>
+                    <p style="color:#e2e8f0; margin:0 0 16px 0; opacity:0.85;">
+                        คุณได้ <b style="color:#FFCD00; font-size:1.3rem;">{score}/{total_q}</b> คะแนน ({int(pct*100)}%) — ต้องการอย่างน้อย {pass_num} ข้อ ({int(PASS_THRESHOLD*100)}%)
+                    </p>
+                    <p style="color:#c8d8e8; opacity:0.75; font-size:0.9rem;">ทบทวนบทเรียนและลองใหม่อีกครั้งได้เลยนะ ไม่ต้องกังวล!</p>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # Show wrong answers for review
+            with st.expander("📋 ดูคำเฉลยและข้อที่ตอบผิด", expanded=True):
+                for i, q in enumerate(questions):
+                    user_ans = st.session_state.final_exam_answers.get(i, "")
+                    correct  = q["answer"]
+                    is_right = (user_ans == correct)
+                    icon     = "✅" if is_right else "❌"
+                    bg       = "rgba(46,204,113,0.08)" if is_right else "rgba(231,76,60,0.08)"
+                    border   = "#2ecc71" if is_right else "#e74c3c"
+                    st.markdown(
+                        f"""
+                        <div style="background:{bg}; border-left:4px solid {border};
+                                    border-radius:8px; padding:12px 16px; margin-bottom:10px;">
+                            <p style="margin:0 0 4px 0; font-weight:600;">{icon} ข้อ {i+1}: {q['question']}</p>
+                            <p style="margin:0; font-size:0.88rem; opacity:0.8;">
+                                คำตอบของคุณ: <b>{user_ans or '(ไม่ได้ตอบ)'}</b><br>
+                                เฉลย: <b style="color:#2ecc71;">{correct}</b>
+                            </p>
+                            {"<p style='margin:4px 0 0 0; font-size:0.82rem; color:#a0b8cc; opacity:0.75;'>" + q['explanation'] + "</p>" if q['explanation'] and not is_right else ""}
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+
+            if st.button("🔄 ลองสอบใหม่อีกครั้ง (ข้อจะสลับใหม่)", key="exam_retry_fail", type="primary", use_container_width=True):
+                st.session_state["_exam_attempt"] = st.session_state.get("_exam_attempt", 0) + 1
+                st.session_state["_exam_reset"] = True
+                st.rerun()
+
+    # ── QUESTION FORM ─────────────────────────────────────────────────────────
+    else:
+        answered = len([v for v in st.session_state.final_exam_answers.values() if v])
+        st.markdown(
+            f"""
+            <div style="background:rgba(0,75,135,0.12); border:1px solid rgba(255,205,0,0.25);
+                        border-radius:12px; padding:14px 20px; margin-bottom:20px;
+                        display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <span style="font-size:1rem;">📋 ทั้งหมด <b>{len(questions)}</b> ข้อ | ตอบแล้ว <b style="color:#FFCD00;">{answered}</b> ข้อ</span>
+                <span style="font-size:0.85rem; opacity:0.7;">ต้องผ่าน {int(PASS_THRESHOLD*100)}% ({int(PASS_THRESHOLD*len(questions))} ข้อ) เพื่อรับใบเกียรติบัตร</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        with st.form("final_exam_form"):
+            for i, q in enumerate(questions):
+                st.markdown(
+                    f"""
+                    <div class="exam-question-card">
+                        <p style="font-weight:700; font-size:1rem; margin:0 0 4px 0; color:var(--text-color);">
+                            ข้อที่ {i+1} / {len(questions)}
+                        </p>
+                        <p style="margin:0; font-size:1.05rem;">{q['question']}</p>
+                        <p style="margin:4px 0 0 0; font-size:0.78rem; opacity:0.55;">📖 {q['lesson']}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                choice = st.radio(
+                    f"คำตอบข้อที่ {i+1}",
+                    q["options"],
+                    key=f"exam_q_{i}",
+                    label_visibility="collapsed"
+                )
+                st.session_state.final_exam_answers[i] = choice
+                st.markdown("<div style='margin-bottom:8px;'></div>", unsafe_allow_html=True)
+
+            submitted = st.form_submit_button(
+                "📨 ส่งคำตอบและตรวจผล",
+                type="primary",
+                use_container_width=True
+            )
+
+        if submitted:
+            correct_count = sum(
+                1 for i, q in enumerate(questions)
+                if st.session_state.final_exam_answers.get(i) == q["answer"]
+            )
+            st.session_state.final_exam_score     = correct_count
+            st.session_state.final_exam_submitted  = True
+
+            passed = (correct_count / len(questions)) >= PASS_THRESHOLD
+            db_helper.update_user_final_exam(
+                st.session_state.current_user,
+                passed=passed,
+                score=correct_count
+            )
+            st.session_state.pop("cached_user_data", None)
+            st.rerun()

@@ -4,6 +4,31 @@ import os
 import json
 import sys
 import streamlit as st
+import bcrypt
+
+# ─── Password Utilities ───────────────────────────────────────────────────────
+
+def hash_password(plain: str) -> str:
+    """Return a bcrypt-hashed string from a plaintext password."""
+    return bcrypt.hashpw(plain.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+def is_hashed(password: str) -> bool:
+    """Return True if the stored password already looks like a bcrypt hash."""
+    return isinstance(password, str) and password.startswith("$2b$")
+
+def verify_password(plain: str, stored: str) -> bool:
+    """Verify a plaintext password against a stored value.
+    Handles both bcrypt hashes and legacy plaintext passwords transparently.
+    """
+    if not plain or not stored:
+        return False
+    try:
+        if is_hashed(stored):
+            return bcrypt.checkpw(plain.encode("utf-8"), stored.encode("utf-8"))
+    except Exception:
+        pass
+    # Legacy plaintext fallback — will be migrated on successful login
+    return plain == stored
 
 def get_mongo_uri():
     try:
@@ -154,7 +179,7 @@ def init_db():
             users_col.insert_one({
                 "username": "admin",
                 "email": "admin@svenskaeasy.com",
-                "password": "admin",
+                "password": hash_password("admin"),
                 "role": "Admin",
                 "completed_lessons": [],
                 "quiz_scores": {}
@@ -219,7 +244,7 @@ def create_user(username, email, password, role="User"):
         users[username_clean] = {
             "username": username_clean,
             "email": email_clean,
-            "password": password,
+            "password": hash_password(password),
             "role": role,
             "completed_lessons": [],
             "quiz_scores": {}
@@ -244,7 +269,7 @@ def create_user(username, email, password, role="User"):
         users_col.insert_one({
             "username": username.strip(),
             "email": email.strip().lower(),
-            "password": password,
+            "password": hash_password(password),
             "role": role,
             "completed_lessons": [],
             "quiz_scores": {}
@@ -541,6 +566,56 @@ def delete_user_permanently(username):
     finally:
         client.close()
 
+def update_user_password(username, new_hashed_pw):
+    """Update a user's stored password (used for transparent plaintext→hash migration)."""
+    client, err = get_db_client()
+    if client is None:
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean in users:
+            users[username_clean]["password"] = new_hashed_pw
+            save_fallback_users(users)
+        return
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
+        users_col.update_one(
+            {"username": username.strip()},
+            {"$set": {"password": new_hashed_pw}}
+        )
+    except Exception as e:
+        print(f"❌ Error migrating password for {username}: {str(e)}", file=sys.stderr)
+    finally:
+        client.close()
+
+
+def update_user_final_exam(username, passed: bool, score: int):
+    """Persist final exam result for a user (pass/fail, score, date)."""
+    from datetime import datetime
+    exam_data = {
+        "final_exam_passed": passed,
+        "final_exam_score": score,
+        "final_exam_date": datetime.utcnow().strftime("%Y-%m-%d"),
+    }
+    client, err = get_db_client()
+    if client is None:
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean in users:
+            users[username_clean].update(exam_data)
+            save_fallback_users(users)
+        return
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
+        users_col.update_one(
+            {"username": username.strip()},
+            {"$set": exam_data}
+        )
+    except Exception as e:
+        print(f"❌ Error saving final exam result for {username}: {str(e)}", file=sys.stderr)
+    finally:
+        client.close()
 
 
 GAME_IMAGES_COLLECTION_NAME = "game_images"
