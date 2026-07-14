@@ -518,6 +518,29 @@ def restore_user(username):
     finally:
         client.close()
 
+def delete_user_permanently(username):
+    client, err = get_db_client()
+    if client is None:
+        # Fallback to JSON database
+        deleted_users = load_fallback_deleted_users()
+        username_clean = username.strip()
+        if username_clean in deleted_users:
+            del deleted_users[username_clean]
+            return save_fallback_deleted_users(deleted_users)
+        return False
+        
+    try:
+        db = client[DB_NAME]
+        deleted_col = db[DELETED_COLLECTION_NAME]
+        result = deleted_col.delete_one({"username": username.strip()})
+        return result.deleted_count > 0
+    except Exception as e:
+        print(f"❌ Error permanently deleting user {username} from MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
+
 
 GAME_IMAGES_COLLECTION_NAME = "game_images"
 FALLBACK_GAME_IMAGES_PATH = "fallback_game_images.json"
