@@ -200,20 +200,36 @@ total_lessons = len(lessons_data.LESSONS)
 completed_count = len(st.session_state.completed_lessons) if "completed_lessons" in st.session_state else 0
 
 # Inject Custom CSS
-st.markdown(css_styles.get_custom_css(st.session_state.app_theme), unsafe_allow_html=True)
+st.markdown(css_styles.get_custom_css(), unsafe_allow_html=True)
 
-# Float theme selector to the top right corner using CSS sibling trick
-st.markdown('<div class="theme-selector-anchor"></div>', unsafe_allow_html=True)
-selected_theme = st.selectbox(
-    "🎨 เปลี่ยนธีม (Theme)",
-    ["Dark", "Light", "Sweden Blue"],
-    index=["Dark", "Light", "Sweden Blue"].index(st.session_state.app_theme),
-    key="app_theme_select_widget",
-    label_visibility="collapsed"
-)
-if selected_theme != st.session_state.app_theme:
-    st.session_state.app_theme = selected_theme
-    st.rerun()
+# Custom Sidebar Toggle Button (Only when logged in)
+if st.session_state.logged_in:
+    if "trigger_sidebar_toggle" not in st.session_state:
+        st.session_state.trigger_sidebar_toggle = False
+        
+    st.markdown('<div class="sidebar-toggle-anchor"></div>', unsafe_allow_html=True)
+    if st.button("☰ เปิด/ปิดเมนู (Sidebar)", key="custom_sidebar_toggle_btn"):
+        st.session_state.trigger_sidebar_toggle = True
+        
+    if st.session_state.trigger_sidebar_toggle:
+        import streamlit.components.v1 as components
+        components.html(
+            """
+            <script>
+            const parentDoc = window.parent.document;
+            const closeBtn = parentDoc.querySelector("button[data-testid='stSidebarCollapseButton']");
+            const openBtn = parentDoc.querySelector("button[data-testid='collapsedControl']");
+            if (closeBtn) {
+                closeBtn.click();
+            } else if (openBtn) {
+                openBtn.click();
+            }
+            </script>
+            """,
+            height=0,
+            width=0
+        )
+        st.session_state.trigger_sidebar_toggle = False
 
 # Login flow
 if not st.session_state.logged_in:
