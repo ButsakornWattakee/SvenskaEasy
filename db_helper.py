@@ -75,12 +75,8 @@ def is_mongodb_online_cached():
 def get_db_client_direct():
     global _cached_client
     if _cached_client is not None:
-        try:
-            # Quick ping to verify cached connection is still active (only done during background status checks/reconnects)
-            _cached_client.admin.command('ping')
-            return _cached_client, None
-        except Exception:
-            _cached_client = None
+        return _cached_client, None
+
             
     try:
         class SharedMongoClient(MongoClient):

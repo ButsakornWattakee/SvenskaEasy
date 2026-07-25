@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+import streamlit as st
 
+@st.cache_data
 def get_custom_css(theme=None):
+
     # Use Streamlit's native CSS variables to automatically adapt to any Streamlit theme
     bg_color = "var(--background-color)"
     text_color = "var(--text-color)"

@@ -42,7 +42,18 @@ db_helper.init_db()
 cookie_controller = CookieController()
 
 
+@st.cache_data
+def get_default_images_map():
+    images_map = {}
+    for lesson in lessons_data.LESSONS:
+        if "matching_practice" in lesson:
+            for item in lesson["matching_practice"]:
+                images_map[item["swedish"].strip().lower()] = item.get("image_path")
+    return images_map
+
+@st.cache_data
 def get_all_vocabulary():
+
     # Helper: Infer part-of-speech from lesson category and Thai translation
     def _infer_pos(category, thai_text, swedish_text):
         """Infer dictionary part-of-speech from lesson category and word context."""
@@ -1381,12 +1392,9 @@ elif st.session_state.current_page == "คลังคำศัพท์":
     # Get all database game images in bulk to avoid N+1 query overhead
     db_images = db_helper.get_all_game_images_dict()
     
-    # Compile a map of default game images from lessons
-    default_images_map = {}
-    for lesson in lessons_data.LESSONS:
-        if "matching_practice" in lesson:
-            for item in lesson["matching_practice"]:
-                default_images_map[item["swedish"].strip().lower()] = item.get("image_path")
+    # Compile a map of default game images from lessons (Cached)
+    default_images_map = get_default_images_map()
+
 
     # Search Box
     search_query = st.text_input(
