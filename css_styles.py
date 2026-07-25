@@ -588,6 +588,200 @@ def get_custom_css(theme=None):
 
     .certificate-divider {{
         border: none;
+    .achievement-card.locked .achievement-icon {{
+        filter: grayscale(1);
+    }}
+
+    .achievement-title {{
+        font-family: 'Outfit', 'Kanit', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: {text_color};
+        margin: 0 0 4px 0;
+    }}
+
+    .achievement-desc {{
+        font-size: 0.75rem;
+        color: {text_color};
+        opacity: 0.72;
+        margin: 0;
+        line-height: 1.4;
+    }}
+
+    .achievement-req {{
+        display: inline-block;
+        margin-top: 6px;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: rgba(255,205,0,0.18);
+        color: #FFCD00;
+    }}
+
+    .achievement-card.locked .achievement-req {{
+        background: rgba(128,128,128,0.15);
+        color: {text_color};
+        opacity: 0.5;
+    }}
+
+    /* New-achievement notification popup */
+    .achievement-popup {{
+        background: linear-gradient(135deg, #004B87 0%, #002B5C 100%);
+        border: 2px solid #FFCD00;
+        border-radius: 16px;
+        padding: 20px 24px;
+        text-align: center;
+        animation: new-achievement-slide 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        box-shadow: 0 8px 30px rgba(0, 75, 135, 0.45), 0 0 25px rgba(255, 205, 0, 0.3);
+        margin-bottom: 16px;
+    }}
+
+    .achievement-popup .popup-icon {{
+        font-size: 3.5rem;
+        display: block;
+        margin-bottom: 8px;
+    }}
+
+    .achievement-popup h3 {{
+        color: #FFCD00 !important;
+        margin: 0 0 4px 0;
+        font-family: 'Outfit', 'Kanit', sans-serif;
+        font-size: 1.3rem;
+    }}
+
+    .achievement-popup p {{
+        color: #e2e8f0 !important;
+        margin: 0;
+        opacity: 0.9 !important;
+        font-size: 0.95rem;
+    }}
+
+    /* ─── Sidebar Mini-Profile Card (vertical, centred) ─────────── */
+    .mini-profile-card {{
+        background: linear-gradient(160deg, rgba(0,75,135,0.22), rgba(255,205,0,0.05));
+        border: 1px solid rgba(255,205,0,0.2);
+        border-radius: 16px;
+        padding: 18px 12px 14px 12px;
+        margin-bottom: 14px;
+        text-align: center;
+        position: relative;
+    }}
+
+    .mini-profile-avatar {{
+        width: 86px;
+        height: 86px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #FFCD00;
+        box-shadow: 0 4px 16px rgba(255,205,0,0.25), 0 0 0 5px rgba(255,205,0,0.08);
+        display: block;
+        margin: 0 auto 10px auto;
+    }}
+
+    .mini-profile-name {{
+        font-family: 'Outfit', 'Kanit', sans-serif;
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: {text_color};
+        margin: 0 0 7px 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }}
+
+    .level-badge {{
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 4px 13px;
+        border-radius: 20px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        white-space: nowrap;
+        letter-spacing: 0.3px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }}
+
+    /* ─── Certificate Card ───────────────────────────────────────── */
+    @keyframes cert-shine {{
+        0%   {{ background-position: -200% center; }}
+        100% {{ background-position: 200% center; }}
+    }}
+
+    .certificate-wrapper {{
+        background: linear-gradient(135deg, #002B5C 0%, #004B87 50%, #002B5C 100%);
+        border: 3px solid #FFCD00;
+        border-radius: 20px;
+        padding: 48px 40px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 12px 50px rgba(0,0,0,0.4), 0 0 40px rgba(255,205,0,0.15);
+        max-width: 820px;
+        margin: 0 auto;
+    }}
+
+    .certificate-wrapper::before {{
+        content: '';
+        position: absolute;
+        inset: 8px;
+        border: 1px solid rgba(255,205,0,0.35);
+        border-radius: 14px;
+        pointer-events: none;
+    }}
+
+    .certificate-title {{
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.4rem;
+        font-weight: 800;
+        color: #FFCD00 !important;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin: 0 0 6px 0;
+        text-shadow: 0 2px 12px rgba(255,205,0,0.4);
+    }}
+
+    .certificate-subtitle {{
+        font-size: 1rem;
+        color: #c8d8e8 !important;
+        opacity: 0.85 !important;
+        margin: 0 0 28px 0;
+        letter-spacing: 1px;
+    }}
+
+    .certificate-name {{
+        font-family: 'Outfit', sans-serif;
+        font-size: 2.6rem;
+        font-weight: 700;
+        color: #ffffff !important;
+        margin: 8px 0 12px 0;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }}
+
+    .certificate-body {{
+        color: #d4e4f4 !important;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        opacity: 0.9 !important;
+        margin: 0 0 28px 0;
+    }}
+
+    .certificate-score-badge {{
+        display: inline-block;
+        background: linear-gradient(135deg, #FFCD00, #f0a800);
+        color: #002B5C !important;
+        font-size: 1.5rem;
+        font-weight: 800;
+        padding: 10px 30px;
+        border-radius: 50px;
+        margin-bottom: 28px;
+        box-shadow: 0 4px 20px rgba(255,205,0,0.4);
+    }}
+
+    .certificate-divider {{
+        border: none;
         border-top: 1px solid rgba(255,205,0,0.3);
         margin: 20px auto;
         width: 60%;
@@ -626,6 +820,83 @@ def get_custom_css(theme=None):
             box-shadow: none !important;
             border-color: #FFCD00 !important;
         }}
+    }}
+
+    /* Academic Callout Boxes & LMS Enhancements */
+    .academic-objectives-box {{
+        background: linear-gradient(135deg, rgba(0, 75, 135, 0.08) 0%, rgba(0, 43, 92, 0.12) 100%) !important;
+        border: 1px solid rgba(0, 75, 135, 0.25) !important;
+        border-left: 5px solid #004B87 !important;
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 20px;
+    }}
+
+    .cefr-badge {{
+        background: linear-gradient(135deg, #004B87, #002B5C) !important;
+        color: #FFCD00 !important;
+        font-weight: 700;
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        letter-spacing: 0.5px;
+        display: inline-block;
+        margin-right: 8px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }}
+
+    .duration-badge {{
+        background: rgba(128, 128, 128, 0.15) !important;
+        color: var(--text-color) !important;
+        font-weight: 500;
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: inline-block;
+    }}
+
+    .grammar-callout {{
+        background-color: var(--secondary-background-color) !important;
+        border-left: 5px solid #005ea8 !important;
+        border-top: 1px solid rgba(128, 128, 128, 0.15) !important;
+        border-right: 1px solid rgba(128, 128, 128, 0.15) !important;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.15) !important;
+        border-radius: 0 12px 12px 0;
+        padding: 18px;
+        margin: 16px 0;
+    }}
+
+    .warning-callout {{
+        background-color: rgba(231, 76, 60, 0.06) !important;
+        border-left: 5px solid #e74c3c !important;
+        border-top: 1px solid rgba(231, 76, 60, 0.2) !important;
+        border-right: 1px solid rgba(231, 76, 60, 0.2) !important;
+        border-bottom: 1px solid rgba(231, 76, 60, 0.2) !important;
+        border-radius: 0 12px 12px 0;
+        padding: 18px;
+        margin: 16px 0;
+    }}
+
+    .culture-callout {{
+        background-color: rgba(255, 205, 0, 0.08) !important;
+        border-left: 5px solid #FFCD00 !important;
+        border-top: 1px solid rgba(255, 205, 0, 0.25) !important;
+        border-right: 1px solid rgba(255, 205, 0, 0.25) !important;
+        border-bottom: 1px solid rgba(255, 205, 0, 0.25) !important;
+        border-radius: 0 12px 12px 0;
+        padding: 18px;
+        margin: 16px 0;
+    }}
+
+    .summary-callout {{
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.08) 0%, rgba(39, 174, 96, 0.12) 100%) !important;
+        border-left: 5px solid #2ecc71 !important;
+        border-top: 1px solid rgba(46, 204, 113, 0.2) !important;
+        border-right: 1px solid rgba(46, 204, 113, 0.2) !important;
+        border-bottom: 1px solid rgba(46, 204, 113, 0.2) !important;
+        border-radius: 0 12px 12px 0;
+        padding: 18px;
+        margin: 16px 0;
     }}
 
     </style>

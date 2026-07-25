@@ -507,7 +507,9 @@ with st.sidebar:
             _avatar_src = "https://www.w3schools.com/howto/img_avatar.png"
 
         _level_html = ""
-        if _top_ach:
+        if st.session_state.user_role == "Admin":
+            _level_html = """<span class="level-badge" style="background:rgba(255,205,0,0.15); color:#FFCD00; border:1px solid rgba(255,205,0,0.4);">👑 ผู้ดูแลระบบ</span>"""
+        elif _top_ach:
             _level_html = f"""<span class="level-badge" style="background:{_top_ach['color']}22; color:{_top_ach['color']}; border:1px solid {_top_ach['color']}55;">{_top_ach['icon']} {_top_ach['title_en']}</span>"""
         else:
             _level_html = """<span class="level-badge" style="background:rgba(128,128,128,0.12); color:#888; border:1px solid rgba(128,128,128,0.2);">🔰 เริ่มต้น</span>"""
@@ -1263,17 +1265,53 @@ elif st.session_state.current_page == "บทเรียนทั้งหม�
     lesson = selected_lesson
     l_id = lesson["id"]
     
-    # Beautiful Header Banner
+    # Beautiful Academic Header Banner
+    cefr_label = lesson.get("cefr", "CEFR A1.1")
+    duration_label = lesson.get("duration", "25 นาที")
+    
     st.markdown(
         f"""
-        <div style="background: linear-gradient(135deg, #004B87 0%, #005ea8 100%); color: white; padding: 30px; border-radius: 16px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-left: 6px solid #FFCD00;">
-            <span style="background-color: #FFCD00; color: #004B87; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">LEKTION {l_id}</span>
-            <h2 style="margin: 10px 0 5px 0; color: #ffffff; font-weight: 700; font-family: 'Outfit', 'Kanit', sans-serif; border: none;">{lesson['title']}</h2>
-            <p style="margin: 0; color: #e2e8f0; font-size: 1.1rem; font-style: italic;">{lesson['description']}</p>
+        <div style="background: linear-gradient(135deg, #004B87 0%, #002B5C 100%); color: white; padding: 30px; border-radius: 16px; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.18); border-left: 6px solid #FFCD00;">
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;">
+                <span class="cefr-badge">{cefr_label}</span>
+                <span style="background-color: #FFCD00; color: #004B87; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; text-transform: uppercase;">LEKTION {l_id}</span>
+                <span class="duration-badge">⏱️ {duration_label}</span>
+            </div>
+            <h2 style="margin: 5px 0 10px 0; color: #ffffff; font-weight: 700; font-family: 'Outfit', 'Kanit', sans-serif; border: none; font-size: 1.9rem;">{lesson['title']}</h2>
+            <p style="margin: 0; color: #e2e8f0; font-size: 1.1rem; line-height: 1.5; opacity: 0.95;">{lesson['description']}</p>
         </div>
         """,
         unsafe_allow_html=True
     )
+    
+    # Render Academic Objectives if available
+    objectives = lesson.get("objectives", [])
+    if objectives:
+        obj_html = "<div class='academic-objectives-box'>"
+        obj_html += "<h4 style='margin: 0 0 10px 0; color: var(--text-color); font-weight: 700;'>🎯 วัตถุประสงค์และสมรรถนะการเรียนรู้ประจำบท (Learning Objectives):</h4>"
+        obj_html += "<ul style='margin: 0; padding-left: 20px;'>"
+        for obj in objectives:
+            obj_html += f"<li style='margin-bottom: 6px; font-size: 0.95rem; color: var(--text-color); opacity: 0.9;'>{obj}</li>"
+        obj_html += "</ul></div>"
+        st.markdown(obj_html, unsafe_allow_html=True)
+
+    # Interactive Quick-Action Panel
+    col_act1, col_act2, col_act3 = st.columns(3)
+    with col_act1:
+        if st.button("📝 ทำแบบทดสอบประเมินผลบทนี้", key=f"quick_quiz_{l_id}", use_container_width=True):
+            st.session_state.active_quiz_tab = l_id - 1
+            st.session_state.current_page = "แบบฝึกหัดและควิซ"
+            st.rerun()
+    with col_act2:
+        if st.button("📖 คลังคำศัพท์ประเมินผล", key=f"quick_vocab_{l_id}", use_container_width=True):
+            st.session_state.current_page = "คลังคำศัพท์"
+            st.rerun()
+    with col_act3:
+        if st.button("🤖 สอบถามครู AI เกี่ยวกับบทนี้", key=f"quick_ai_{l_id}", use_container_width=True):
+            st.session_state.current_page = "คุยกับครู AI"
+            st.rerun()
+            
+    st.markdown("<div style='margin-bottom: 20px;'></div>", unsafe_allow_html=True)
     
     # Display the content sections of the selected lesson inside borders
     for sec in lesson["sections"]:
@@ -1283,6 +1321,7 @@ elif st.session_state.current_page == "บทเรียนทั้งหม�
             st.markdown(" ")
         
     st.markdown("---")
+
     
     # Lesson completion controls
     col_mark, col_next = st.columns([1, 1])
@@ -2030,60 +2069,61 @@ elif st.session_state.current_page == "โปรไฟล์ส่วนตั�
                     else:
                         st.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลส่วนตัว")
 
-        # --- Achievements Showcase ---
-        st.markdown("---")
-        st.markdown("### 🏆 รางวัลที่ได้รับ (Achievements)")
-        
-        _total_lessons = len(lessons_data.LESSONS)
-        _completed_count = len(st.session_state.completed_lessons)
-        all_ach_profile = achievements_mod.get_all_achievements(_total_lessons)
-        earned_ids_profile = {a["id"] for a in achievements_mod.get_earned_achievements(_completed_count, _total_lessons)}
-        earned_count_profile = len(earned_ids_profile)
-        
-        # Summary banner
-        next_ach = next((a for a in all_ach_profile if a["id"] not in earned_ids_profile), None)
-        st.markdown(
-            f"""
-            <div style="background: linear-gradient(135deg, #004B87 0%, #002B5C 100%); 
-                        border-radius: 14px; padding: 18px 22px; margin-bottom: 18px;
-                        border: 1px solid rgba(255,205,0,0.3);">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <span style="font-size:1.6rem;">🏆</span>
-                        <span style="font-size:1.3rem; font-weight:700; color:#FFCD00; margin-left:8px;"
-                        >{earned_count_profile} / {len(all_ach_profile)} รางวัล</span>
-                        <p style="margin:4px 0 0 0; color:#e2e8f0; opacity:0.85; font-size:0.9rem;">รางวัลที่ได้รับทั้งหมด</p>
-                    </div>
-                    {'<div style="color:#e2e8f0; font-size:0.9rem;">🎯 รางวัลถัดไป: <b style="color:#FFCD00;">' + next_ach["icon"] + " " + next_ach["title_en"] + '</b><br><span style="opacity:0.7;">เรียนอีก ' + str(next_ach["required"] - _completed_count) + " บทเรียนเพื่อปลดล็อก</span></div>" if next_ach else '<div style="color:#FFCD00; font-weight:700; font-size:1rem;">🎉 คุณปลดล็อกรางวัลทั้งหมดแล้ว!</div>'}
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-        
-        # Achievements grid — 4 per row
-        ach_cols_per_row = 4
-        for row_start in range(0, len(all_ach_profile), ach_cols_per_row):
-            row_achs = all_ach_profile[row_start : row_start + ach_cols_per_row]
-            row_cols = st.columns(len(row_achs))
-            for col, ach in zip(row_cols, row_achs):
-                with col:
-                    is_earned = ach["id"] in earned_ids_profile
-                    card_class = "achievement-card earned" if is_earned else "achievement-card locked"
-                    lock_icon = "" if is_earned else " 🔒"
-                    req_label = f"{ach['required']} บทเรียน"
-                    st.markdown(
-                        f"""
-                        <div class="{card_class}">
-                            <span class="achievement-icon">{ach['icon']}{lock_icon}</span>
-                            <p class="achievement-title">{ach['title_en']}</p>
-                            <p class="achievement-title" style="font-size:0.8rem; opacity:0.85;">{ach['title_th']}</p>
-                            <p class="achievement-desc">{ach['description']}</p>
-                            <span class="achievement-req">{req_label}</span>
+        # --- Achievements Showcase (User only, hidden for Admin) ---
+        if st.session_state.user_role != "Admin":
+            st.markdown("---")
+            st.markdown("### 🏆 รางวัลที่ได้รับ (Achievements)")
+            
+            _total_lessons = len(lessons_data.LESSONS)
+            _completed_count = len(st.session_state.completed_lessons)
+            all_ach_profile = achievements_mod.get_all_achievements(_total_lessons)
+            earned_ids_profile = {a["id"] for a in achievements_mod.get_earned_achievements(_completed_count, _total_lessons)}
+            earned_count_profile = len(earned_ids_profile)
+            
+            # Summary banner
+            next_ach = next((a for a in all_ach_profile if a["id"] not in earned_ids_profile), None)
+            st.markdown(
+                f"""
+                <div style="background: linear-gradient(135deg, #004B87 0%, #002B5C 100%); 
+                            border-radius: 14px; padding: 18px 22px; margin-bottom: 18px;
+                            border: 1px solid rgba(255,205,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <span style="font-size:1.6rem;">🏆</span>
+                            <span style="font-size:1.3rem; font-weight:700; color:#FFCD00; margin-left:8px;"
+                            >{earned_count_profile} / {len(all_ach_profile)} รางวัล</span>
+                            <p style="margin:4px 0 0 0; color:#e2e8f0; opacity:0.85; font-size:0.9rem;">รางวัลที่ได้รับทั้งหมด</p>
                         </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                        {'<div style="color:#e2e8f0; font-size:0.9rem;">🎯 รางวัลถัดไป: <b style="color:#FFCD00;">' + next_ach["icon"] + " " + next_ach["title_en"] + '</b><br><span style="opacity:0.7;">เรียนอีก ' + str(next_ach["required"] - _completed_count) + " บทเรียนเพื่อปลดล็อก</span></div>" if next_ach else '<div style="color:#FFCD00; font-weight:700; font-size:1rem;">🎉 คุณปลดล็อกรางวัลทั้งหมดแล้ว!</div>'}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            
+            # Achievements grid — 4 per row
+            ach_cols_per_row = 4
+            for row_start in range(0, len(all_ach_profile), ach_cols_per_row):
+                row_achs = all_ach_profile[row_start : row_start + ach_cols_per_row]
+                row_cols = st.columns(len(row_achs))
+                for col, ach in zip(row_cols, row_achs):
+                    with col:
+                        is_earned = ach["id"] in earned_ids_profile
+                        card_class = "achievement-card earned" if is_earned else "achievement-card locked"
+                        lock_icon = "" if is_earned else " 🔒"
+                        req_label = f"{ach['required']} บทเรียน"
+                        st.markdown(
+                            f"""
+                            <div class="{card_class}">
+                                <span class="achievement-icon">{ach['icon']}{lock_icon}</span>
+                                <p class="achievement-title">{ach['title_en']}</p>
+                                <p class="achievement-title" style="font-size:0.8rem; opacity:0.85;">{ach['title_th']}</p>
+                                <p class="achievement-desc">{ach['description']}</p>
+                                <span class="achievement-req">{req_label}</span>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
     else:
         st.error("ไม่พบข้อมูลผู้ใช้งานนี้ในระบบ")
 
