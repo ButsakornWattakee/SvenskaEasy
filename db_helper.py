@@ -903,7 +903,7 @@ def get_all_vocab_images_dict():
             w = doc.get("swedish")
             if w and "image_data" in doc:
                 try:
-                    res[w] = base64.b64decode(doc["image_data"])
+                    res[w.strip().lower()] = base64.b64decode(doc["image_data"])
                 except Exception:
                     pass
         return res

@@ -1542,8 +1542,9 @@ elif st.session_state.current_page == "คลังคำศัพท์":
     st.markdown("# คลังคำศัพท์ภาษาสวีเดน (Ordbok)")
     st.markdown("ค้นหาคำเขียน คำอ่าน และความหมายของคำศัพท์ภาษาสวีเดนพื้นฐานที่จำเป็น พร้อมตัวอย่างประโยคการใช้งาน")
     
-    # Get all database game images in bulk to avoid N+1 query overhead
-    db_images = db_helper.get_all_game_images_dict()
+    # Get all database images in bulk to avoid N+1 query overhead
+    db_vocab_images = db_helper.get_all_vocab_images_dict()
+    db_game_images = db_helper.get_all_game_images_dict()
     
     # Compile a map of default game images from lessons
     default_images_map = {}
@@ -1607,14 +1608,16 @@ elif st.session_state.current_page == "คลังคำศัพท์":
         # Display as cards
         for vocab in filtered_vocab:
             sw_key = vocab["swedish"].strip().lower()
-            custom_img = db_images.get(sw_key)
+            custom_vocab_img = db_vocab_images.get(sw_key)
+            custom_game_img = db_game_images.get(sw_key)
             default_img_path = default_images_map.get(sw_key)
             
-            has_image = custom_img or default_img_path
+            active_img = custom_vocab_img or custom_game_img or default_img_path
+            has_image = bool(active_img)
             
             with st.container(border=True):
                 if has_image:
-                    col_text, col_img = st.columns([4, 1])
+                    col_text, col_img = st.columns([3, 1])
                 else:
                     col_text = st.container()
                     col_img = None
@@ -1642,10 +1645,7 @@ elif st.session_state.current_page == "คลังคำศัพท์":
                 
                 if col_img is not None:
                     with col_img:
-                        if custom_img:
-                            st.image(custom_img, use_container_width=True)
-                        elif default_img_path:
-                            st.image(default_img_path, use_container_width=True)
+                        st.image(active_img, use_container_width=True)
 
 # ----------------- 3. QUIZZES PAGE -----------------
 elif st.session_state.current_page == "แบบฝึกหัดและควิซ":
