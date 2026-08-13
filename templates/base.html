@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LearnSwedish - ระบบเรียนภาษาสวีเดนออนไลน์{% endblock %}</title>
+    <meta name="description" content="ระบบเรียนภาษาสวีเดนออนไลน์ หลักสูตร SFI / SVA พร้อมครู AI ช่วยสอน">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<div class="app-layout">
+
+    <!-- ═══════════════════ Sidebar ═══════════════════ -->
+    <aside class="sidebar">
+
+        <!-- Brand -->
+        <div class="sidebar-brand">
+            <div class="brand-title">🇸🇪 LearnSwedish</div>
+            <div class="brand-subtitle">Svenska som andraspråk (SVA)</div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="user-profile-box">
+            <div class="avatar-circle">
+                {% if user and user.username == 'admin' %}
+                    <img src="/static/assets/avatar_admin.png" alt="Admin" onerror="this.src='/static/assets/avatar_student.png'">
+                {% else %}
+                    <img src="/static/assets/avatar_student.png" alt="User" onerror="this.style.display='none'">
+                {% endif %}
+            </div>
+            <div class="user-info">
+                <div class="user-name">{{ user.display_name if user else 'ผู้เรียนทั่วไป (Guest)' }}</div>
+                <div class="user-role">{{ user.role if user else 'Guest Student' }}</div>
+            </div>
+        </div>
+
+        <!-- Level Selector -->
+        <div class="sidebar-section">
+            <label class="section-label">ระดับความยาก (CEFR)</label>
+            <form action="/set-level" method="POST" id="levelForm">
+                <select name="selected_level" class="form-control-select" onchange="document.getElementById('levelForm').submit()">
+                    <option value="Beginner"     {% if current_level == 'Beginner' %}selected{% endif %}>🟢 ง่าย — Beginner (A1.1)</option>
+                    <option value="Elementary"   {% if current_level == 'Elementary' %}selected{% endif %}>🟡 กลาง — Elementary (A1.2/A2)</option>
+                    <option value="Intermediate" {% if current_level == 'Intermediate' %}selected{% endif %}>🔴 ยาก — Intermediate (A2.2/B1)</option>
+                </select>
+            </form>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="nav-menu">
+            <a href="/dashboard"  class="nav-link {% if current_page == 'dashboard' %}active{% endif %}">📊 แดชบอร์ด</a>
+            <a href="/lessons"    class="nav-link {% if current_page == 'lessons'   %}active{% endif %}">📚 บทเรียน</a>
+            <a href="/quiz"       class="nav-link {% if current_page == 'quiz'      %}active{% endif %}">📝 แบบทดสอบ</a>
+            <a href="/vocabulary" class="nav-link {% if current_page == 'vocabulary'%}active{% endif %}">🔤 คลังคำศัพท์</a>
+            <a href="/ai-tutor"   class="nav-link {% if current_page == 'ai_tutor'  %}active{% endif %}">🤖 ครู AI</a>
+            <a href="/profile"    class="nav-link {% if current_page == 'profile'   %}active{% endif %}">👤 โปรไฟล์</a>
+            <a href="/settings"   class="nav-link {% if current_page == 'settings'  %}active{% endif %}">⚙️ ตั้งค่า</a>
+            {% if user and user.role == 'Admin' %}
+            <a href="/admin"      class="nav-link {% if current_page == 'admin'     %}active{% endif %}">🛡️ Admin</a>
+            {% endif %}
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            {% if user and not user.is_guest %}
+            <form action="/auth/logout" method="POST">
+                <button type="submit" class="btn-sidebar-action btn-logout">🚪 ออกจากระบบ</button>
+            </form>
+            {% else %}
+            <a href="/auth/login" class="btn-sidebar-action btn-login">🔐 เข้าสู่ระบบ / สมัคร</a>
+            {% endif %}
+        </div>
+    </aside>
+
+    <!-- ═══════════════════ Main Content ═══════════════════ -->
+    <main class="main-content">
+        {% if flash_message %}
+        <div class="alert alert-{{ flash_type or 'info' }}">{{ flash_message }}</div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+</div>
+
+<script src="/static/js/main.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

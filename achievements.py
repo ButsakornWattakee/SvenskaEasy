@@ -19,7 +19,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "First Step",
         "title_th": "ก้าวแรก",
         "description": "เรียนบทแรกสำเร็จแล้ว เยี่ยมมาก!",
-        "icon": "🌱",
+        "icon": "",
         "required": 1,
         "color": "#27ae60",
     },
@@ -28,7 +28,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Getting Started",
         "title_th": "เริ่มต้นได้ดี",
         "description": "เรียนครบ 3 บทเรียนแล้ว ไปต่อเลย!",
-        "icon": "⭐",
+        "icon": "",
         "required": 3,
         "color": "#f39c12",
     },
@@ -37,7 +37,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "On a Roll",
         "title_th": "ฮอตแรง",
         "description": "เรียนครบ 5 บทเรียนแล้ว กำลังร้อนแรงเลย!",
-        "icon": "🔥",
+        "icon": "",
         "required": 5,
         "color": "#e74c3c",
     },
@@ -46,7 +46,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Halfway There",
         "title_th": "ครึ่งทางแล้ว",
         "description": "เรียนครบ 10 บทเรียน ยังไม่หยุดนะ!",
-        "icon": "🏅",
+        "icon": "",
         "required": 10,
         "color": "#3498db",
     },
@@ -55,7 +55,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Dedicated Learner",
         "title_th": "นักเรียนขยัน",
         "description": "เรียนครบ 15 บทเรียน ความมุ่งมั่นของคุณน่าชื่นชม!",
-        "icon": "📚",
+        "icon": "",
         "required": 15,
         "color": "#9b59b6",
     },
@@ -64,7 +64,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Almost There",
         "title_th": "ใกล้ถึงแล้ว",
         "description": "เรียนครบ 20 บทเรียน เกือบถึงจุดหมายแล้ว!",
-        "icon": "💪",
+        "icon": "",
         "required": 20,
         "color": "#16a085",
     },
@@ -73,7 +73,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Swedish Master",
         "title_th": "ปรมาจารย์สวีเดน",
         "description": "เรียนครบ 25 บทเรียน คุณคือผู้เชี่ยวชาญ!",
-        "icon": "👑",
+        "icon": "",
         "required": 25,
         "color": "#e67e22",
     },
@@ -82,7 +82,7 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Legend",
         "title_th": "ตำนาน",
         "description": "เรียนครบทุกบทเรียน คุณคือตำนานแห่ง SvenskaEasy!",
-        "icon": "🇸🇪",
+        "icon": "",
         "required": "all",  # resolved dynamically against total_lessons
         "color": "#004B87",
     },
@@ -140,3 +140,15 @@ def get_newly_earned(prev_count: int, new_count: int, total_lessons: int) -> lis
         a for a in all_ach
         if prev_count < a["required"] <= new_count
     ]
+
+
+def evaluate_achievements(completed_lessons, quiz_scores, total_lessons):
+    completed_count = len(completed_lessons) if isinstance(completed_lessons, (list, set)) else 0
+    all_ach = get_all_achievements(total_lessons)
+    result = []
+    for ach in all_ach:
+        item = dict(ach)
+        item["unlocked"] = completed_count >= item["required"]
+        result.append(item)
+    return result
+

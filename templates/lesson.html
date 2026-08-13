@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lesson.title }} - LearnSwedish Platform{% endblock %}
+
+{% block content %}
+<div class="lesson-header-box">
+    <span class="sweden-badge badge-blue">{{ lesson.cefr }}</span>
+    <span class="sweden-badge badge-yellow" style="margin-left:6px;">{{ lesson.level }}</span>
+    <h1>{{ lesson.title }}</h1>
+    <p class="lesson-sub">⏱️ ระยะเวลาประมาณ {{ lesson.duration }}</p>
+    <p class="lesson-desc-full">{{ lesson.description }}</p>
+</div>
+
+<!-- Objectives -->
+<div class="card-box objectives-box">
+    <h3>🎯 วัตถุประสงค์การเรียนรู้ (Learning Objectives)</h3>
+    <ul>
+        {% for obj in lesson.objectives %}
+        <li>{{ obj }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<!-- Quick Actions -->
+<div class="action-bar-grid">
+    <a href="/quiz/{{ lesson.id }}" class="btn btn-primary">📝 ทำแบบทดสอบบทนี้</a>
+    <a href="/vocabulary?lesson_id={{ lesson.id }}" class="btn btn-secondary">🔤 คลังคำศัพท์บทนี้</a>
+    <a href="/ai-tutor?lesson_id={{ lesson.id }}" class="btn btn-accent">🤖 ถามครู AI เกี่ยวกับบทนี้</a>
+</div>
+
+<!-- Content Sections -->
+{% for sec in lesson.sections %}
+<div class="section-box">
+    <div class="section-title">{{ sec.subtitle }}</div>
+    <div class="markdown-content">
+        {{ sec.content_html | safe }}
+    </div>
+</div>
+{% endfor %}
+
+<hr class="divider">
+
+<!-- Navigation & Complete -->
+<div class="lesson-footer-controls">
+    <div class="nav-prev">
+        {% if prev_lesson_id %}
+        <a href="/lessons/{{ prev_lesson_id }}" class="btn btn-secondary">← บทก่อนหน้า</a>
+        {% endif %}
+    </div>
+
+    <div class="nav-mark">
+        <form action="/lessons/{{ lesson.id }}/complete" method="POST">
+            {% if is_completed %}
+            <button type="submit" class="btn btn-success" disabled>✅ เรียนเสร็จสิ้นแล้ว</button>
+            {% else %}
+            <button type="submit" class="btn btn-primary">✔️ เรียนเสร็จแล้ว (Mark Complete)</button>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="nav-next">
+        {% if next_lesson_id %}
+        <a href="/lessons/{{ next_lesson_id }}" class="btn btn-secondary">บทถัดไป →</a>
+        {% else %}
+        <a href="/dashboard" class="btn btn-accent">🏁 จบหลักสูตร → แดชบอร์ด</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

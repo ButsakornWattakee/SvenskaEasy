@@ -3,7 +3,6 @@ from pymongo import MongoClient
 import os
 import json
 import sys
-import streamlit as st
 import bcrypt
 
 # ─── Password Utilities ───────────────────────────────────────────────────────
@@ -31,13 +30,6 @@ def verify_password(plain: str, stored: str) -> bool:
     return plain == stored
 
 def get_mongo_uri():
-    try:
-        import streamlit as st
-        if "MONGO_URI" in st.secrets:
-            return st.secrets["MONGO_URI"]
-    except Exception:
-        pass
-        
     env_uri = os.environ.get("MONGO_URI")
     # If the system has a generic localhost environment variable set, bypass it to use our Cloud Database
     if env_uri and "localhost" not in env_uri and "127.0.0.1" not in env_uri:
@@ -93,7 +85,7 @@ def get_db_client_direct():
         _cached_client = client
         return client, None
     except Exception as e:
-        print(f"⚠️ SharedMongoClient Connection Failed: {e}", file=sys.stderr)
+        print(f" SharedMongoClient Connection Failed: {e}", file=sys.stderr)
         return None, str(e)
 
 def get_db_client():
@@ -123,7 +115,7 @@ def save_fallback_deleted_users(deleted_dict):
             json.dump(deleted_dict, f, ensure_ascii=False, indent=4)
         return True
     except Exception as e:
-        print(f"❌ Error saving fallback deleted users: {str(e)}", file=sys.stderr)
+        print(f" Error saving fallback deleted users: {str(e)}", file=sys.stderr)
         return False
 
 def load_fallback_users():
@@ -151,7 +143,7 @@ def save_fallback_users(users_dict):
             json.dump(users_dict, f, ensure_ascii=False, indent=4)
         return True
     except Exception as e:
-        print(f"❌ Error saving fallback users: {str(e)}", file=sys.stderr)
+        print(f" Error saving fallback users: {str(e)}", file=sys.stderr)
         return False
 
 # --- MAIN DATABASE INTERFACES ---
@@ -160,7 +152,7 @@ def init_db():
     if client is None:
         # Initialize JSON fallback database
         load_fallback_users()
-        print("⚠️ MongoDB offline. Initialized local JSON fallback.")
+        print(" MongoDB offline. Initialized local JSON fallback.")
         return True
     
     try:
@@ -184,12 +176,12 @@ def init_db():
                 "completed_lessons": [],
                 "quiz_scores": {}
             })
-            print("🌱 Default admin user seeded in MongoDB.")
+            print(" Default admin user seeded in MongoDB.")
         else:
             if "role" not in admin_user:
                 users_col.update_one({"username": "admin"}, {"$set": {"role": "Admin"}})
     except Exception as e:
-        print(f"❌ Error during MongoDB initialization: {str(e)}", file=sys.stderr)
+        print(f" Error during MongoDB initialization: {str(e)}", file=sys.stderr)
     finally:
         client.close()
     return True
@@ -220,7 +212,7 @@ def get_user(username):
                 user["role"] = "Admin" if user["username"] == "admin" else "User"
         return user
     except Exception as e:
-        print(f"❌ Error getting user {username} from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting user {username} from MongoDB: {str(e)}", file=sys.stderr)
         return None
     finally:
         client.close()
@@ -276,7 +268,7 @@ def create_user(username, email, password, role="User"):
         })
         return True, "สมัครสมาชิกสำเร็จ"
     except Exception as e:
-        print(f"❌ Error creating user {username} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error creating user {username} in MongoDB: {str(e)}", file=sys.stderr)
         return False, f"เกิดข้อผิดพลาด MongoDB: {str(e)}"
     finally:
         client.close()
@@ -300,7 +292,7 @@ def update_last_active(username):
         users_col = db[COLLECTION_NAME]
         users_col.update_one({"username": username.strip()}, {"$set": {"last_active": now_str}})
     except Exception as e:
-        print(f"❌ Error updating last active for {username}: {str(e)}", file=sys.stderr)
+        print(f" Error updating last active for {username}: {str(e)}", file=sys.stderr)
     finally:
         client.close()
 
@@ -326,7 +318,7 @@ def update_user_progress(username, completed_lessons):
         )
         return True
     except Exception as e:
-        print(f"❌ Error updating progress for {username} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error updating progress for {username} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
@@ -352,7 +344,7 @@ def update_user_quiz_scores(username, quiz_scores):
         )
         return True
     except Exception as e:
-        print(f"❌ Error updating quiz scores for {username} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error updating quiz scores for {username} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
@@ -386,7 +378,7 @@ def get_all_users():
                 u["role"] = "Admin" if u["username"] == "admin" else "User"
         return users_list
     except Exception as e:
-        print(f"❌ Error getting all users from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting all users from MongoDB: {str(e)}", file=sys.stderr)
         return []
     finally:
         client.close()
@@ -422,7 +414,7 @@ def update_user_profile(username, phone, avatar_bytes):
         )
         return True
     except Exception as e:
-        print(f"❌ Error updating profile for {username} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error updating profile for {username} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
@@ -466,7 +458,7 @@ def delete_user(username):
             return result.deleted_count > 0
         return False
     except Exception as e:
-        print(f"❌ Error deleting user {username} from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error deleting user {username} from MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
@@ -499,7 +491,7 @@ def get_deleted_users():
                 u["role"] = "Admin" if u["username"] == "admin" else "User"
         return deleted_list
     except Exception as e:
-        print(f"❌ Error getting deleted users from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting deleted users from MongoDB: {str(e)}", file=sys.stderr)
         return []
     finally:
         client.close()
@@ -539,7 +531,7 @@ def restore_user(username):
             return True
         return False
     except Exception as e:
-        print(f"❌ Error restoring user {username} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error restoring user {username} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
@@ -561,7 +553,7 @@ def delete_user_permanently(username):
         result = deleted_col.delete_one({"username": username.strip()})
         return result.deleted_count > 0
     except Exception as e:
-        print(f"❌ Error permanently deleting user {username} from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error permanently deleting user {username} from MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
@@ -584,7 +576,7 @@ def update_user_password(username, new_hashed_pw):
             {"$set": {"password": new_hashed_pw}}
         )
     except Exception as e:
-        print(f"❌ Error migrating password for {username}: {str(e)}", file=sys.stderr)
+        print(f" Error migrating password for {username}: {str(e)}", file=sys.stderr)
     finally:
         client.close()
 
@@ -613,7 +605,7 @@ def update_user_final_exam(username, passed: bool, score: int):
             {"$set": exam_data}
         )
     except Exception as e:
-        print(f"❌ Error saving final exam result for {username}: {str(e)}", file=sys.stderr)
+        print(f" Error saving final exam result for {username}: {str(e)}", file=sys.stderr)
     finally:
         client.close()
 
@@ -643,7 +635,7 @@ def save_fallback_game_images(images):
 def save_game_image(swedish_word, image_bytes):
     # Clear streamlit cache so the updated image is loaded immediately
     try:
-        st.cache_data.clear()
+        pass
     except Exception:
         pass
 
@@ -671,12 +663,11 @@ def save_game_image(swedish_word, image_bytes):
         )
         return True
     except Exception as e:
-        print(f"❌ Error saving game image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error saving game image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
 
-@st.cache_data(ttl=600, max_entries=100)
 def get_game_image(swedish_word):
     word_key = swedish_word.strip().lower()
     client, err = get_db_client()
@@ -703,12 +694,11 @@ def get_game_image(swedish_word):
                 pass
         return None
     except Exception as e:
-        print(f"❌ Error getting game image for {swedish_word} from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting game image for {swedish_word} from MongoDB: {str(e)}", file=sys.stderr)
         return None
     finally:
         client.close()
 
-@st.cache_data(ttl=600, max_entries=10)
 def get_all_game_images_dict():
     client, err = get_db_client()
     import base64
@@ -737,7 +727,7 @@ def get_all_game_images_dict():
                     pass
         return res
     except Exception as e:
-        print(f"❌ Error getting all game images dict from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting all game images dict from MongoDB: {str(e)}", file=sys.stderr)
         return {}
     finally:
         client.close()
@@ -754,7 +744,7 @@ def get_all_game_images():
         docs = col.find({}, {"swedish": 1})
         return [doc["swedish"] for doc in docs]
     except Exception as e:
-        print(f"❌ Error getting game images list from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting game images list from MongoDB: {str(e)}", file=sys.stderr)
         return []
     finally:
         client.close()
@@ -762,7 +752,7 @@ def get_all_game_images():
 def delete_game_image(swedish_word):
     # Clear streamlit cache so the updated image is loaded immediately
     try:
-        st.cache_data.clear()
+        pass
     except Exception:
         pass
 
@@ -781,7 +771,7 @@ def delete_game_image(swedish_word):
         res = col.delete_one({"swedish": word_key})
         return res.deleted_count > 0
     except Exception as e:
-        print(f"❌ Error deleting game image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error deleting game image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
@@ -814,7 +804,7 @@ def save_fallback_vocab_images(images):
 def save_vocab_image(swedish_word, image_bytes):
     # Clear streamlit cache so the updated image is loaded immediately
     try:
-        st.cache_data.clear()
+        pass
     except Exception:
         pass
 
@@ -842,12 +832,11 @@ def save_vocab_image(swedish_word, image_bytes):
         )
         return True
     except Exception as e:
-        print(f"❌ Error saving vocab image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error saving vocab image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
         return False
     finally:
         client.close()
 
-@st.cache_data(ttl=600, max_entries=100)
 def get_vocab_image(swedish_word):
     word_key = swedish_word.strip().lower()
     client, err = get_db_client()
@@ -874,12 +863,11 @@ def get_vocab_image(swedish_word):
                 pass
         return None
     except Exception as e:
-        print(f"❌ Error getting vocab image for {swedish_word} from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting vocab image for {swedish_word} from MongoDB: {str(e)}", file=sys.stderr)
         return None
     finally:
         client.close()
 
-@st.cache_data(ttl=600, max_entries=10)
 def get_all_vocab_images_dict():
     client, err = get_db_client()
     import base64
@@ -908,7 +896,7 @@ def get_all_vocab_images_dict():
                     pass
         return res
     except Exception as e:
-        print(f"❌ Error getting all vocab images dict from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting all vocab images dict from MongoDB: {str(e)}", file=sys.stderr)
         return {}
     finally:
         client.close()
@@ -925,7 +913,7 @@ def get_all_vocab_images():
         docs = col.find({}, {"swedish": 1})
         return [doc["swedish"] for doc in docs]
     except Exception as e:
-        print(f"❌ Error getting vocab images list from MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error getting vocab images list from MongoDB: {str(e)}", file=sys.stderr)
         return []
     finally:
         client.close()
@@ -933,7 +921,7 @@ def get_all_vocab_images():
 def delete_vocab_image(swedish_word):
     # Clear streamlit cache so the updated image is loaded immediately
     try:
-        st.cache_data.clear()
+        pass
     except Exception:
         pass
 
@@ -952,10 +940,96 @@ def delete_vocab_image(swedish_word):
         res = col.delete_one({"swedish": word_key})
         return res.deleted_count > 0
     except Exception as e:
-        print(f"❌ Error deleting vocab image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
+        print(f" Error deleting vocab image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
         return False
-    finally:
-        client.close()
+def register_user(username, password, display_name=None, email=None):
+    if not email:
+        email = f"{username.strip().lower()}@learnswedish.local"
+    success, msg = create_user(username=username, email=email, password=password, role="Student")
+    if success and display_name:
+        user = get_user(username)
+        if user:
+            user["display_name"] = display_name
+            # Save profile with updated display_name
+            update_user_profile(username, user.get("phone", ""), None)
+    return success
+
+def get_user_completed_lessons(username):
+    user = get_user(username)
+    if not user:
+        return []
+    return list(user.get("completed_lessons", []))
+
+def get_user_quiz_scores(username):
+    user = get_user(username)
+    if not user:
+        return {}
+    raw_scores = user.get("quiz_scores", {})
+    res = {}
+    for k, v in raw_scores.items():
+        try:
+            res[int(k)] = v
+        except ValueError:
+            res[k] = v
+    return res
+
+def mark_lesson_completed(username, lesson_id):
+    user = get_user(username)
+    if not user:
+        return False
+    completed = set(user.get("completed_lessons", []))
+    completed.add(int(lesson_id))
+    return update_user_progress(username, list(completed))
+
+def save_quiz_score(username, lesson_id, earned, total, score_pct):
+    user = get_user(username)
+    if not user:
+        return False
+    scores = user.get("quiz_scores", {})
+    scores[str(lesson_id)] = {
+        "earned": earned,
+        "total": total,
+        "score_pct": score_pct
+    }
+    return update_user_quiz_scores(username, scores)
+
+SETTINGS_FILE = "app_settings.json"
+
+def get_app_setting(key: str, default=None):
+    env_val = os.environ.get(key)
+    if env_val:
+        return env_val
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data.get(key, default)
+        except Exception:
+            pass
+    return default
+
+def save_app_setting(key: str, value: str):
+    os.environ[key] = value
+    data = {}
+    if os.path.exists(SETTINGS_FILE):
+        try:
+            with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        except Exception:
+            pass
+    data[key] = value
+    try:
+        with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception:
+        return False
+
+def save_custom_vocab_image(word: str, image_path: str):
+    word_key = word.strip().lower()
+    save_vocab_image(word_key, image_path.encode("utf-8") if isinstance(image_path, str) else image_path)
+    return True
+
 
 
 

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}โปรไฟล์และรางวัล - LearnSwedish Platform{% endblock %}
+
+{% block content %}
+<div class="page-title-box">
+    <h1>👤 โปรไฟล์และการสะสมความสำเร็จ</h1>
+    <p>สรุปสถิติการศึกษา เหรียญรางวัลเกียรติยศ และประวัติการทำแบบทดสอบ</p>
+</div>
+
+<!-- Profile Header -->
+<div class="profile-header-card">
+    <div class="profile-avatar">
+        {% if user and user.username == 'admin' %}
+        <img src="/static/assets/avatar_admin.png" alt="Admin" onerror="this.src='/static/assets/avatar_student.png'">
+        {% else %}
+        <img src="/static/assets/avatar_student.png" alt="User" onerror="this.style.display='none'">
+        {% endif %}
+    </div>
+    <div class="profile-details">
+        <h2>{{ user.display_name if user else 'ผู้เรียนทั่วไป (Guest)' }}</h2>
+        <p><strong>ชื่อผู้ใช้ (Username):</strong> {{ user.username if user else 'guest' }}</p>
+        <p><strong>ระดับบทเรียน:</strong> {{ current_level }}</p>
+        <p><strong>สถานะบัญชี:</strong> {{ user.role if user else 'Guest Student' }}</p>
+    </div>
+</div>
+
+<!-- Achievements -->
+<h2 class="section-heading">🏅 เหรียญตราความสำเร็จ (Achievement Badges)</h2>
+<div class="achievements-grid">
+    {% for ach in achievements %}
+    <div class="achievement-card {% if ach.unlocked %}unlocked{% else %}locked{% endif %}">
+        <div class="badge-icon">{{ ach.icon }}</div>
+        <h4>{{ ach.title_th }}</h4>
+        <p class="badge-title-en">{{ ach.title_en }}</p>
+        <p class="badge-desc">{{ ach.description }}</p>
+        <div class="badge-status">
+            {% if ach.unlocked %}
+            <span class="status-unlocked">🔓 ปลดล็อกแล้ว</span>
+            {% else %}
+            <span class="status-locked">🔒 ยังไม่ปลดล็อก</span>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Quiz History -->
+<h2 class="section-heading">📊 ประวัติการทำแบบทดสอบ (Quiz History)</h2>
+<div class="table-responsive">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>บทเรียน / รายการ</th>
+                <th>คะแนนที่ได้</th>
+                <th>คะแนนเต็ม</th>
+                <th>คิดเป็น %</th>
+                <th>ผลการประเมิน</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in quiz_history %}
+            <tr>
+                <td><strong>{{ item.title }}</strong></td>
+                <td>{{ item.earned }}</td>
+                <td>{{ item.total }}</td>
+                <td>{{ item.score_pct }}%</td>
+                <td>
+                    {% if item.score_pct >= 70 %}
+                    <span class="status-tag tag-success">✅ ผ่าน</span>
+                    {% else %}
+                    <span class="status-tag tag-pending">📖 ทบทวน</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">ยังไม่มีประวัติการทำแบบทดสอบ</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

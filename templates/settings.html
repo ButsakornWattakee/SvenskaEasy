@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}ตั้งค่าระบบ - LearnSwedish Platform{% endblock %}
+
+{% block content %}
+<div class="page-title-box">
+    <h1>⚙️ ตั้งค่าระบบเชื่อมต่อ AI (System Settings)</h1>
+    <p>ตั้งค่าคีย์เชื่อมต่อปัญญาประดิษฐ์เพื่อรับประสบการณ์การตอบคำถามภาษาสวีเดนที่มีคุณภาพสูงสุด</p>
+</div>
+
+<div class="card-box">
+    <h3>🔑 ใส่ Google Gemini API Key</h3>
+    <p style="color:var(--text-muted); margin-bottom:20px;">
+        แนะนำให้ใส่คีย์ในไฟล์ .env เป็น <code style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; color:var(--sweden-gold);">GEMINI_API_KEY=...</code>
+        เพื่อให้ทุกคนในเว็บใช้ครู AI ได้ หรือใส่ชั่วคราวด้านล่างนี้ (เก็บเฉพาะในเซสชั่น)
+    </p>
+
+    <form action="/settings/save" method="POST">
+        <div class="form-group">
+            <label for="api_key_input">ระบุ Gemini API Key ของคุณ:</label>
+            <input type="password" id="api_key_input" name="api_key" class="form-control-text"
+                   placeholder="AIzaSy..." value="{{ api_key or '' }}">
+        </div>
+        <div style="margin-top: 16px;">
+            <button type="submit" class="btn btn-primary">💾 บันทึกการตั้งค่า</button>
+        </div>
+    </form>
+</div>
+
+<div class="card-box">
+    <h3>📋 วิธีรับ Gemini API Key ฟรี:</h3>
+    <ol style="margin-top: 10px; line-height: 2;">
+        <li>เข้าไปที่เว็บไซต์ <a href="https://aistudio.google.com/" target="_blank">Google AI Studio →</a></li>
+        <li>เข้าสู่ระบบด้วยบัญชี Google</li>
+        <li>คลิกปุ่ม <strong>Create API Key</strong></li>
+        <li>คัดลอกรหัสคีย์ (มักขึ้นต้นด้วย <code style="background:rgba(255,255,255,0.08); padding:2px 5px; border-radius:4px;">AIzaSy</code>) นำมาใส่ช่องกรอกด้านบนและกดบันทึก</li>
+    </ol>
+</div>
+{% endblock %}

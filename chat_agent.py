@@ -88,14 +88,23 @@ def _history_as_contents(formatted_history):
     ]
 
 
-def get_ai_response(api_key, message, chat_history):
+def get_ai_response(user_prompt, chat_history=None, api_key=None, lesson_context=""):
     global _resolved_model_name
+
+    if chat_history is None:
+        chat_history = []
+
+    message = user_prompt
 
     if api_key and len(api_key.strip()) > 10:
         client = genai.Client(api_key=api_key.strip())
         history = _history_as_contents(_format_gemini_history(chat_history))
+        system_instruction = SYSTEM_INSTRUCTION
+        if lesson_context:
+            system_instruction += f"\n\nบริบทบทเรียนปัจจุบันที่ผู้เรียนกำลังศึกษา: {lesson_context}"
+
         config = types.GenerateContentConfig(
-            system_instruction=SYSTEM_INSTRUCTION,
+            system_instruction=system_instruction,
             thinking_config=types.ThinkingConfig(thinking_level="low"),
         )
         model_names = []
@@ -122,7 +131,7 @@ def get_ai_response(api_key, message, chat_history):
                     break
 
         return (
-            "❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API: "
+            " เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API: "
             f"{last_error}\n\n"
             "(ตรวจสอบ GEMINI_API_KEY ในไฟล์ .env หรือ Streamlit secrets แล้วรีสตาร์ทแอป)"
         )

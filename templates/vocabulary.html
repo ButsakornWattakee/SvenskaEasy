@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}คลังคำศัพท์ - LearnSwedish Platform{% endblock %}
+
+{% block content %}
+<div class="page-title-box">
+    <h1>🔤 คลังคำศัพท์ภาษาสวีเดน (Vocabulary Hub)</h1>
+    <p>รวบรวมคำศัพท์หลักพร้อมคำอ่านถอดเสียงภาษาไทย การผันรูป และคำอธิบายการใช้งาน</p>
+</div>
+
+<!-- Tabs -->
+<div class="tab-container" id="vocabTabs">
+    <div class="tab-header">
+        <button class="tab-btn active" onclick="switchTab('vocabTabs', 'vocabTableTab')" data-tab="vocabTableTab">
+            📋 ตารางคำศัพท์ (Key Vocabulary)
+        </button>
+        <button class="tab-btn" onclick="switchTab('vocabTabs', 'flashcardsTab')" data-tab="flashcardsTab">
+            🃏 การ์ดฝึกจำ (Flashcards)
+        </button>
+    </div>
+
+    <!-- Vocabulary Table -->
+    <div class="tab-content active" id="vocabTableTab">
+        <div class="card-box" style="margin-bottom: 20px;">
+            <input type="text" id="vocabSearchInput" class="form-control-text"
+                   placeholder="🔍 พิมพ์ค้นหาคำศัพท์ภาษาสวีเดน หรือคำแปลภาษาไทย..."
+                   onkeyup="filterVocabTable()">
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table" id="vocabTable">
+                <thead>
+                    <tr>
+                        <th>คำศัพท์ (Swedish)</th>
+                        <th>คำอ่าน (Phonetics)</th>
+                        <th>คำแปล (Thai)</th>
+                        <th>ประเภทคำ (POS)</th>
+                        <th>ตัวอย่าง</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in vocab_items %}
+                    <tr>
+                        <td><strong style="color:#FFCD00;">{{ item.swedish }}</strong></td>
+                        <td style="color:#8b92a8; font-size:0.82rem;">[{{ item.pronunciation }}]</td>
+                        <td>{{ item.thai }}</td>
+                        <td style="font-size:0.8rem; color:#8b92a8;">{{ item.pos }}</td>
+                        <td style="font-size:0.8rem; color:#8b92a8;">{{ item.example_swedish }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Flashcards -->
+    <div class="tab-content" id="flashcardsTab">
+        <div class="flashcards-grid">
+            {% for item in vocab_items[:24] %}
+            <div class="flashcard-container" onclick="this.classList.toggle('flipped')">
+                <div class="flashcard-inner">
+                    <div class="flashcard-front">
+                        <div class="card-swedish">{{ item.swedish }}</div>
+                        <div class="card-phonetic">[{{ item.pronunciation }}]</div>
+                        <div class="card-hint">แตะ / คลิก เพื่อดูคำแปล</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="card-thai">{{ item.thai }}</div>
+                        <div class="card-desc">{{ item.example_thai }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterVocabTable() {
+    const filter = document.getElementById('vocabSearchInput').value.toLowerCase();
+    const trs = document.getElementById('vocabTable').getElementsByTagName('tr');
+    for (let i = 1; i < trs.length; i++) {
+        const cells = trs[i].getElementsByTagName('td');
+        const sw = cells[0] ? cells[0].textContent.toLowerCase() : '';
+        const th = cells[2] ? cells[2].textContent.toLowerCase() : '';
+        trs[i].style.display = (sw.includes(filter) || th.includes(filter)) ? '' : 'none';
+    }
+}
+</script>
+{% endblock %}

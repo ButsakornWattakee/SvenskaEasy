@@ -1488,3 +1488,120 @@ VOCABULARY = [
         "example_thai": "ใบไม้เริ่มร่วงหล่นลงมาในฤดูใบไม้ร่วง"
     }
 ]
+
+def get_all_vocabulary():
+    import lessons_data
+
+    def _infer_pos(category, thai_text, swedish_text):
+        cat_lower = category.lower() if category else ""
+        thai_lower = thai_text.lower() if thai_text else ""
+        sw_lower = swedish_text.lower() if swedish_text else ""
+
+        category_pos_map = {
+            "ตัวอักษร": "ตัวอักษร (bokstav)",
+            "ตัวเลข": "ตัวเลข (nummer)",
+            "วัน": "คำนาม (substantiv)",
+            "เดือน": "คำนาม (substantiv)",
+            "ฤดู": "คำนาม (substantiv)",
+            "เวลา": "คำนาม (substantiv)",
+            "สี": "คำคุณศัพท์ (adjektiv)",
+            "สัตว์": "คำนาม (substantiv)",
+            "ครอบครัว": "คำนาม (substantiv)",
+            "อาหาร": "คำนาม (substantiv)",
+            "เครื่องดื่ม": "คำนาม (substantiv)",
+            "บ้าน": "คำนาม (substantiv)",
+            "เสื้อผ้า": "คำนาม (substantiv)",
+            "อาชีพ": "คำนาม (substantiv)",
+            "สรรพนาม": "สรรพนาม (pronomen)",
+            "กริยา": "คำกริยา (verb)",
+            "คำถาม": "คำวิเศษณ์ (adverb)",
+            "อารมณ์": "คำคุณศัพท์ (adjektiv)",
+            "ความรู้สึก": "คำคุณศัพท์ (adjektiv)",
+            "ช้อปปิ้ง": "คำนาม (substantiv)",
+            "ซื้อ": "คำนาม (substantiv)",
+            "การเดินทาง": "คำนาม (substantiv)",
+            "ขนส่ง": "คำนาม (substantiv)",
+            "ไวยากรณ์": "คำนาม (substantiv)",
+            "คำนำหน้า": "คำนำหน้านาม (artikel)",
+            "สถานที่": "คำนาม (substantiv)",
+            "ทำงาน": "คำนาม (substantiv)",
+            "ป้าย": "คำนาม (substantiv)",
+            "ทักทาย": "คำอุทาน (interjektion)",
+            "แนะนำตัว": "คำนาม (substantiv)",
+        }
+
+        for keyword, pos in category_pos_map.items():
+            if keyword in cat_lower:
+                return pos
+
+        verb_hints = ["กิน", "ดื่ม", "ทำ", "ไป", "มา", "อยู่", "พูด", "เขียน", "อ่าน", "ฟัง", "วิ่ง", "เดิน", "นอน", "นั่ง", "ยืน", "เล่น", "ทำงาน", "เรียน", "สอน", "ขับ", "บิน"]
+        adj_hints = ["สวย", "ดี", "ร้อน", "เย็น", "ใหญ่", "เล็ก", "ยาว", "สั้น", "สูง", "เตี้ย", "หนัก", "เบา", "แพง", "ถูก", "เศร้า", "ดีใจ", "โกรธ", "เหนื่อย", "หิว", "กลัว"]
+
+        for hint in verb_hints:
+            if hint in thai_lower:
+                return "คำกริยา (verb)"
+        for hint in adj_hints:
+            if hint in thai_lower:
+                return "คำคุณศัพท์ (adjektiv)"
+
+        return "คำนาม (substantiv)"
+
+    vocab_list = list(VOCABULARY)
+    existing_swedish_words = set(item["swedish"].lower().strip() for item in vocab_list)
+
+    for lesson in lessons_data.LESSONS:
+        l_level = lesson.get("level", "Beginner")
+        l_level_th = "ง่าย"
+        if l_level == "Elementary":
+            l_level_th = "กลาง"
+        elif l_level == "Intermediate":
+            l_level_th = "ยาก"
+
+        l_cat = lesson["title"].split(" : ")[-1] if " : " in lesson["title"] else "ทั่วไป"
+
+        if "typing_practice" in lesson:
+            for tp in lesson["typing_practice"]:
+                sw = tp["swedish"].strip()
+                if sw.lower() not in existing_swedish_words:
+                    thai_clean = tp["thai"]
+                    if " (" in thai_clean:
+                        thai_clean = thai_clean.split(" (")[0]
+
+                    clue = tp.get("clue", sw)
+
+                    vocab_list.append({
+                        "swedish": sw,
+                        "pronunciation": clue,
+                        "thai": thai_clean,
+                        "pos": _infer_pos(l_cat, thai_clean, sw),
+                        "level": l_level_th,
+                        "category": l_cat,
+                        "example_swedish": f"{sw.capitalize()}.",
+                        "example_thai": tp.get("explanation", f"{sw} แปลว่า {thai_clean}")
+                    })
+                    existing_swedish_words.add(sw.lower())
+
+        if "matching_practice" in lesson:
+            for mp in lesson["matching_practice"]:
+                sw = mp["swedish"].strip()
+                if sw.lower() not in existing_swedish_words:
+                    thai_clean = mp["thai"]
+                    if " (" in thai_clean:
+                        thai_clean = thai_clean.split(" (")[0]
+
+                    vocab_list.append({
+                        "swedish": sw,
+                        "pronunciation": sw,
+                        "thai": thai_clean,
+                        "pos": _infer_pos(l_cat, thai_clean, sw),
+                        "level": l_level_th,
+                        "category": l_cat,
+                        "example_swedish": f"{sw.capitalize()}.",
+                        "example_thai": f"คำศัพท์หมวด {l_cat}"
+                    })
+                    existing_swedish_words.add(sw.lower())
+
+    return sorted(vocab_list, key=lambda x: x["swedish"].lower())
+
+FULL_VOCABULARY_LIST = get_all_vocabulary()
+

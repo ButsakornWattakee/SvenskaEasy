@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}เข้าสู่ระบบ - LearnSwedish Platform{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div style="text-align:center; margin-bottom:24px;">
+            <div style="font-size:3rem; margin-bottom:8px;">🇸🇪</div>
+            <h2>เข้าสู่ระบบ (Sign In)</h2>
+            <p>ยินดีต้อนรับสู่ระบบเรียนภาษาสวีเดนออนไลน์</p>
+        </div>
+
+        {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+
+        <form action="/auth/login" method="POST">
+            <div class="form-group">
+                <label for="username">ชื่อผู้ใช้ (Username)</label>
+                <input type="text" id="username" name="username" class="form-control-text" placeholder="ระบุชื่อผู้ใช้..." required>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+                <label for="password">รหัสผ่าน (Password)</label>
+                <input type="password" id="password" name="password" class="form-control-text" placeholder="ระบุรหัสผ่าน..." required>
+            </div>
+
+            <div style="margin-top: 22px;">
+                <button type="submit" class="btn btn-primary btn-block btn-lg">🔐 เข้าสู่ระบบ (Sign In)</button>
+            </div>
+        </form>
+
+        <hr class="divider">
+
+        <div class="auth-alt-links">
+            <p>ยังไม่มีบัญชีผู้ใช้งาน? <a href="/auth/register">สมัครสมาชิกใหม่</a></p>
+            <form action="/auth/guest" method="POST" style="margin-top: 12px;">
+                <button type="submit" class="btn btn-secondary btn-block">👤 ทดลองใช้งานในฐานะแขก (Guest)</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

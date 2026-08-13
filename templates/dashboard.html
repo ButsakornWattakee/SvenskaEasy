@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - LearnSwedish Platform{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>ยินดีต้อนรับสู่ LearnSwedish 🇸🇪</h1>
+    <p>หลักสูตรมาตรฐาน SFI / Svenska som andraspråk (SVA) สำหรับผู้เรียนภาษาสวีเดน</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <span class="sweden-badge badge-blue">📈 ความก้าวหน้า</span>
+        <h2>{{ completed_count }} / {{ total_lessons }}</h2>
+        <p>บทเรียนที่ศึกษาสำเร็จแล้ว</p>
+    </div>
+
+    <div class="dashboard-card">
+        <span class="sweden-badge badge-yellow">🏆 คะแนนรวม</span>
+        <h2>{{ average_score }}%</h2>
+        <p>คะแนนเฉลี่ยจากการทำควิซ</p>
+    </div>
+
+    <div class="dashboard-card">
+        <span class="sweden-badge {% if is_api_connected %}badge-blue{% else %}badge-gray{% endif %}">🤖 สถานะครู AI</span>
+        <h2 style="font-size:1.3rem; margin-top:10px;">
+            {% if is_api_connected %}✅ พร้อมตอบคำถาม{% else %}⚠️ โหมดจำลอง{% endif %}
+        </h2>
+        <p style="margin-bottom:12px;">แชทบอทช่วยเรียนภาษาสวีเดน</p>
+        <a href="/ai-tutor" class="btn btn-primary btn-sm">คุยกับครู AI →</a>
+    </div>
+</div>
+
+<h2 class="section-heading">📋 แผนการเรียนรู้ (Your Learning Roadmap)</h2>
+
+{% for lvl in ['Beginner', 'Elementary', 'Intermediate'] %}
+<div class="level-group-box">
+    <h3>
+        {% if lvl == 'Beginner' %}🟢 ระดับ Beginner — พื้นฐานเริ่มต้น (CEFR A1.1)
+        {% elif lvl == 'Elementary' %}🟡 ระดับ Elementary — ระดับพื้นฐาน (CEFR A1.2 / A2.1)
+        {% else %}🔴 ระดับ Intermediate — ระดับกลาง (CEFR A2.2 / B1.2)
+        {% endif %}
+    </h3>
+
+    <div class="lessons-roadmap-grid">
+        {% for lesson in lessons_by_level[lvl] %}
+        {% set is_comp = lesson.id in completed_lessons %}
+        <div class="roadmap-card {% if is_comp %}completed{% endif %}">
+            <div class="roadmap-status">
+                {% if is_comp %}
+                <span class="status-tag tag-success">✓ สำเร็จ</span>
+                {% else %}
+                <span class="status-tag tag-pending">○ ยังไม่สำเร็จ</span>
+                {% endif %}
+            </div>
+            <h4>{{ lesson.title }}</h4>
+            <p class="lesson-meta">{{ lesson.cefr }} · {{ lesson.duration }}</p>
+            <p class="lesson-desc">{{ lesson.description[:80] }}...</p>
+            <div class="roadmap-actions">
+                <a href="/lessons/{{ lesson.id }}" class="btn btn-secondary btn-sm">เรียน</a>
+                <a href="/quiz/{{ lesson.id }}" class="btn btn-outline btn-sm">ควิซ</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

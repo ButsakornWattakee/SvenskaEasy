@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}สมัครสมาชิก - LearnSwedish Platform{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-box">
+        <div style="text-align:center; margin-bottom:24px;">
+            <div style="font-size:3rem; margin-bottom:8px;">📝</div>
+            <h2>สมัครสมาชิกใหม่ (Register)</h2>
+            <p>สร้างบัญชีใหม่เพื่อบันทึกประวัติการเรียนและสะสมเหรียญรางวัล</p>
+        </div>
+
+        {% if error_message %}
+        <div class="alert alert-danger">{{ error_message }}</div>
+        {% endif %}
+
+        <form action="/auth/register" method="POST">
+            <div class="form-group">
+                <label for="reg_username">ชื่อผู้ใช้ (Username)</label>
+                <input type="text" id="reg_username" name="username" class="form-control-text" placeholder="กำหนดชื่อผู้ใช้..." required>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+                <label for="reg_display_name">ชื่อที่ใช้แสดง (Display Name)</label>
+                <input type="text" id="reg_display_name" name="display_name" class="form-control-text" placeholder="ระบุชื่อของคุณ..." required>
+            </div>
+
+            <div class="form-group" style="margin-top: 16px;">
+                <label for="reg_password">รหัสผ่าน (Password)</label>
+                <input type="password" id="reg_password" name="password" class="form-control-text" placeholder="กำหนดรหัสผ่าน..." required>
+            </div>
+
+            <div style="margin-top: 22px;">
+                <button type="submit" class="btn btn-primary btn-block btn-lg">✅ ยืนยันสมัครสมาชิก</button>
+            </div>
+        </form>
+
+        <hr class="divider">
+
+        <div class="auth-alt-links">
+            <p>มีบัญชีผู้ใช้งานอยู่แล้ว? <a href="/auth/login">เข้าสู่ระบบ</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
