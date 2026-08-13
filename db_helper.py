@@ -787,3 +787,175 @@ def delete_game_image(swedish_word):
         client.close()
 
 
+# ─── Vocab Images Utilities ──────────────────────────────────────────────────
+
+VOCAB_IMAGES_COLLECTION_NAME = "vocab_images"
+FALLBACK_VOCAB_IMAGES_PATH = "fallback_vocab_images.json"
+
+def load_fallback_vocab_images():
+    import json
+    if not os.path.exists(FALLBACK_VOCAB_IMAGES_PATH):
+        return {}
+    try:
+        with open(FALLBACK_VOCAB_IMAGES_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception:
+        return {}
+
+def save_fallback_vocab_images(images):
+    import json
+    try:
+        with open(FALLBACK_VOCAB_IMAGES_PATH, "w", encoding="utf-8") as f:
+            json.dump(images, f, ensure_ascii=False, indent=4)
+        return True
+    except Exception:
+        return False
+
+def save_vocab_image(swedish_word, image_bytes):
+    # Clear streamlit cache so the updated image is loaded immediately
+    try:
+        st.cache_data.clear()
+    except Exception:
+        pass
+
+    word_key = swedish_word.strip().lower()
+    client, err = get_db_client()
+    
+    import base64
+    encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+    
+    if client is None:
+        images = load_fallback_vocab_images()
+        images[word_key] = {
+            "swedish": word_key,
+            "image_data": encoded_image
+        }
+        return save_fallback_vocab_images(images)
+        
+    try:
+        db = client[DB_NAME]
+        col = db[VOCAB_IMAGES_COLLECTION_NAME]
+        col.replace_one(
+            {"swedish": word_key},
+            {"swedish": word_key, "image_data": encoded_image},
+            upsert=True
+        )
+        return True
+    except Exception as e:
+        print(f"❌ Error saving vocab image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
+@st.cache_data(ttl=600, max_entries=100)
+def get_vocab_image(swedish_word):
+    word_key = swedish_word.strip().lower()
+    client, err = get_db_client()
+    
+    import base64
+    if client is None:
+        images = load_fallback_vocab_images()
+        item = images.get(word_key)
+        if item and "image_data" in item:
+            try:
+                return base64.b64decode(item["image_data"])
+            except Exception:
+                pass
+        return None
+        
+    try:
+        db = client[DB_NAME]
+        col = db[VOCAB_IMAGES_COLLECTION_NAME]
+        doc = col.find_one({"swedish": word_key})
+        if doc and "image_data" in doc:
+            try:
+                return base64.b64decode(doc["image_data"])
+            except Exception:
+                pass
+        return None
+    except Exception as e:
+        print(f"❌ Error getting vocab image for {swedish_word} from MongoDB: {str(e)}", file=sys.stderr)
+        return None
+    finally:
+        client.close()
+
+@st.cache_data(ttl=600, max_entries=10)
+def get_all_vocab_images_dict():
+    client, err = get_db_client()
+    import base64
+    if client is None:
+        images = load_fallback_vocab_images()
+        res = {}
+        for k, v in images.items():
+            if "image_data" in v:
+                try:
+                    res[k] = base64.b64decode(v["image_data"])
+                except Exception:
+                    pass
+        return res
+        
+    try:
+        db = client[DB_NAME]
+        col = db[VOCAB_IMAGES_COLLECTION_NAME]
+        docs = col.find({})
+        res = {}
+        for doc in docs:
+            w = doc.get("swedish")
+            if w and "image_data" in doc:
+                try:
+                    res[w] = base64.b64decode(doc["image_data"])
+                except Exception:
+                    pass
+        return res
+    except Exception as e:
+        print(f"❌ Error getting all vocab images dict from MongoDB: {str(e)}", file=sys.stderr)
+        return {}
+    finally:
+        client.close()
+
+def get_all_vocab_images():
+    client, err = get_db_client()
+    if client is None:
+        images = load_fallback_vocab_images()
+        return list(images.keys())
+        
+    try:
+        db = client[DB_NAME]
+        col = db[VOCAB_IMAGES_COLLECTION_NAME]
+        docs = col.find({}, {"swedish": 1})
+        return [doc["swedish"] for doc in docs]
+    except Exception as e:
+        print(f"❌ Error getting vocab images list from MongoDB: {str(e)}", file=sys.stderr)
+        return []
+    finally:
+        client.close()
+
+def delete_vocab_image(swedish_word):
+    # Clear streamlit cache so the updated image is loaded immediately
+    try:
+        st.cache_data.clear()
+    except Exception:
+        pass
+
+    word_key = swedish_word.strip().lower()
+    client, err = get_db_client()
+    if client is None:
+        images = load_fallback_vocab_images()
+        if word_key in images:
+            del images[word_key]
+            return save_fallback_vocab_images(images)
+        return False
+        
+    try:
+        db = client[DB_NAME]
+        col = db[VOCAB_IMAGES_COLLECTION_NAME]
+        res = col.delete_one({"swedish": word_key})
+        return res.deleted_count > 0
+    except Exception as e:
+        print(f"❌ Error deleting vocab image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
+
+

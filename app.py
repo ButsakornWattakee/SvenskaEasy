@@ -486,9 +486,9 @@ if not st.session_state.logged_in:
 # Define navigation links based on user role
 _all_done = (len(st.session_state.completed_lessons) >= len(lessons_data.LESSONS)) and len(lessons_data.LESSONS) > 0
 if st.session_state.user_role == "Admin":
-    PAGES = ["แดชบอร์ดผู้ดูแลระบบ", "เพิ่มผู้ใช้งานใหม่", "ลบผู้ใช้งานและประวัติการลบ", "จัดการรูปเกมจับคู่", "โปรไฟล์ส่วนตัว", "ตั้งค่าระบบ"]
+    PAGES = ["แดชบอร์ดผู้ดูแลระบบ", "เพิ่มผู้ใช้งานใหม่", "ลบผู้ใช้งานและประวัติการลบ", "จัดการรูปเกมจับคู่", "เพิ่มรูปภาพคลังคำศัพท์", "โปรไฟล์ส่วนตัว", "ตั้งค่าระบบ"]
 else:
-    PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "โปรไฟล์ส่วนตัว"]
+    PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "เพิ่มรูปภาพคลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "โปรไฟล์ส่วนตัว"]
     if _all_done:
         PAGES.append("📝 สอบวัดระดับ (Final Exam)")
 
@@ -1081,6 +1081,161 @@ elif st.session_state.current_page == "จัดการรูปเกมจ�
                 st.markdown("---")
         else:
             st.info("ยังไม่มีรูปภาพที่กำหนดเองในระบบ (ระบบกำลังใช้รูปภาพเริ่มต้นทั้งหมด)")
+
+# ----------------- 0.4 MANAGE VOCAB IMAGES PAGE -----------------
+elif st.session_state.current_page in ["เพิ่มรูปภาพคลังคำศัพท์", "จัดการรูปคลังคำศัพท์"]:
+    st.markdown("# 🖼️ จัดการและเพิ่มรูปภาพคลังคำศัพท์ (Manage Vocab Images)")
+    st.markdown("เพิ่ม แก้ไข หรือลบรูปภาพสำหรับคำศัพท์ในคลังคำศัพท์ภาษาสวีเดน ข้อมูลเชื่อมโยงกับ MongoDB (คอลเลกชัน: vocab_images) แบบเรียลไทม์")
+    
+    # Crop helper
+    def crop_vocab_image(image_bytes, zoom_factor=1.0, offset_y_pct=0.0, offset_x_pct=0.0):
+        from PIL import Image
+        import io
+        try:
+            img = Image.open(io.BytesIO(image_bytes))
+            if img.mode in ('RGBA', 'LA'):
+                background = Image.new('RGB', img.size, (255, 255, 255))
+                background.paste(img, mask=img.split()[-1])
+                img = background
+            
+            width, height = img.size
+            min_dim = min(width, height)
+            
+            crop_size = int(min_dim / zoom_factor)
+            crop_size = min(crop_size, width, height)
+            crop_size = max(crop_size, 10)
+            
+            center_x = width / 2
+            center_y = height / 2
+            
+            max_offset_x = (width - crop_size) / 2
+            max_offset_y = (height - crop_size) / 2
+            
+            center_x += offset_x_pct * 2 * max_offset_x
+            center_y += offset_y_pct * 2 * max_offset_y
+            
+            left = max(0, int(center_x - crop_size / 2))
+            top = max(0, int(center_y - crop_size / 2))
+            right = min(width, left + crop_size)
+            bottom = min(height, top + crop_size)
+            
+            box_size = min(right - left, bottom - top)
+            right = left + box_size
+            bottom = top + box_size
+            
+            img_cropped = img.crop((left, top, right, bottom))
+            img_resized = img_cropped.resize((300, 300), Image.Resampling.LANCZOS)
+            
+            out_bytes = io.BytesIO()
+            img_resized.save(out_bytes, format="PNG")
+            return out_bytes.getvalue()
+        except Exception as e:
+            print(f"Error cropping vocab image: {e}")
+            return image_bytes
+
+    # Collect all words from vocabulary_data
+    all_vocab_items = get_all_vocabulary()
+    vocab_word_options = sorted(list(set(item["swedish"] for item in all_vocab_items)))
+    
+    col_upload, col_gallery = st.columns([1, 1])
+    
+    with col_upload:
+        st.markdown("### 📥 อัปโหลดและปรับแต่งรูปภาพสำหรับคลังคำศัพท์")
+        
+        selected_word = st.selectbox("เลือกคำศัพท์ภาษาสวีเดนที่ต้องการอัปโหลดรูปภาพ:", vocab_word_options, key="vocab_word_selector")
+        
+        # Display translation helper
+        word_item = next((item for item in all_vocab_items if item["swedish"] == selected_word), None)
+        word_thai = word_item["thai"] if word_item else ""
+        word_pron = word_item["pronunciation"] if word_item else ""
+        
+        if word_thai:
+            st.info(f"💡 **คำศัพท์:** {selected_word} | **คำอ่าน:** [{word_pron}] | **คำแปล:** {word_thai}")
+        
+        # Display current active image
+        st.markdown("#### รูปภาพปัจจุบันในระบบ:")
+        custom_vocab_img = db_helper.get_vocab_image(selected_word)
+        custom_game_img = db_helper.get_game_image(selected_word)
+        
+        if custom_vocab_img:
+            st.image(custom_vocab_img, caption="รูปภาพคลังคำศัพท์ที่อัปโหลดเอง (MongoDB: vocab_images)", width=150)
+        elif custom_game_img:
+            st.image(custom_game_img, caption="รูปภาพเกมจับคู่คำศัพท์ (MongoDB: game_images)", width=150)
+        else:
+            st.caption("ยังไม่มีรูปภาพเฉพาะสำหรับคำศัพท์นี้")
+            
+        uploaded_file = st.file_uploader(
+            "เลือกไฟล์รูปภาพเพื่ออัปโหลดใหม่ (PNG, JPG, JPEG):",
+            type=["png", "jpg", "jpeg"],
+            key="vocab_image_uploader"
+        )
+        
+        zoom_val = 1.0
+        offset_x_val = 0.0
+        offset_y_val = 0.0
+        cropped_bytes = None
+        
+        if uploaded_file is not None:
+            st.markdown("#### 🔧 ปรับแต่งสัดส่วนรูปภาพคำศัพท์")
+            zoom_val = st.slider("🔍 ซูมภาพ (Zoom)", min_value=0.5, max_value=2.5, value=1.0, step=0.1, key="vocab_zoom_slider")
+            offset_y_val = st.slider("↕️ ขยับแนวตั้ง (Vertical Offset)", min_value=-0.5, max_value=0.5, value=0.0, step=0.05, key="vocab_offset_y_slider")
+            offset_x_val = st.slider("↔️ ขยับแนวนอน (Horizontal Offset)", min_value=-0.5, max_value=0.5, value=0.0, step=0.05, key="vocab_offset_x_slider")
+            
+            raw_bytes = uploaded_file.getvalue()
+            cropped_bytes = crop_vocab_image(raw_bytes, zoom_val, offset_y_val, offset_x_val)
+            
+            st.markdown("##### 👁️ ภาพตัวอย่างที่จะบันทึก:")
+            st.image(cropped_bytes, width=150)
+            
+        if st.button("💾 บันทึกรูปภาพคลังคำศัพท์ (Save Vocab Image)", type="primary", use_container_width=True, key="save_vocab_image_btn"):
+            if uploaded_file is None:
+                st.error("กรุณาเลือกไฟล์รูปภาพที่ต้องการอัปโหลดก่อนกดบันทึก")
+            elif cropped_bytes:
+                success = db_helper.save_vocab_image(selected_word, cropped_bytes)
+                if success:
+                    st.success(f"บันทึกรูปภาพสำหรับคำศัพท์ '{selected_word}' สำเร็จและอัปเดตลง MongoDB ในแบบเรียลไทม์!")
+                    import time
+                    time.sleep(0.5)
+                    st.rerun()
+                else:
+                    st.error("เกิดข้อผิดพลาดในการบันทึกข้อมูลลงฐานข้อมูล MongoDB")
+
+    with col_gallery:
+        st.markdown("### 🖼️ คลังรูปภาพที่อัปโหลดไว้แล้ว")
+        custom_vocab_words = db_helper.get_all_vocab_images()
+        
+        if custom_vocab_words:
+            st.info("💡 รายการรูปภาพคำศัพท์ทั้งหมดที่คุณอัปโหลดไว้ในระบบ คุณสามารถกดลบรูปภาพที่ต้องการได้")
+            for w in sorted(custom_vocab_words):
+                w_thai = ""
+                w_pron = ""
+                for item in all_vocab_items:
+                    if item["swedish"].lower() == w.lower():
+                        w_thai = item["thai"]
+                        w_pron = item["pronunciation"]
+                        break
+                
+                col_img_card, col_details = st.columns([1, 2])
+                with col_img_card:
+                    c_img = db_helper.get_vocab_image(w)
+                    if c_img:
+                        st.image(c_img, width=100)
+                with col_details:
+                    st.write(f"**คำศัพท์:** `{w}`")
+                    if w_thai:
+                        st.write(f"**ความหมาย:** {w_thai} [{w_pron}]")
+                    
+                    if st.button(f"🗑️ ลบรูปภาพคำศัพท์ '{w}'", key=f"del_vocab_img_{w}", type="secondary"):
+                        if db_helper.delete_vocab_image(w):
+                            st.success(f"ลบรูปภาพสำหรับ '{w}' สำเร็จ!")
+                            import time
+                            time.sleep(0.5)
+                            st.rerun()
+                        else:
+                            st.error("เกิดข้อผิดพลาดในการลบรูปภาพ")
+                st.markdown("---")
+        else:
+            st.info("ยังไม่มีรูปภาพคำศัพท์ในระบบ (ระบบกำลังใช้รูปภาพเกมหรือรูปภาพเริ่มต้น)")
 
 # ----------------- 1. DASHBOARD PAGE -----------------
 elif st.session_state.current_page == "Dashboard":
