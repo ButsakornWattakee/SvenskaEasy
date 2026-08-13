@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
-# Prefer a current Gemini model. 1.5 Flash has been retired and returns 404.
+DEFAULT_MODEL = "gemini-3-flash-preview"
 CANDIDATE_MODELS = [
     os.getenv("GEMINI_MODEL", "").strip(),
-    "gemini-2.5-flash",
-    "gemini-2.0-flash",
-    "gemini-flash-latest",
+    DEFAULT_MODEL,
+    "gemini-3.1-flash-lite",
 ]
 CANDIDATE_MODELS = [name for name in CANDIDATE_MODELS if name]
 _resolved_model_name = None
@@ -81,12 +81,23 @@ def _is_missing_model_error(error):
     return "404" in text or "not found" in text or "is not supported" in text
 
 
+def _history_as_contents(formatted_history):
+    return [
+        types.Content(role=item["role"], parts=[types.Part(text=item["parts"][0])])
+        for item in formatted_history
+    ]
+
+
 def get_ai_response(api_key, message, chat_history):
     global _resolved_model_name
 
     if api_key and len(api_key.strip()) > 10:
-        genai.configure(api_key=api_key.strip())  # type: ignore
-        formatted_history = _format_gemini_history(chat_history)
+        client = genai.Client(api_key=api_key.strip())
+        history = _history_as_contents(_format_gemini_history(chat_history))
+        config = types.GenerateContentConfig(
+            system_instruction=SYSTEM_INSTRUCTION,
+            thinking_config=types.ThinkingConfig(thinking_level="low"),
+        )
         model_names = []
         if _resolved_model_name:
             model_names.append(_resolved_model_name)
@@ -97,11 +108,11 @@ def get_ai_response(api_key, message, chat_history):
         last_error = None
         for model_name in model_names:
             try:
-                model = genai.GenerativeModel(  # type: ignore
-                    model_name,
-                    system_instruction=SYSTEM_INSTRUCTION,
+                chat = client.chats.create(
+                    model=model_name,
+                    history=history,
+                    config=config,
                 )
-                chat = model.start_chat(history=formatted_history)
                 response = chat.send_message(message)
                 _resolved_model_name = model_name
                 return response.text
