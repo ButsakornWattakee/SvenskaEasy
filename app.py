@@ -1304,6 +1304,9 @@ elif st.session_state.current_page == "Dashboard":
             """, 
             unsafe_allow_html=True
         )
+        if st.button("🤖 คุยกับครู AI", key="dash_ai_card_goto_btn", use_container_width=True, type="primary"):
+            st.session_state.current_page = "คุยกับครู AI"
+            st.rerun()
         
     st.markdown("### แผนการเรียนรู้ของคุณ (Your Learning Roadmap)")
     
@@ -1379,11 +1382,6 @@ elif st.session_state.current_page == "Dashboard":
 
 # ----------------- 2. LESSONS PAGE -----------------
 elif st.session_state.current_page == "บทเรียนทั้งหมด":
-    col_back, _ = st.columns([1, 3])
-    with col_back:
-        if st.button("⬅️ กลับสู่แดชบอร์ด (Back)", key="back_from_lessons_btn", use_container_width=True):
-            st.session_state.current_page = "Dashboard"
-            st.rerun()
     st.markdown("# บทเรียนภาษาสวีเดน (Svenska lektioner)")
     
     # Find current active lesson
@@ -1501,6 +1499,12 @@ elif st.session_state.current_page == "บทเรียนทั้งหม�
             st.rerun()
     with col_act3:
         if st.button("🤖 สอบถามครู AI เกี่ยวกับบทนี้", key=f"quick_ai_{l_id}", use_container_width=True):
+            st.session_state.ai_active_lesson = lesson["title"]
+            ai_welcome_msg = f"Hej! ยินดีต้อนรับครับ ตอนนี้เรากำลังโฟกัสการเรียนใน **{lesson['title']}** 🇸🇪\n\nคุณครูพร้อมตอบทุกคำถาม ไวยากรณ์ สัทศาสตร์ การผันคำ หรือตัวอย่างประโยคในบทนี้แล้วครับ พิมพ์คำถามมาได้เลยครับ! 😊"
+            st.session_state.chat_history.append({
+                "role": "assistant",
+                "content": ai_welcome_msg
+            })
             st.session_state.current_page = "คุยกับครู AI"
             st.rerun()
             
@@ -2071,6 +2075,9 @@ elif st.session_state.current_page == "คุยกับครู AI":
             st.rerun()
     st.markdown("# ถาม-ตอบภาษาสวีเดนกับครู AI (Lär dig svenska)")
     st.markdown("พบปัญหาการออกเสียง ไวยากรณ์ หรืออยากทดสอบบทสนทนา? ถามคุณครู AI ได้เลยทันทีครับ!")
+
+    if hasattr(st.session_state, "ai_active_lesson") and st.session_state.ai_active_lesson:
+        st.info(f"📘 **บทเรียนที่กำลังสอบถาม:** {st.session_state.ai_active_lesson}")
     
     # Connection state layout
     if not st.session_state.api_key:
