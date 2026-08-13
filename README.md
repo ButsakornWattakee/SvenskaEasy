@@ -14,7 +14,13 @@
    pip install -r requirements.txt
    ```
 
-2. รันโปรแกรมด้วย Streamlit:
+2. สร้างไฟล์ `.env` ที่โฟลเดอร์โปรเจกต์ แล้วใส่ Gemini API Key:
+   ```
+   GEMINI_API_KEY=your_key_here
+   ```
+   รับคีย์ฟรีได้ที่ [Google AI Studio](https://aistudio.google.com/apikey)
+
+3. รันโปรแกรมด้วย Streamlit:
    ```bash
    py -m streamlit run app.py
    ```

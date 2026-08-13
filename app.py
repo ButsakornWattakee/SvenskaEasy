@@ -6,6 +6,16 @@ from dotenv import load_dotenv
 # Load local environment variables if available
 load_dotenv()
 
+
+def _load_gemini_api_key():
+    """Load the Gemini key from Streamlit secrets or environment variables."""
+    try:
+        if "GEMINI_API_KEY" in st.secrets and st.secrets["GEMINI_API_KEY"]:
+            return str(st.secrets["GEMINI_API_KEY"]).strip()
+    except Exception:
+        pass
+    return (os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "").strip()
+
 # Set page configuration
 st.set_page_config(
     page_title="SvenskaEasy - เว็บไซต์การเรียนภาษาสวีเดนง่ายๆ",
@@ -182,9 +192,8 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
         {"role": "assistant", "content": "Hej! ยินดีต้อนรับสู่ห้องเรียนภาษาสวีเดนครับ ผมคือครู AI ส่วนตัวของคุณ คุณสามารถถามคำถามเกี่ยวกับไวยากรณ์ คำศัพท์ การออกเสียง หรือลองพิมพ์สนทนาภาษาสวีเดนกับผมได้เลยครับ!"}
     ]
-if "api_key" not in st.session_state:
-    # Try loading from environment variable first
-    st.session_state.api_key = os.getenv("GEMINI_API_KEY", "")
+if "api_key" not in st.session_state or not st.session_state.api_key:
+    st.session_state.api_key = _load_gemini_api_key()
 if "active_lesson_id" not in st.session_state:
     st.session_state.active_lesson_id = 1
 if "app_theme" not in st.session_state:
@@ -1847,7 +1856,7 @@ elif st.session_state.current_page == "คุยกับครู AI":
     
     # Connection state layout
     if not st.session_state.api_key:
-        st.warning("ขณะนี้อยู่ใน **Sandbox Mode** (โหมดทดลองบอทจำลองคำตอบ) ครู AI จะตอบกลับได้เฉพาะบางหัวข้อจำกัด เช่น คำทักทาย ตัวเลข สี ไวยากรณ์ En/Ett เท่านั้น คุณสามารถเชื่อมต่อคีย์ Gemini API ได้ในเมนู 'ตั้งค่าระบบ' ทางซ้ายมือ เพื่อคุยคุยกับ AI เต็มรูปแบบได้ทันที!")
+        st.warning("ขณะนี้อยู่ใน **Sandbox Mode** (โหมดทดลองบอทจำลองคำตอบ) ครู AI จะตอบกลับได้เฉพาะบางหัวข้อจำกัด เช่น คำทักทาย ตัวเลข สี ไวยากรณ์ En/Ett เท่านั้น ตั้งค่า `GEMINI_API_KEY` ในไฟล์ `.env` แล้วรีสตาร์ทแอป เพื่อคุยกับครู AI เต็มรูปแบบ")
     else:
         st.success("กำลังเชื่อมต่อผ่าน Gemini API คุยกับครู AI ได้อย่างอิสระไร้ขีดจำกัด!")
         
@@ -1890,7 +1899,7 @@ elif st.session_state.current_page == "ตั้งค่าระบบ":
     st.markdown("ตั้งค่าคีย์เชื่อมต่อปัญญาประดิษฐ์เพื่อรับประสบการณ์การตอบคำถามภาษาชวีเดนที่มีคุณภาพสูงสุด")
     
     st.markdown("### ใส่ Google Gemini API Key")
-    st.write("แชทบอทใช้บริการ Gemini API ในการตอบคำถาม ซึ่งคีย์นี้จะไม่ถูกบันทึกในเซิร์ฟเวอร์ใดๆ แต่จะเก็บไว้ในหน่วยความจำเซสชั่นของเบราว์เซอร์ของคุณเท่านั้น")
+    st.write("แนะนำให้ใส่คีย์ในไฟล์ `.env` เป็น `GEMINI_API_KEY=...` เพื่อให้ทุกคนในเว็บใช้ครู AI ได้ หรือใส่ชั่วคราวด้านล่างนี้ (เก็บแค่ในเซสชั่น)")
     
     api_key_input = st.text_input(
         "ระบุ Gemini API Key ของคุณ:", 

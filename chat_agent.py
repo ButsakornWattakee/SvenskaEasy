@@ -1,5 +1,16 @@
 # -*- coding: utf-8 -*-
+import os
 import google.generativeai as genai
+
+# Prefer a current Gemini model. 1.5 Flash has been retired and returns 404.
+CANDIDATE_MODELS = [
+    os.getenv("GEMINI_MODEL", "").strip(),
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-flash-latest",
+]
+CANDIDATE_MODELS = [name for name in CANDIDATE_MODELS if name]
+_resolved_model_name = None
 
 SYSTEM_INSTRUCTION = """คุณเป็นครูสอนภาษาชวีเดนชาวสวีเดนผู้ใจดีและใจเย็นที่พูดภาษาไทยได้คล่องแคล่วและเป็นธรรมชาติ หน้าที่ของคุณคือช่วยคนไทยเรียนรู้ภาษาชวีเดน ตอบคำถามของนักเรียนเกี่ยวกับคำศัพท์ ไวยากรณ์ การออกเสียง หรือช่วยพวกเขาฝึกบทสนทนาโต้ตอบ
 แนวทางการตอบคำถาม:
@@ -39,33 +50,75 @@ MOCK_RESPONSES = [
     }
 ]
 
-DEFAULT_FALLBACK = "Hej! ครูยินดีตอบคำถามเกี่ยวกับภาษาชวีเดนครับ (ขณะนี้อยู่ใน Sandbox Mode ลองถามเรื่อง 'คำศัพท์ทักทาย', 'ตัวเลข', 'สี', 'ไวยากรณ์ En/Ett' หรือลองนำ Gemini API Key มาใส่ในเมนูตั้งค่าเพื่อคุยกับครูแบบ AI อัจฉริยะจริงๆ ได้เลยครับ!)"
+DEFAULT_FALLBACK = "Hej! ครูยินดีตอบคำถามเกี่ยวกับภาษาชวีเดนครับ (ขณะนี้อยู่ใน Sandbox Mode ลองถามเรื่อง 'คำศัพท์ทักทาย', 'ตัวเลข', 'สี', 'ไวยากรณ์ En/Ett' หรือตั้งค่า GEMINI_API_KEY เพื่อคุยกับครูแบบ AI อัจฉริยะจริงๆ ได้เลยครับ!)"
+
+
+def _format_gemini_history(chat_history):
+    """Gemini requires history to start with a user turn and then alternate.
+
+    The app always seeds chat with an assistant greeting, which the API rejects
+    if it is sent as the first history item.
+    """
+    formatted = []
+    prior_messages = chat_history[:-1] if chat_history else []
+    for item in prior_messages:
+        content = (item.get("content") or "").strip()
+        if not content:
+            continue
+        role = "user" if item.get("role") == "user" else "model"
+        if formatted and formatted[-1]["role"] == role:
+            formatted[-1]["parts"][0] += "\n" + content
+        else:
+            formatted.append({"role": role, "parts": [content]})
+
+    while formatted and formatted[0]["role"] == "model":
+        formatted.pop(0)
+    return formatted
+
+
+def _is_missing_model_error(error):
+    text = str(error).lower()
+    return "404" in text or "not found" in text or "is not supported" in text
+
 
 def get_ai_response(api_key, message, chat_history):
-    # If api_key is available, use Google Gemini
+    global _resolved_model_name
+
     if api_key and len(api_key.strip()) > 10:
-        try:
-            genai.configure(api_key=api_key.strip())  # type: ignore
-            model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=SYSTEM_INSTRUCTION)  # type: ignore
-            
-            # Format history for Gemini API
-            formatted_history = []
-            for h in chat_history[:-1]:  # Exclude the current message
-                formatted_history.append({
-                    "role": "user" if h["role"] == "user" else "model",
-                    "parts": [h["content"]]
-                })
-            
-            chat = model.start_chat(history=formatted_history)
-            response = chat.send_message(message)
-            return response.text
-        except Exception as e:
-            return f"❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API: {str(e)}\n\n(คุณสามารถสลับไปรันในโหมดจำลองได้โดยลบ API Key ออก หรือตรวจสอบคีย์ของคุณอีกครั้ง)"
-    
-    # Sandbox/Mock Mode Fallback
+        genai.configure(api_key=api_key.strip())  # type: ignore
+        formatted_history = _format_gemini_history(chat_history)
+        model_names = []
+        if _resolved_model_name:
+            model_names.append(_resolved_model_name)
+        for name in CANDIDATE_MODELS:
+            if name not in model_names:
+                model_names.append(name)
+
+        last_error = None
+        for model_name in model_names:
+            try:
+                model = genai.GenerativeModel(  # type: ignore
+                    model_name,
+                    system_instruction=SYSTEM_INSTRUCTION,
+                )
+                chat = model.start_chat(history=formatted_history)
+                response = chat.send_message(message)
+                _resolved_model_name = model_name
+                return response.text
+            except Exception as error:
+                last_error = error
+                if not _is_missing_model_error(error):
+                    break
+
+        return (
+            "❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API: "
+            f"{last_error}\n\n"
+            "(ตรวจสอบ GEMINI_API_KEY ในไฟล์ .env หรือ Streamlit secrets แล้วรีสตาร์ทแอป)"
+        )
+
     message_lower = message.lower()
     for item in MOCK_RESPONSES:
         if any(kw in message_lower for kw in item["keywords"]):
             return item["reply"]
-            
+
     return DEFAULT_FALLBACK
