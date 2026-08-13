@@ -488,7 +488,7 @@ _all_done = (len(st.session_state.completed_lessons) >= len(lessons_data.LESSONS
 if st.session_state.user_role == "Admin":
     PAGES = ["แดชบอร์ดผู้ดูแลระบบ", "เพิ่มผู้ใช้งานใหม่", "ลบผู้ใช้งานและประวัติการลบ", "จัดการรูปเกมจับคู่", "เพิ่มรูปภาพคลังคำศัพท์", "โปรไฟล์ส่วนตัว", "ตั้งค่าระบบ"]
 else:
-    PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "เพิ่มรูปภาพคลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "โปรไฟล์ส่วนตัว"]
+    PAGES = ["Dashboard", "บทเรียนทั้งหมด", "คลังคำศัพท์", "แบบฝึกหัดและควิซ", "คุยกับครู AI", "โปรไฟล์ส่วนตัว"]
     if _all_done:
         PAGES.append("📝 สอบวัดระดับ (Final Exam)")
 
@@ -1084,6 +1084,10 @@ elif st.session_state.current_page == "จัดการรูปเกมจ�
 
 # ----------------- 0.4 MANAGE VOCAB IMAGES PAGE -----------------
 elif st.session_state.current_page in ["เพิ่มรูปภาพคลังคำศัพท์", "จัดการรูปคลังคำศัพท์"]:
+    if st.session_state.user_role != "Admin":
+        st.warning("⚠️ หน้านี้สำหรับผู้ดูแลระบบ (Admin) เท่านั้น")
+        st.session_state.current_page = "Dashboard"
+        st.rerun()
     st.markdown("# 🖼️ จัดการและเพิ่มรูปภาพคลังคำศัพท์ (Manage Vocab Images)")
     st.markdown("เพิ่ม แก้ไข หรือลบรูปภาพสำหรับคำศัพท์ในคลังคำศัพท์ภาษาสวีเดน ข้อมูลเชื่อมโยงกับ MongoDB (คอลเลกชัน: vocab_images) แบบเรียลไทม์")
     
@@ -1375,7 +1379,12 @@ elif st.session_state.current_page == "Dashboard":
 
 # ----------------- 2. LESSONS PAGE -----------------
 elif st.session_state.current_page == "บทเรียนทั้งหมด":
-    st.markdown("# บทเรียนภาษาชวีเดน (Svenska lektioner)")
+    col_back, _ = st.columns([1, 3])
+    with col_back:
+        if st.button("⬅️ กลับสู่แดชบอร์ด (Back)", key="back_from_lessons_btn", use_container_width=True):
+            st.session_state.current_page = "Dashboard"
+            st.rerun()
+    st.markdown("# บทเรียนภาษาสวีเดน (Svenska lektioner)")
     
     # Find current active lesson
     active_lesson = next((l for l in lessons_data.LESSONS if l["id"] == st.session_state.active_lesson_id), lessons_data.LESSONS[0])
@@ -1459,6 +1468,26 @@ elif st.session_state.current_page == "บทเรียนทั้งหม�
         obj_html += "</ul></div>"
         st.markdown(obj_html, unsafe_allow_html=True)
 
+    # Quick Lesson Navigation Bar (Top)
+    all_ids = [l["id"] for l in lessons_data.LESSONS]
+    curr_overall_idx = all_ids.index(st.session_state.active_lesson_id)
+    
+    col_t_prev, col_t_curr, col_t_next = st.columns([1, 1.8, 1])
+    with col_t_prev:
+        if curr_overall_idx > 0:
+            prev_l = lessons_data.LESSONS[curr_overall_idx - 1]
+            if st.button("⬅️ บทก่อนหน้า", key=f"top_prev_{l_id}", use_container_width=True):
+                st.session_state.active_lesson_id = prev_l["id"]
+                st.rerun()
+    with col_t_curr:
+        st.markdown(f"<div style='text-align: center; color: var(--text-color); opacity: 0.85; font-size: 0.9rem; padding-top: 6px;'>บทที่ <b>{curr_overall_idx + 1}</b> จากทั้งหมด {len(lessons_data.LESSONS)} บทเรียน</div>", unsafe_allow_html=True)
+    with col_t_next:
+        if curr_overall_idx < len(lessons_data.LESSONS) - 1:
+            next_l = lessons_data.LESSONS[curr_overall_idx + 1]
+            if st.button("บทถัดไป ➡️", key=f"top_next_{l_id}", use_container_width=True):
+                st.session_state.active_lesson_id = next_l["id"]
+                st.rerun()
+
     # Interactive Quick-Action Panel
     col_act1, col_act2, col_act3 = st.columns(3)
     with col_act1:
@@ -1487,15 +1516,29 @@ elif st.session_state.current_page == "บทเรียนทั้งหม�
     st.markdown("---")
 
     
-    # Lesson completion controls
-    col_mark, col_next = st.columns([1, 1])
+    # Lesson completion and navigation controls
+    all_ids = [l["id"] for l in lessons_data.LESSONS]
+    curr_overall_idx = all_ids.index(st.session_state.active_lesson_id)
     
+    col_prev, col_mark, col_next = st.columns([1, 1.2, 1])
+    
+    with col_prev:
+        if curr_overall_idx > 0:
+            prev_lesson = lessons_data.LESSONS[curr_overall_idx - 1]
+            if st.button("⬅️ บทเรียนก่อนหน้า (Previous)", key=f"prev_lesson_btn_{l_id}", use_container_width=True):
+                st.session_state.active_lesson_id = prev_lesson["id"]
+                st.rerun()
+        else:
+            if st.button("⬅️ กลับแดชบอร์ด", key=f"back_dash_first_{l_id}", use_container_width=True):
+                st.session_state.current_page = "Dashboard"
+                st.rerun()
+
     with col_mark:
         is_completed = l_id in st.session_state.completed_lessons
         if is_completed:
             st.success("✅ คุณเรียนจบบทนี้แล้ว!")
         else:
-            if st.button("เรียนเสร็จสิ้นแล้ว! (Mark as Completed)", key=f"mark_comp_{l_id}"):
+            if st.button("เรียนเสร็จสิ้นแล้ว! (Mark as Completed)", key=f"mark_comp_{l_id}", type="primary", use_container_width=True):
                 prev_count = len(st.session_state.completed_lessons)
                 st.session_state.completed_lessons.add(l_id)
                 new_count = len(st.session_state.completed_lessons)
@@ -1526,19 +1569,29 @@ elif st.session_state.current_page == "บทเรียนทั้งหม�
                 st.rerun()
                 
     with col_next:
-        all_ids = [l["id"] for l in lessons_data.LESSONS]
-        curr_overall_idx = all_ids.index(st.session_state.active_lesson_id)
         if curr_overall_idx < len(lessons_data.LESSONS) - 1:
-            if st.button("ถัดไป (Next Lesson)"):
-                st.session_state.active_lesson_id = lessons_data.LESSONS[curr_overall_idx + 1]["id"]
+            next_lesson = lessons_data.LESSONS[curr_overall_idx + 1]
+            if st.button("บทเรียนถัดไป (Next) ➡️", key=f"next_lesson_btn_{l_id}", use_container_width=True):
+                st.session_state.active_lesson_id = next_lesson["id"]
                 st.rerun()
         else:
-            if st.button("กลับไปยังแดชบอร์ด"):
+            if st.button("🎉 จบหลักสูตร (กลับแดชบอร์ด)", key=f"finish_course_btn_{l_id}", use_container_width=True):
                 st.session_state.current_page = "Dashboard"
                 st.rerun()
 
 # ----------------- 2.5 VOCABULARY PAGE -----------------
 elif st.session_state.current_page == "คลังคำศัพท์":
+    col_back, col_adm = st.columns([1, 1])
+    with col_back:
+        if st.button("⬅️ กลับสู่แดชบอร์ด (Back)", key="back_from_vocab_btn"):
+            st.session_state.current_page = "Dashboard"
+            st.rerun()
+    with col_adm:
+        if st.session_state.user_role == "Admin":
+            if st.button("🖼️ จัดการรูปภาพคลังคำศัพท์ (Admin)", key="vocab_manage_top_btn", type="secondary"):
+                st.session_state.current_page = "เพิ่มรูปภาพคลังคำศัพท์"
+                st.rerun()
+                
     st.markdown("# คลังคำศัพท์ภาษาสวีเดน (Ordbok)")
     st.markdown("ค้นหาคำเขียน คำอ่าน และความหมายของคำศัพท์ภาษาสวีเดนพื้นฐานที่จำเป็น พร้อมตัวอย่างประโยคการใช้งาน")
     
@@ -1649,6 +1702,11 @@ elif st.session_state.current_page == "คลังคำศัพท์":
 
 # ----------------- 3. QUIZZES PAGE -----------------
 elif st.session_state.current_page == "แบบฝึกหัดและควิซ":
+    col_back, _ = st.columns([1, 3])
+    with col_back:
+        if st.button("⬅️ กลับสู่แดชบอร์ด (Back)", key="back_from_quiz_btn", use_container_width=True):
+            st.session_state.current_page = "Dashboard"
+            st.rerun()
     st.markdown("# แบบฝึกหัดทดสอบความรู้ (Quiz & Övningar)")
     st.markdown("ทำควิซเพื่อทบทวนทักษะของคุณ หลังเรียนจบบทเรียนสลัดควิซเพื่อปลดล็อคบทเรียนถัดไปให้ดียิ่งขึ้น")
     
@@ -2006,6 +2064,11 @@ elif st.session_state.current_page == "แบบฝึกหัดและค�
  
 # ----------------- 4. AI CHAT PAGE -----------------
 elif st.session_state.current_page == "คุยกับครู AI":
+    col_back, _ = st.columns([1, 3])
+    with col_back:
+        if st.button("⬅️ กลับสู่แดชบอร์ด (Back)", key="back_from_ai_btn", use_container_width=True):
+            st.session_state.current_page = "Dashboard"
+            st.rerun()
     st.markdown("# ถาม-ตอบภาษาสวีเดนกับครู AI (Lär dig svenska)")
     st.markdown("พบปัญหาการออกเสียง ไวยากรณ์ หรืออยากทดสอบบทสนทนา? ถามคุณครู AI ได้เลยทันทีครับ!")
     
@@ -2081,6 +2144,11 @@ elif st.session_state.current_page == "ตั้งค่าระบบ":
 
 # ----------------- 6. USER PROFILE PAGE -----------------
 elif st.session_state.current_page == "โปรไฟล์ส่วนตัว":
+    col_back, _ = st.columns([1, 3])
+    with col_back:
+        if st.button("⬅️ กลับสู่แดชบอร์ด (Back)", key="back_from_profile_btn", use_container_width=True):
+            st.session_state.current_page = "Dashboard"
+            st.rerun()
     st.markdown("# 👤 โปรไฟล์ผู้ใช้งาน (User Profile)")
     st.markdown("จัดการข้อมูลส่วนตัว อัปโหลดรูปภาพโปรไฟล์ และเบอร์โทรศัพท์ของคุณ")
     
@@ -2294,6 +2362,11 @@ elif st.session_state.current_page == "โปรไฟล์ส่วนตั�
 
 # ----------------- 7. FINAL EXAM PAGE -----------------
 elif st.session_state.current_page == "📝 สอบวัดระดับ (Final Exam)":
+    col_back, _ = st.columns([1, 3])
+    with col_back:
+        if st.button("⬅️ กลับสู่แดชบอร์ด (Back)", key="back_from_exam_btn", use_container_width=True):
+            st.session_state.current_page = "Dashboard"
+            st.rerun()
     from datetime import datetime
     import random
 

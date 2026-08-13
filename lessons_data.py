@@ -635,75 +635,299 @@ LESSONS = [
         "objectives": [
             "ออกเสียงชื่อสัตว์และคำศัพท์ธรรมชาติในภาษาสวีเดนได้อย่างถูกต้อง",
             "เข้าใจสิทธิ Allemansrätten และคำถอดเสียงหลักการสำคัญ",
-            "บรรยายลักษณะสิ่งแวดล้อมธรรมชาติพร้อมคำอ่าน"
+            "บรรยายลักษณะสิ่งแวดล้อมธรรมชาติพร้อม    {
+        "id": 14,
+        "level": "Elementary",
+        "cefr": "CEFR A2.1",
+        "duration": "35 นาที",
+        "title": "บทที่ 14 : คำคุณศัพท์และการสอดคล้องรูป (Adjektivets kongruens och böjning)",
+        "description": "ศึกษาโครงสร้างคำคุณศัพท์ การผันตามเพศ (en/ett) และพหูพจน์ กฎข้อยกเว้นทางสัทศาสตร์ การชี้เฉพาะแบบคู่ (Dubbel bestämdhet) และบทสนทนาจริง",
+        "objectives": [
+            "เข้าใจและประยุกต์ใช้หลักการสอดคล้องรูปของคำคุณศัพท์ (Adjektivets kongruens) ตามเพศ (en/ett) และพหูพจน์ (plural)",
+            "จดจำกฎข้อยกเว้นสัทศาสตร์: สระเสียงยาว (-tt), สระ+d/t, การหดรูป (-el/-en/-er) และคำผันผิดปกติ (liten/litet/små/lilla)",
+            "สร้างประโยคบอกลักษณะทั้งแบบวางหน้าคำนาม (Attributivt), หลังกริยา (Predikativt) และการชี้เฉพาะแบบคู่ (Dubbel bestämdhet)"
         ],
         "sections": [
             {
-                "subtitle": "1. สัตว์เลี้ยงและสัตว์ป่า พร้อมคำอ่านภาษาไทย (Djur)",
-                "content": """คำศัพท์สัตว์และคำถอดเสียงภาษาไทย:
+                "subtitle": "1. บทนำเชิงลึกและข้อผิดพลาดพบบ่อย (Introduction & Common Errors)",
+                "content": """### ความสำคัญของคำคุณศัพท์ในระบบภาษาตระกูลเจอร์แมนิกเหนือ
+ในภาษาศาสตร์สวีเดน คำคุณศัพท์ (**Adjektiv**) ไม่ได้ทำหน้าที่เพียงแค่บอกลักษณะหรือขยายคำนามเท่านั้น แต่ทำหน้าที่เป็นตัวชี้วัดความสอดคล้องทางไวยากรณ์ (**Kongruens**) ของทั้งวลีและประโยค
 
-**สัตว์เลี้ยง (Husdjur):**
-* **hund** [ฮุนด์] — สุนัข
-* **katt** [คัตต์] — แมว
-* **häst** [แฮสต์] — ม้า
-* **fågel** [โฟเกล] — นก
-* **fisk** [ฟิสค์] — ปลา
+**มิติการเปลี่ยนรูปของคำคุณศัพท์สวีเดน:**
+1. **เพศทางไวยากรณ์ (Genus):** คำนามเพศรวม (*Utrum / en-ord*) หรือ คำนามเพศกลาง (*Neutrum / ett-ord*)
+2. **พจน์ (Numerus):** เอกพจน์ (*Singular*) หรือ พหูพจน์ (*Plural*)
+3. **สถานะความเจาะจง (Bestämdhet):** รูปไม่ชี้เฉพาะ (*Obestämd form*) หรือ รูปชี้เฉพาะ (*Bestämd form*)
 
-**สัตว์ป่าสวีเดน (Vilda djur):**
-* **älg** [เอลย์] — กวางมูส (เจ้าแห่งป่าสวีเดน)
-* **björn** [บเยิร์น] — หมีน้ำตาล
-* **varg** [วาร์ก] — หมาป่า
-* **ren** [เรน] — กวางเรนเดียร์"""
+**ตำแหน่งคำคุณศัพท์ในประโยค:**
+* **Attributivt (วางหน้าคำนามโดยตรง):** *en röd bil* [เอน เริด บีล] (รถสีแดงหนึ่งคัน)
+* **Predikativt (วางหลังกริยาเชื่อมโยง vara, bli):** *Bilen är röd.* [บีเลน แอ เริด] (รถคันนั้นมีสีแดง)
+
+---
+
+### ข้อผิดพลาดพบบ่อยที่สุดของผู้เรียนต่างชาติ (Common Errors):
+1. **ลืมรูป Neutrum (-t):** ภาษาอังกฤษใช้รูปเดียว (*a red car / a red house*) แต่สวีเดนต้องเปลี่ยนรูป: *en röd bil* vs *ett röt**t** hus*
+2. **ลืมเติมรูปพหูพจน์ (-a):** เมื่อประธานเป็นพหูพจน์ แม้จะอยู่หลังกริยา *är* คำคุณศัพท์ต้องลงท้ายด้วย `-a` เสมอ
+   * ❌ *De är trött.* ➡️ ✅ *De är trött**a**.* [ดอม แอ เตริดตา] (พวกเขาเหนื่อย)
+3. **ความสับสนในระบบชี้เฉพาะแบบคู่ (Dubbel bestämdhet):**
+   * โครงสร้างที่ถูกต้องคือ: **Den/Det/De + Adjektiv (-a) + Substantiv (รูปชี้เฉพาะ)** เช่น ✅ *den röd**a** bil**en*** (รถสีแดงคันนั้น)"""
             },
             {
-                "subtitle": "2. สิทธิ Allemansrätten และคำอ่าน",
-                "content": """หลักการสิทธิธรรมชาติและคำอ่านภาษาไทย:
-
-* 🇸🇪 **Inte störa – inte förstöra**
-  * 🗣️ **คำอ่าน:** *[อินเทอะ สเติร์ยรา – อินเทอะ เฟอร์สเติร์ยรา]*
-  * 🇹🇭 **คำแปล:** *ไม่รบกวน – ไม่ทำลายธรรมชาติ*"""
+                "subtitle": "2. ตารางคำศัพท์และสัณฐานวิทยา 15 คำสำคัญ (Vocabulary & Morphology)",
+                "content": """| คำศัพท์หลัก (Grundform) | คำอ่านออกเสียง (Pronunciation) | การเปลี่ยนรูป (en / ett / pl. / bestämd) | คำแปลภาษาไทย | ตัวอย่างประโยคใช้งานจริง |
+| :--- | :--- | :--- | :--- | :--- |
+| **fin** | [ฟีน] | fin / fin**t** / fin**a** / fin**a** | สวย, ดี, ประณีต | *Ett fint hus vid sjön.* (บ้านสวยริมทะเลสาบ) |
+| **stor** | [สตูร] | stor / stor**t** / stor**a** / stor**a** | ใหญ่, โต | *De har stora problem.* (พวกเขามีปัญหาใหญ่) |
+| **liten** | [ลี-เต่น] | liten / li**tet** / **små** / **lilla** | เล็ก, น้อย | *Ett litet barn sover.* (เด็กเล็กคนหนึ่งกำลังนอนหลับ) |
+| **gammal** | [กัม-มัล] | gammal / gammal**t** / gam**la** / gam**la** | เก่า, แก่, อายุมาก | *Min mormor är gammal.* (คุณยายของฉันแก่มากแล้ว) |
+| **ung** | [อุ๋ง] | ung / ung**t** / ung**a** / ung**a** | อายุน้อย, หนุ่มสาว | *Många unga människor bor här.* (คนหนุ่มสาวจำนวนมากอาศัยอยู่ที่นี่) |
+| **vacker** | [วัค-แคร์] | vacker / vacker**t** / vack**ra** / vack**ra** | งดงาม, สวยงาม | *Stockholm är en vacker stad.* (สตอกโฮล์มเป็นเมืองที่งดงาม) |
+| **billig** | [บิล-ลิก] | billig / billig**t** / billig**a** / billig**a** | ราคาถูก, ย่อมเยา | *Det är billigt att åka buss.* (การนั่งรถเมล์มีราคาถูก) |
+| **dyr** | [ดือร์] | dyr / dyr**t** / dyr**a** / dyr**a** | แพง, ราคาสูง | *Köttet är för dyrt i år.* (ปีนี้เนื้อสัตว์แพงเกินไป) |
+| **varm** | [วาร์ม] | varm / varm**t** / varm**a** / varm**a** | ร้อน, อบอุ่น | *Jag dricker gärna varmt te.* (ฉันชอบดื่มชาร้อน) |
+| **kall** | [คัล] | kall / kall**t** / kall**a** / kall**a** | หนาว, เย็น | *Vintern i Sverige är kall.* (ฤดูหนาวในสวีเดนหนาวเย็น) |
+| **trött** | [เตริด] | trött / trött / trött**a** / trött**a** | เหนื่อย, อ่อนเพลีย | *Varför är du så trött idag?* (ทำไมวันนี้คุณถึงเหนื่อยจัง?) |
+| **svår** | [สวูร์] | svår / svår**t** / svår**a** / svår**a** | ยาก, ซับซ้อน | *Svensk grammatik är inte svår.* (ไวยากรณ์สวีเดนไม่ได้ยาก) |
+| **lätt** | [แล็ต] | lätt / lätt / lätt**a** / lätt**a** | ง่าย, เบา | *Ett lätt prov för eleverna.* (ข้อสอบที่ง่ายสำหรับนักเรียน) |
+| **rolig** | [รู-ลิก] | rolig / rolig**t** / rolig**a** / rolig**a** | สนุกสนาน, ตลก | *Vi hade en rolig kväll.* (พวกเรามีค่ำคืนที่สนุกสนาน) |
+| **tråkig** | [โทร-คิก] | tråkig / tråkig**t** / tråkig**a** / tråkig**a** | น่าเบื่อ, แย่ | *Filmen var ganska tråkig.* (ภาพยนตร์เรื่องนั้นค่อนข้างน่าเบื่อ) |"""
             },
             {
-                "subtitle": "3. ธรรมชาติและภูมิประเทศ พร้อมคำอ่าน (Natur)",
-                "content": """คำศัพท์ธรรมชาติและคำถอดเสียง:
+                "subtitle": "3. กฎไวยากรณ์เชิงลึกและข้อยกเว้นทางสัทศาสตร์ (Grammar Rules & Exceptions)",
+                "content": """### กฎการผันรูปตามเพศและพจน์ (Kongruensregler)
 
-* **skog** [สคูก] — ป่าไม้
-* **sjö** [เฌอ] — ทะเลสาบ
-* **berg** [แบร์ย] — ภูเขา
-* **hav** [ฮาฟ] — ทะเล
-* **ö** [เออ] — เกาะ"""
+**ตารางแกนหลัก (Grundmönster):**
+* **en-ord (Utrum เอกพจน์):** คงรูปเดิม (*Grundform*) ➡️ *en **fin** dag* [เอน ฟีน ดัก] (วันที่สดใส)
+* **ett-ord (Neutrum เอกพจน์):** เติมปัจจัย **`-t`** ➡️ *ett **fint** hus* [เอ็ต ฟีนท์ ฮูส] (บ้านสวย)
+* **Plural (พหูพจน์ทั้งหมด):** เติมปัจจัย **`-a`** ➡️ *många **fina** hus* [มองงา ฟีนา ฮูส] (บ้านสวยหลายหลัง)
+
+---
+
+### 4 กฎข้อยกเว้นทางสัทศาสตร์ที่ต้องรู้ (Undantag):
+
+1. **สระเสียงยาวลงท้าย (Lång vokal):** เติม `-tt` และลดเสียงสระให้สั้นลง
+   * **ny** (ใหม่) ➡️ *en ny bil* / *ett ny**tt** bord* / *nya böcker*
+   * **blå** (สีน้ำเงิน) ➡️ *en blå tröja* / *ett blå**tt** hav* / *blåa ögon*
+2. **คำที่ลงท้ายด้วยเสียง d:**
+   * สระยาว + d ➡️ เปลี่ยนเป็น `-tt`: *röd* ➡️ *en röd tröja* / *ett rö**tt** äpple* / *röda äpplen*
+   * พยัญชนะ + d ➡️ ตัด d เติม `-t`: *hård* ➡️ *en hård säng* / *ett hår**t** arbete*
+3. **การหดรูปสระ e (Synkope ในคำลงท้าย -el, -en, -er):**
+   * **vacker** ➡️ *vacker* (en) / *vackert* (ett) / *vack**ra*** (pl.) *(สระ e หดหายไป)*
+   * **gammal** ➡️ *gammal* (en) / *gammalt* (ett) / *gam**la*** (pl.)
+4. **คำผันผิดปกติอย่างสิ้นเชิง (Oregelbunden):**
+   * **liten (เล็ก):** *en liten hund* / *ett litet hus* / *små hundar* (พหูพจน์ใช้ **små**)
+
+---
+
+### ระบบการชี้เฉพาะแบบคู่ (Dubbel bestämdhet):
+$$\mathbf{Den/Det/De + Adjektiv (-a) + Substantiv (Bestämd)}$$
+* **en-ord:** $\text{Den} + \text{stora} + \text{bilen}$ = **den stora bilen** [เดน สตูรา บีเลน] (รถคันใหญ่คันนั้น)
+* **ett-ord:** $\text{Det} + \text{stora} + \text{huset}$ = **det stora huset** [เดท สตูรา ฮูเส็ต] (บ้านหลังใหญ่หลังนั้น)
+* **Plural:** $\text{De} + \text{stora} + \text{husen}$ = **de stora husen** [ดอม สตูรา ฮูเซน] (บ้านหลังใหญ่เหล่านั้น)"""
+            },
+            {
+                "subtitle": "4. ภาษาเขียน vs ภาษาพูดในชีวิตประจำวัน (Written vs Spoken Swedish)",
+                "content": """ในการสนทนาประจำวัน (Vardagligt talspråk) ของชาวสวีเดน มีการละเสียงพยัญชนะท้าย:
+
+* **คำลงท้ายด้วย `-igt`:** ในภาษาเขียนสะกด `-igt` แต่ภาษาพูดจะออกเสียงเป็น **[ɪt]** (ไม่ออกเสียงตัว g):
+  * **roligt** ➡️ ภาษาพูดออกเสียงว่า **[รู-ลิต]** (สนุก)
+  * **tråkigt** ➡️ ภาษาพูดออกเสียงว่า **[โทร-คิต]** (น่าเบื่อ)
+  * **billigt** ➡️ ภาษาพูดออกเสียงว่า **[บิล-ลิต]** (ถูก)
+* **คำว่า mycket (มาก):** ภาษาพูดมักตัดเสียง t ท้าย ออกเสียงเป็น **[มึ๊ก-เกะ]**
+* **คำว่า de (พวกเขา/เหล่านั้น):** ในภาษาพูดออกเสียงเป็น **[ดอม]** เสมอ"""
+            },
+            {
+                "subtitle": "5. บทสนทนาตามสถานการณ์จริง: ซื้อของแต่งห้องที่ IKEA (Contextual Dialogue)",
+                "content": """**สถานการณ์:** Johan และ Sara กำลังเลือกซื้อเฟอร์นิเจอร์และของแต่งห้องในห้าง IKEA เพื่อย้ายเข้าอพาร์ตเมนต์ใหม่
+
+🇸🇪 **Johan:** Titta på den här soffan, Sara! Den är verkligen bekväm och modern.
+🗣️ *[ทิตตา พัว เดน แฮร์ ซ็อฟฟาน, ซาร่า! เดน แอ แวร์คลิเกน เบ็คแวม อ็อค โมแดร์น]*
+🇹🇭 **โฮฮัน:** ดูโซฟาตัวนี้สิ ซาร่า! มันนุ่มสบายและดูทันสมัยจริงๆ เลย
+
+🇸🇪 **Sara:** Ja, men den är alldeles för stor för vårt lilla vardagsrum.
+🗣️ *[ยา, เมน เดน แอ อัลเดเลส เฟอร์ สตูร เฟอร์ วอร์ต ลิลลา วาร์ดักสรูม]*
+🇹🇭 **ซาร่า:** ใช่ แต่ว่ามันใหญ่เกินไปมากสำหรับห้องนั่งเล่นเล็กๆ ของพวกเรานะ
+
+🇸🇪 **Johan:** Du har rätt. Vad tycker du om det där runda bordet i trä då?
+🗣️ *[ดู ฮาร์ แร็ต. วา ทึคแคร์ ดู อ็อม เดท แดร์ รุนดา บูร์เด็ต อิ แทร ดัว?]*
+🇹🇭 **โฮฮัน:** คุณพูดถูก แล้วคุณคิดยังไงกับโต๊ะไม้ทรงกลมตัวนั้นล่ะ?
+
+🇸🇪 **Sara:** Det är jättefint! Och titta, det har ett ganska billigt pris också.
+🗣️ *[เดท แอ แย็ตเตะฟีนท์! อ็อค ทิตตา, เดท ฮาร์ เอ็ต กันสกา บิลลิกท์ พริส อ็อคซัว]*
+🇹🇭 **ซาร่า:** มันสวยมากๆ เลย! แล้วดูสิ มันมีราคาค่อนข้างถูกด้วยนะ
+
+🇸🇪 **Johan:** Perfekt! Vi behöver också två nya stolar till köket.
+🗣️ *[แพร์เฟ็คท์! วี เบอเฮอแวร์ อ็อคซัว ทโว นวา สตูลาร์ ทิล เชอเก็ต]*
+🇹🇭 **โฮฮัน:** ยอดเยี่ยมเลย! พวกเราต้องการเก้าอี้ใหม่อีกสองตัวสำหรับห้องครัวด้วย
+
+🇸🇪 **Sara:** De här vita stolarna är väldigt vackra, men är de inte lite hårda att sitta på?
+🗣️ *[ดอม แฮร์ วีตา สตูลาร์นา แอ แวลติกท์ วัคครา, เมน แอ ดอม อินเทอะ ลิเทอะ ฮอร์ดัว อัท ซิตตา พัว?]*
+🇹🇭 **ซาร่า:** เก้าอี้สีขาวพวกนี้สวยงามมากเลยนะ แต่ว่ามันนั่งแล้วแข็งไปหน่อยไหม?
+
+🇸🇪 **Johan:** Jo, men vi kan köpa mjuka kuddar och lägga på dem.
+🗣️ *[ยู, เมน วี คาน เชอพา มยูคา คุดดาร์ อ็อค แล็กกา พัว ดอม]*
+🇹🇭 **โฮฮัน:** ใช่ แต่พวกเราสามารถซื้อหมอนนุ่มๆ มาวางไว้บนเก้าอี้ได้นี่นา
+
+🇸🇪 **Sara:** Bra idé! Låt oss beställa hemleverans, paketen är för tunga för vår bil.
+🗣️ *[บรา อีเด! ล็อต ออส เบสแตลลา เฮมเลเวอรันส์, พาเคเทน แอ เฟอร์ ทุงงา เฟอร์ วอร์ บีล]*
+🇹🇭 **ซาร่า:** ความคิดที่ดีมาก! สั่งให้ไปส่งที่บ้านเถอะ พัสดุมันหนักเกินไปสำหรับรถของพวกเรา"""
+            },
+            {
+                "subtitle": "6. 5 โครงสร้างประโยคสำเร็จรูปนำไปใช้ได้ทันที (Plug-and-Play Sentence Patterns)",
+                "content": """### โครงสร้างที่ 1: การบอกลักษณะสิ่งของ/บุคคลอย่างง่าย (Predikativ)
+$$\\text{[Substantiv]} + \\text{är} + \\text{[Adjektiv (ตามเพศ/พจน์)]}$$
+* **Bilen är röd.** [บีเลน แอ เริด] — รถคันนั้นมีสีแดง (*en-ord*)
+* **Huset är rött.** [ฮูเส็ต แอ เร็ทท์] — บ้านหลังนั้นมีสีแดง (*ett-ord*)
+* **Bussarna är röda.** [บุสซาร์นา แอ เริดดา] — รถเมล์เหล่านั้นมีสีแดง (*plural*)
+
+---
+
+### โครงสร้างที่ 2: การบรรยายสิ่งของที่พบเจอ (Obestämd form)
+$$\\text{Jag har / Jag ser} + \\text{en/ett/flera} + \\text{[Adjektiv]} + \\text{[Substantiv]}$$
+* **Jag har en gammal cykel.** [ยาก ฮาร์ เอน กัมมัล ซวูเคิล] — ฉันมีจักรยานเก่าหนึ่งคัน
+* **Jag ser ett vackert träd.** [ยาก เซอร์ เอ็ต วัคแคร์ท แทรด] — ฉันเห็นต้นไม้งดงามต้นหนึ่ง
+* **Hon köper flera färska bröd.** [ฮูน เชิพแพร์ เฟลรา แฟร์สกา เบริด] — หล่อนซื้อขนมปังสดใหม่หลายชิ้น
+
+---
+
+### โครงสร้างที่ 3: การระบุเฉพาะเจาะจง (Dubbel bestämdhet)
+$$\\text{Den/Det/De} + \\text{[Adjektiv + a]} + \\text{[Substantiv (Bestämd)]}$$
+* **Den nya datorn fungerar perfekt.** [เดน นวา ดาทอร์น ฟุงเกราร์ แพร์เฟ็คท์] — คอมพิวเตอร์เครื่องใหม่เครื่องนั้นทำงานได้อย่างยอดเยี่ยม
+* **Det stora sjukhuset ligger i centrum.** [เดท สตูรา ชวุคฮูเส็ต ลิกแกร์ อิ เซ็นทรัม] — โรงพยาบาลใหญ่แห่งนั้นตั้งอยู่ใจกลางเมือง
+
+---
+
+### โครงสร้างที่ 4: การแสดงความคิดเห็นเชิงคุณค่า (Impersonal Det är)
+$$\\text{Det är} + \\text{[Adjektiv + t]} + \\text{att} + \\text{[Verb]}$$
+* **Det är viktigt att sova bra.** [เดท แอ วิคติกท์ อัท ซูวา บรา] — มันเป็นเรื่องสำคัญที่ต้องนอนหลับให้เพียงพอ
+* **Det är svårt att förstå snabb svenska.** [เดท แอ สวูร์ท อัท เฟอร์สโต สนับ สแวนสกา] — มันยากที่จะเข้าใจภาษาสวีเดนที่พูดเร็ว
+* **Det är roligt att lära sig språk.** [เดท แอ รูลิกท์ อัท แลรา เซจ สปโรค] — มันสนุกที่ได้เรียนภาษา
+
+---
+
+### โครงสร้างที่ 5: การเปรียบเทียบสิ่งของที่มีคุณสมบัติเกินไป
+$$\\text{[Subjekt]} + \\text{är för} + \\text{[Adjektiv]} + \\text{för att} + \\text{[Verb]}$$
+* **Jackan är för dyr för att köpa.** [ยัคคาน แอ เฟอร์ ดือร์ เฟอร์ อัท เชอพา] — เสื้อแจ็คเก็ตตัวนี้แพงเกินกว่าจะซื้อ
+* **Kaffet är för varmt för att dricka.** [คัฟเฟ็ต แอ เฟอร์ วาร์มท์ เฟอร์ อัท ดริคคา] — กาแฟแก้วนี้ร้อนเกินกว่าจะดื่ม"""
             }
         ],
         "quiz": [
             {
-                "question": "คำอ่านภาษาไทยของกวางมูส 'älg' คือข้อใด?",
-                "options": ["เอลย์", "บเยิร์น", "วาร์ก", "โฟเกล"],
-                "answer": "เอลย์",
-                "explanation": "älg ออกเสียงว่า [เอลย์] แปลว่า กวางมูส"
+                "question": "Han kör en __________ bil till jobbet varje dag. (จงเลือกรูปคำคุณศัพท์ที่ถูกต้อง)",
+                "options": ["snabb", "snabbt", "snabba", "snabbe"],
+                "answer": "snabb",
+                "explanation": "คำนาม 'bil' เป็น en-ord เอกพจน์ไม่ชี้เฉพาะ คำคุณศัพท์จึงต้องอยู่ในรูปพื้นฐาน (Grundform) คือ 'snabb'"
             },
             {
-                "question": "คำอ่านภาษาไทยของคำว่าทะเลสาบ 'sjö' คือข้อใด?",
-                "options": ["เฌอ", "สคูก", "แบร์ย", "ฮาฟ"],
-                "answer": "เฌอ",
-                "explanation": "sjö ออกเสียง Sj-ljudet สระ เออ ว่า [เฌอ] แปลว่า ทะเลสาบ"
+                "question": "Vi bodde på ett mycket __________ hotell under semestern.",
+                "options": ["fint", "fin", "fina", "finaste"],
+                "answer": "fint",
+                "explanation": "คำนาม 'hotell' เป็น ett-ord เอกพจน์ (ett hotell) คำคุณศัพท์จึงต้องเติม -t กลายเป็น 'fint'"
             },
             {
-                "question": "คำอ่านภาษาไทยของ 'hund' (สุนัข) คือข้อใด?",
-                "options": ["ฮุนด์", "คัตต์", "แฮสต์", "ฟิสค์"],
-                "answer": "ฮุนด์",
-                "explanation": "hund ออกเสียงว่า [ฮุนด์] แปลว่า สุนัข"
+                "question": "Var har du köpt de där __________ skorna?",
+                "options": ["snygga", "snygg", "snyggt", "snyggare"],
+                "answer": "snygga",
+                "explanation": "คำนาม 'skorna' เป็นพหูพจน์ชี้เฉพาะ (de där) คำคุณศัพท์ต้องเติม -a กลายเป็น 'snygga'"
             },
             {
-                "question": "คำอ่านภาษาไทยของคำว่าป่าไม้ 'skog' คือข้อใด?",
-                "options": ["สคูก", "เฌอ", "แบร์ย", "เออ"],
-                "answer": "สคูก",
-                "explanation": "skog ออกเสียงสระ o เป็น อู ว่า [สคูก] แปลว่า ป่าไม้"
+                "question": "Det lilla barnet har __________ händer.",
+                "options": ["kalla", "kall", "kallt", "kalle"],
+                "answer": "kalla",
+                "explanation": "คำนาม 'händer' (มือทั้งสองข้าง) เป็นรูปพหูพจน์ คำคุณศัพท์ต้องผันรูปเป็นพหูพจน์เติม -a คือ 'kalla'"
             },
             {
-                "question": "คำอ่านภาษาไทยของสโลแกน Allemansrätten 'Inte störa – inte förstöra' คือข้อใด?",
+                "question": "โครงสร้าง Impersonal 'Det är __________ att lära sig simma.' ควรเติมคำใด?",
+                "options": ["nyttigt", "nyttig", "nyttiga", "nyttige"],
+                "answer": "nyttigt",
+                "explanation": "โครงสร้าง Det är + Adjektiv คำคุณศัพท์ต้องผันรูปเสมือนขยาย ett-ord (เติม -t) เสมอ จึงต้องตอบ 'nyttigt'"
+            },
+            {
+                "question": "จงผันคำคุณศัพท์ในช่องว่าง: 'Jag dricker alltid ett glas __________ (kall) vatten på morgonen.'",
+                "options": ["kallt", "kall", "kalla", "kalle"],
+                "answer": "kallt",
+                "explanation": "ขยายคำนาม 'vatten' ซึ่งเป็น ett-ord (ett glas vatten) คำคุณศัพท์ kall จึงเติม -t กลายเป็น 'kallt'"
+            },
+            {
+                "question": "จงผันคำคุณศัพท์ในช่องว่าง: 'Varför är de här böckerna så __________ (dyr)?'",
+                "options": ["dyra", "dyr", "dyrt", "dyrare"],
+                "answer": "dyra",
+                "explanation": "ขยายประธานพหูพจน์ 'de här böckerna' คำคุณศัพท์ dyr ต้องเติม -a กลายเป็น 'dyra'"
+            },
+            {
+                "question": "จงผันคำคุณศัพท์ในช่องว่าง: 'Den __________ (gammal) mannen sitter på bänken i parken.'",
+                "options": ["gamla", "gammal", "gammalt", "gammala"],
+                "answer": "gamla",
+                "explanation": "โครงสร้างชี้เฉพาะ Den + Adjektiv + Substantiv คำว่า gammal เมื่อเติม -a จะลดรูปสระ e/a กลายเป็น 'gamla' (หรือ gamle)"
+            },
+            {
+                "question": "จงผันคำคุณศัพท์ในช่องว่าง: 'Min syster har två __________ (liten) katter.'",
+                "options": ["små", "liten", "litet", "lilla"],
+                "answer": "små",
+                "explanation": "คำว่า 'liten' เมื่อขยายคำนามพหูพจน์ (katter) จะเปลี่ยนรูปพิเศษเป็น 'små'"
+            },
+            {
+                "question": "จงผันคำคุณศัพท์ในช่องว่าง: 'Det här äpplet är inte rött, det är helt __________ (grön).'",
+                "options": ["grönt", "grön", "gröna", "gröne"],
+                "answer": "grönt",
+                "explanation": "ประธานคือ 'det här äpplet' ซึ่งเป็น ett-ord คำคุณศัพท์ grön จึงต้องเติม -t กลายเป็น 'grönt'"
+            },
+            {
+                "question": "แปลประโยค: 'พวกเราอาศัยอยู่ในอพาร์ตเมนต์ที่สวยงามและทันสมัย' (lägenhet = en-ord)",
                 "options": [
-                    "อินเทอะ สเติร์ยรา – อินเทอะ เฟอร์สเติร์ยรา",
-                    "ทัค ซอ มวุคเคอะ",
+                    "Vi bor i en vacker och modern lägenhet.",
+                    "Vi bor i ett vackert och modernt lägenhet.",
+                    "Vi bor i den vackra och moderna lägenhet.",
+                    "Vi bor i vackra lägenheter."
+                ],
+                "answer": "Vi bor i en vacker och modern lägenhet.",
+                "explanation": "lägenhet เป็น en-ord เอกพจน์ คำคุณศัพท์ vacker และ modern จึงคงรูปพื้นฐาน (Grundform)"
+            },
+            {
+                "question": "แปลประโยค: 'บ้านหลังใหญ่หลังนั้นมีราคาแพงมาก' (hus = ett-ord)",
+                "options": [
+                    "Det stora huset är mycket dyrt.",
+                    "Den stora huset är mycket dyr.",
+                    "Det stort hus är mycket dyrt.",
+                    "Stora huset är dyr."
+                ],
+                "answer": "Det stora huset är mycket dyrt.",
+                "explanation": "โครงสร้าง Double definiteness 'Det stora huset' และหลังกริยา är คำคุณศัพท์ dyr ผันตาม ett-ord เป็น 'dyrt'"
+            },
+            {
+                "question": "แปลประโยค: 'มันน่าเบื่อที่ต้องรอรถเมล์ในวันที่อากาศหนาวเย็น'",
+                "options": [
+                    "Det är tråkigt att vänta på bussen en kall dag.",
+                    "Det är tråkig att vänta på bussen ett kallt dag.",
+                    "Det är tråkiga att vänta på bussen kalla dagar.",
+                    "Den är tråkigt att vänta på bussen."
+                ],
+                "answer": "Det är tråkigt att vänta på bussen en kall dag.",
+                "explanation": "ขึ้นต้นด้วย Det är tråkigt (รูป -t) และ 'ในวันที่หนาว' (en dag) ใช้รูป en-ord 'kall'"
+            },
+            {
+                "question": "แปลประโยค: 'เด็กๆ รู้สึกเหนื่อยล้าหลังจากเล่นฟุตบอลมาทั้งวัน'",
+                "options": [
+                    "Barnen är trötta efter att ha spelat fotboll hela dagen.",
+                    "Barnen är trött efter fotboll.",
+                    "Barnet är trötta efter fotboll.",
+                    "Barnen är tröttsamt hela dagen."
+                ],
+                "answer": "Barnen är trötta efter att ha spelat fotboll hela dagen.",
+                "explanation": "ประธาน 'barnen' เป็นพหูพจน์ คำคุณศัพท์ trött จึงต้องเติม -a กลายเป็น 'trötta'"
+            },
+            {
+                "question": "แปลประโยค: 'ฉันต้องการซื้อโต๊ะทำงานตัวเล็กๆ หนึ่งตัว' (skrivbord = ett-ord)",
+                "options": [
+                    "Jag vill köpa ett litet skrivbord.",
+                    "Jag vill köpa en liten skrivbord.",
+                    "Jag vill köpa små skrivbord.",
+                    "Jag vill köpa det lilla skrivbord."
+                ],
+                "answer": "Jag vill köpa ett litet skrivbord.",
+                "explanation": "คำนาม 'skrivbord' เป็น ett-ord เอกพจน์ คำว่า liten จึงผันรูปเป็น 'litet'"
+            }
+        ]
+    },�เคอะ",
                     "กูด มอร์รอน",
                     "ฮา เอน บรา ดาก"
                 ],
