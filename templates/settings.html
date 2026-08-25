@@ -1,39 +1,41 @@
 {% extends "base.html" %}
-
-{% block title %}ตั้งค่าระบบ - LearnSwedish Platform{% endblock %}
-
+{% block title %}ตั้งค่า — SvenskaEasy{% endblock %}
 {% block content %}
-<div class="page-title-box">
-    <h1>⚙️ ตั้งค่าระบบเชื่อมต่อ AI (System Settings)</h1>
-    <p>ตั้งค่าคีย์เชื่อมต่อปัญญาประดิษฐ์เพื่อรับประสบการณ์การตอบคำถามภาษาสวีเดนที่มีคุณภาพสูงสุด</p>
-</div>
+<div class="fade-up mx-auto max-w-3xl">
+    <h1 class="font-display text-3xl font-extrabold">ตั้งค่าระบบ</h1>
+    <p class="mt-1 text-white/50">เชื่อมต่อครู AI และจัดการประสบการณ์การเรียน</p>
 
-<div class="card-box">
-    <h3>🔑 ใส่ Google Gemini API Key</h3>
-    <p style="color:var(--text-muted); margin-bottom:20px;">
-        แนะนำให้ใส่คีย์ในไฟล์ .env เป็น <code style="background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px; color:var(--sweden-gold);">GEMINI_API_KEY=...</code>
-        เพื่อให้ทุกคนในเว็บใช้ครู AI ได้ หรือใส่ชั่วคราวด้านล่างนี้ (เก็บเฉพาะในเซสชั่น)
-    </p>
-
-    <form action="/settings/save" method="POST">
-        <div class="form-group">
-            <label for="api_key_input">ระบุ Gemini API Key ของคุณ:</label>
-            <input type="password" id="api_key_input" name="api_key" class="form-control-text"
-                   placeholder="AIzaSy..." value="{{ api_key or '' }}">
+    <section class="mt-8 rounded-2xl border border-white/10 bg-night-100/80 p-6 shadow-card">
+        <h2 class="font-display text-lg font-bold">ธีมของระบบ</h2>
+        <p class="mt-1 text-sm text-white/50">เลือกโทนสีของทั้งเว็บ — มีผลกับทุกหน้า</p>
+        <div class="mt-5">
+            {% include "partials/theme_icons.html" %}
         </div>
-        <div style="margin-top: 16px;">
-            <button type="submit" class="btn btn-primary">💾 บันทึกการตั้งค่า</button>
-        </div>
-    </form>
-</div>
+    </section>
 
-<div class="card-box">
-    <h3>📋 วิธีรับ Gemini API Key ฟรี:</h3>
-    <ol style="margin-top: 10px; line-height: 2;">
-        <li>เข้าไปที่เว็บไซต์ <a href="https://aistudio.google.com/" target="_blank">Google AI Studio →</a></li>
-        <li>เข้าสู่ระบบด้วยบัญชี Google</li>
-        <li>คลิกปุ่ม <strong>Create API Key</strong></li>
-        <li>คัดลอกรหัสคีย์ (มักขึ้นต้นด้วย <code style="background:rgba(255,255,255,0.08); padding:2px 5px; border-radius:4px;">AIzaSy</code>) นำมาใส่ช่องกรอกด้านบนและกดบันทึก</li>
-    </ol>
+    <section class="mt-8 rounded-2xl border border-white/10 bg-night-100/80 p-6 shadow-card">
+        <div class="flex items-center justify-between gap-3">
+            <h2 class="font-display text-lg font-bold">Gemini API Key</h2>
+            {% if is_api_connected %}
+            <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">เชื่อมต่อแล้ว</span>
+            {% else %}
+            <span class="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-white/45">โหมดจำลอง</span>
+            {% endif %}
+        </div>
+        <p class="mt-2 text-sm text-white/50">ใส่คีย์ในไฟล์ <code class="rounded bg-white/10 px-1.5 text-sweden-gold">.env</code> เป็น <code class="rounded bg-white/10 px-1.5 text-sweden-gold">GEMINI_API_KEY=...</code> หรือกรอกชั่วคราวด้านล่าง</p>
+        <form action="/settings/save" method="POST" class="mt-5 space-y-4">
+            <input type="password" name="api_key" value="{{ api_key }}" placeholder="AIzaSy..." class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+            <button type="submit" class="rounded-xl bg-sweden-gold px-5 py-2.5 font-bold text-sweden-navy">บันทึกการตั้งค่า</button>
+        </form>
+    </section>
+
+    <section class="mt-6 rounded-2xl border border-white/10 bg-night-100/80 p-6">
+        <h2 class="font-display text-lg font-bold">วิธีรับคีย์ฟรี</h2>
+        <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm text-white/70">
+            <li>เปิด <a class="text-sweden-gold hover:underline" href="https://aistudio.google.com/" target="_blank" rel="noreferrer">Google AI Studio</a></li>
+            <li>เข้าสู่ระบบด้วยบัญชี Google</li>
+            <li>กด Create API Key แล้ววางในช่องด้านบน</li>
+        </ol>
+    </section>
 </div>
 {% endblock %}

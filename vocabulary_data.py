@@ -1605,3 +1605,49 @@ def get_all_vocabulary():
 
 FULL_VOCABULARY_LIST = get_all_vocabulary()
 
+VOCAB_POS_OPTIONS = [
+    "คำนาม (substantiv)",
+    "คำกริยา (verb)",
+    "คำคุณศัพท์ (adjektiv)",
+    "คำวิเศษณ์ (adverb)",
+    "สรรพนาม (pronomen)",
+    "คำอุทาน (interjektion)",
+    "วลี (fras)",
+    "อื่นๆ",
+]
+
+
+def vocab_categories() -> list[str]:
+    cats = sorted(
+        {
+            (item.get("category") or "").strip()
+            for item in FULL_VOCABULARY_LIST
+            if (item.get("category") or "").strip()
+        }
+    )
+    return cats
+
+
+def all_vocabulary() -> list[dict]:
+    """Built-in vocabulary plus words added by admins."""
+    import db_helper
+
+    merged = []
+    seen: set[str] = set()
+    for item in list(FULL_VOCABULARY_LIST) + list(db_helper.list_custom_vocab_words()):
+        swedish = (item.get("swedish") or "").strip()
+        key = swedish.lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        row = dict(item)
+        row["swedish"] = swedish
+        row["is_custom"] = bool(item.get("is_custom"))
+        merged.append(row)
+    return sorted(merged, key=lambda item: item["swedish"].lower())
+
+
+def is_builtin_vocab_word(swedish: str) -> bool:
+    key = (swedish or "").strip().lower()
+    return any((item.get("swedish") or "").strip().lower() == key for item in FULL_VOCABULARY_LIST)
+

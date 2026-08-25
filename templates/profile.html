@@ -1,84 +1,308 @@
 {% extends "base.html" %}
-
-{% block title %}โปรไฟล์และรางวัล - LearnSwedish Platform{% endblock %}
-
+{% block title %}โปรไฟล์ — SvenskaEasy{% endblock %}
 {% block content %}
-<div class="page-title-box">
-    <h1>👤 โปรไฟล์และการสะสมความสำเร็จ</h1>
-    <p>สรุปสถิติการศึกษา เหรียญรางวัลเกียรติยศ และประวัติการทำแบบทดสอบ</p>
-</div>
-
-<!-- Profile Header -->
-<div class="profile-header-card">
-    <div class="profile-avatar">
-        {% if user and user.username == 'admin' %}
-        <img src="/static/assets/avatar_admin.png" alt="Admin" onerror="this.src='/static/assets/avatar_student.png'">
+<div class="fade-up">
+    <section class="flex flex-col gap-6 rounded-3xl border border-white/10 bg-night-100/80 p-6 shadow-card sm:flex-row sm:items-center">
+        {% if user and not user.is_guest %}
+        <form id="avatarForm" action="/profile" method="POST" enctype="multipart/form-data" class="shrink-0">
+            <div class="avatar-edit">
+                <div class="avatar-medal avatar-medal-lg {% if is_admin %}is-admin-frame{% elif top_achievement %}is-earned frame-{{ top_achievement.frame or 'gold' }}{% endif %}" {% if is_admin %}title="ผู้ดูแลระบบ"{% elif top_achievement %}style="--medal: {{ top_achievement.color }}" title="{{ top_achievement.title_th }}"{% endif %}>
+                    <div class="avatar-medal-inner">
+                        {% if has_avatar and avatar_url %}
+                        <img id="currentAvatar" src="{{ avatar_url }}" alt="รูปโปรไฟล์" class="h-full w-full object-cover">
+                        {% else %}
+                        <span id="avatarInitials" class="flex h-full w-full items-center justify-center text-sweden-gold">{% include "partials/person_icon.html" %}</span>
+                        {% endif %}
+                        <canvas id="avatarCanvas" width="300" height="300" class="absolute inset-0 h-full w-full hidden"></canvas>
+                    </div>
+                    {% if is_admin %}
+                    <span class="avatar-medal-pin" title="ผู้ดูแลระบบ">👑</span>
+                    {% elif top_achievement %}
+                    <span class="avatar-medal-pin" title="{{ top_achievement.title_th }}">{{ top_achievement.icon or '🏅' }}</span>
+                    {% endif %}
+                </div>
+                <label for="avatarFile" class="avatar-camera-btn" title="เพิ่มหรือเปลี่ยนรูปโปรไฟล์">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M4 8h3l1.5-2h7L17 8h3a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2v-8a2 2 0 012-2z"/>
+                        <circle cx="12" cy="14" r="3.2"/>
+                    </svg>
+                    <span class="sr-only">เพิ่มรูปโปรไฟล์</span>
+                </label>
+                <input id="avatarFile" name="avatar_file" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" required class="sr-only">
+            </div>
+            <div id="cropPanel" class="mt-4 hidden w-[16.5rem] space-y-3 rounded-2xl border border-sweden-gold/20 bg-night-200/80 p-3">
+                <p class="text-center text-xs font-medium text-white/55">ซูมและจัดตำแหน่งแล้วกดบันทึก</p>
+                <div>
+                    <label class="mb-1 flex justify-between text-[11px] text-white/70">ซูม <span id="zoomLabel">1.0</span></label>
+                    <input id="zoomRange" name="zoom" type="range" min="0.5" max="2.5" step="0.1" value="1.0" class="w-full accent-sweden-gold">
+                </div>
+                <div>
+                    <label class="mb-1 flex justify-between text-[11px] text-white/70">เลื่อนซ้าย–ขวา <span id="oxLabel">0.00</span></label>
+                    <input id="offsetXRange" name="offset_x" type="range" min="-0.5" max="0.5" step="0.05" value="0" class="w-full accent-sweden-gold">
+                </div>
+                <div>
+                    <label class="mb-1 flex justify-between text-[11px] text-white/70">เลื่อนขึ้น–ลง <span id="oyLabel">0.00</span></label>
+                    <input id="offsetYRange" name="offset_y" type="range" min="-0.5" max="0.5" step="0.05" value="0" class="w-full accent-sweden-gold">
+                </div>
+                <button type="submit" class="w-full rounded-xl bg-sweden-gold px-4 py-2 text-sm font-bold text-sweden-navy">บันทึกรูปโปรไฟล์</button>
+            </div>
+        </form>
         {% else %}
-        <img src="/static/assets/avatar_student.png" alt="User" onerror="this.style.display='none'">
+        {% with size='lg' %}{% include "partials/avatar_medal.html" %}{% endwith %}
         {% endif %}
-    </div>
-    <div class="profile-details">
-        <h2>{{ user.display_name if user else 'ผู้เรียนทั่วไป (Guest)' }}</h2>
-        <p><strong>ชื่อผู้ใช้ (Username):</strong> {{ user.username if user else 'guest' }}</p>
-        <p><strong>ระดับบทเรียน:</strong> {{ current_level }}</p>
-        <p><strong>สถานะบัญชี:</strong> {{ user.role if user else 'Guest Student' }}</p>
-    </div>
-</div>
-
-<!-- Achievements -->
-<h2 class="section-heading">🏅 เหรียญตราความสำเร็จ (Achievement Badges)</h2>
-<div class="achievements-grid">
-    {% for ach in achievements %}
-    <div class="achievement-card {% if ach.unlocked %}unlocked{% else %}locked{% endif %}">
-        <div class="badge-icon">{{ ach.icon }}</div>
-        <h4>{{ ach.title_th }}</h4>
-        <p class="badge-title-en">{{ ach.title_en }}</p>
-        <p class="badge-desc">{{ ach.description }}</p>
-        <div class="badge-status">
-            {% if ach.unlocked %}
-            <span class="status-unlocked">🔓 ปลดล็อกแล้ว</span>
-            {% else %}
-            <span class="status-locked">🔒 ยังไม่ปลดล็อก</span>
+        <div class="flex-1">
+            <h1 class="flex flex-wrap items-center gap-2 font-display text-3xl font-extrabold">
+                <span>{{ user.display_name if user else 'ผู้เรียนทั่วไป' }}</span>
+                {% if is_admin %}
+                <span class="ach-pill" title="ผู้ดูแลระบบ">👑</span>
+                {% else %}
+                {% with items = earned_achievements %}{% include "partials/achievement_pills.html" %}{% endwith %}
+                {% endif %}
+            </h1>
+            <p class="mt-1 text-white/50">@{{ user.username if user else 'guest' }} · {{ role_label or user.role }}{% if not is_admin %} · ระดับ {{ current_level }}{% endif %}</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+                {% if gender_label %}
+                <span class="profile-chip">{{ gender_label }}</span>
+                {% endif %}
+                {% if birthday_label %}
+                <span class="profile-chip">{{ birthday_label }}</span>
+                {% endif %}
+                {% if phone %}
+                <span class="profile-chip">{{ phone }}</span>
+                {% endif %}
+                {% if email %}
+                <span class="profile-chip">{{ email }}</span>
+                {% endif %}
+            </div>
+            {% if not is_admin %}
+            <div class="mt-4 h-2 max-w-md overflow-hidden rounded-full bg-white/10">
+                <div class="h-full bg-sweden-gold" style="width: {{ progress_pct }}%"></div>
+            </div>
+            <p class="mt-2 text-sm text-white/50">เรียนจบ {{ completed_count }} จาก {{ total_lessons }} บท ({{ progress_pct }}%)</p>
             {% endif %}
         </div>
-    </div>
-    {% endfor %}
-</div>
+    </section>
 
-<!-- Quiz History -->
-<h2 class="section-heading">📊 ประวัติการทำแบบทดสอบ (Quiz History)</h2>
-<div class="table-responsive">
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>บทเรียน / รายการ</th>
-                <th>คะแนนที่ได้</th>
-                <th>คะแนนเต็ม</th>
-                <th>คิดเป็น %</th>
-                <th>ผลการประเมิน</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in quiz_history %}
-            <tr>
-                <td><strong>{{ item.title }}</strong></td>
-                <td>{{ item.earned }}</td>
-                <td>{{ item.total }}</td>
-                <td>{{ item.score_pct }}%</td>
-                <td>
-                    {% if item.score_pct >= 70 %}
-                    <span class="status-tag tag-success">✅ ผ่าน</span>
+    <section class="mt-8 rounded-3xl border border-white/10 bg-night-100/80 p-6 shadow-card">
+        <h2 class="font-display text-xl font-bold">ข้อมูลส่วนตัว</h2>
+        {% if user and not user.is_guest %}
+        <p class="mt-1 text-sm text-white/50">เพศและวันเกิดบันทึกได้ครั้งเดียวแล้วล็อกถาวร — ชื่อที่แสดงและเบอร์โทรเปลี่ยนได้ {{ monthly_change_limit or 2 }} ครั้งต่อเดือน</p>
+        <form action="/profile/details" method="POST" class="mt-6 space-y-5">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="mb-1.5 flex items-center justify-between text-sm font-medium text-white/70" for="displayName">
+                        <span>ชื่อที่แสดง</span>
+                        {% if display_name_can_edit %}
+                        <span class="text-[11px] font-normal text-sweden-gold">เหลือ {{ display_name_remaining }}/{{ monthly_change_limit or 2 }} ครั้งเดือนนี้</span>
+                        {% else %}
+                        <span class="text-[11px] font-normal text-amber-200">เดือนนี้เปลี่ยนครบแล้ว</span>
+                        {% endif %}
+                    </label>
+                    {% if display_name_can_edit %}
+                    <input id="displayName" name="display_name" value="{{ display_name_value }}" required minlength="2" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 text-white outline-none focus:border-sweden-gold/70 focus:ring-2 focus:ring-sweden-gold/20">
                     {% else %}
-                    <span class="status-tag tag-pending">📖 ทบทวน</span>
+                    <input type="hidden" name="display_name" value="{{ display_name_value }}">
+                    <input id="displayName" value="{{ display_name_value }}" disabled class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white/60">
                     {% endif %}
-                </td>
-            </tr>
+                </div>
+                <div>
+                    <label class="mb-1.5 flex items-center justify-between text-sm font-medium text-white/70" for="profilePhone">
+                        <span>เบอร์โทร</span>
+                        {% if phone %}
+                            {% if phone_can_edit %}
+                            <span class="text-[11px] font-normal text-sweden-gold">เหลือ {{ phone_remaining }}/{{ monthly_change_limit or 2 }} ครั้งเดือนนี้</span>
+                            {% else %}
+                            <span class="text-[11px] font-normal text-amber-200">เดือนนี้เปลี่ยนครบแล้ว</span>
+                            {% endif %}
+                        {% else %}
+                        <span class="text-[11px] font-normal text-white/40">บันทึกครั้งแรกไม่นับโควต้า</span>
+                        {% endif %}
+                    </label>
+                    {% if phone_can_edit %}
+                    <input id="profilePhone" name="phone" type="tel" inputmode="tel" value="{{ phone }}" placeholder="เช่น 0812345678" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 text-white outline-none focus:border-sweden-gold/70 focus:ring-2 focus:ring-sweden-gold/20">
+                    {% else %}
+                    <input type="hidden" name="phone" value="{{ phone }}">
+                    <input id="profilePhone" value="{{ phone }}" disabled class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white/60">
+                    {% endif %}
+                </div>
+            </div>
+            <div>
+                <p class="mb-2 flex items-center justify-between text-sm font-medium text-white/70">
+                    <span>เพศ</span>
+                    {% if gender_locked %}<span class="lock-pill">บันทึกถาวร</span>{% endif %}
+                </p>
+                {% if gender_locked %}
+                <input type="hidden" name="gender" value="{{ gender }}">
+                {% endif %}
+                <div class="grid grid-cols-3 gap-3 {% if gender_locked %}pointer-events-none opacity-70{% endif %}">
+                    <label class="gender-card">
+                        <input type="radio" {% if not gender_locked %}name="gender"{% endif %} value="male" class="peer sr-only" {% if gender == 'male' %}checked{% endif %} {% if gender_locked %}disabled{% endif %}>
+                        <span class="gender-card-face">
+                            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10" cy="14" r="5"/><path d="M14.5 9.5L20 4M15 4h5v5"/></svg>
+                            <span>ชาย</span>
+                        </span>
+                    </label>
+                    <label class="gender-card">
+                        <input type="radio" {% if not gender_locked %}name="gender"{% endif %} value="female" class="peer sr-only" {% if gender == 'female' %}checked{% endif %} {% if gender_locked %}disabled{% endif %}>
+                        <span class="gender-card-face">
+                            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="5"/><path d="M12 14v7M9 18h6"/></svg>
+                            <span>หญิง</span>
+                        </span>
+                    </label>
+                    <label class="gender-card">
+                        <input type="radio" {% if not gender_locked %}name="gender"{% endif %} value="other" class="peer sr-only" {% if gender == 'other' %}checked{% endif %} {% if gender_locked %}disabled{% endif %}>
+                        <span class="gender-card-face">
+                            <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M6 19c.8-3 3-4.5 6-4.5s5.2 1.5 6 4.5"/></svg>
+                            <span>ไม่ระบุ</span>
+                        </span>
+                    </label>
+                </div>
+            </div>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="mb-1.5 flex items-center justify-between text-sm font-medium text-white/70" for="birthday">
+                        <span>วันเกิด</span>
+                        {% if birthday_locked %}<span class="lock-pill">บันทึกถาวร</span>{% endif %}
+                    </label>
+                    {% if birthday_locked %}
+                    <input type="hidden" name="birthday" value="{{ birthday }}">
+                    <input id="birthday" type="date" value="{{ birthday }}" disabled class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white/60">
+                    {% else %}
+                    <input id="birthday" name="birthday" type="date" value="{{ birthday }}" max="{{ today_iso }}" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 text-white outline-none focus:border-sweden-gold/70 focus:ring-2 focus:ring-sweden-gold/20">
+                    {% endif %}
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-white/70">อีเมล</label>
+                    <input value="{{ email or '—' }}" disabled class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white/60">
+                </div>
+            </div>
+            {% if can_submit_profile %}
+            <button type="submit" class="rounded-xl bg-sweden-gold px-5 py-2.5 font-bold text-sweden-navy">บันทึกข้อมูลส่วนตัว</button>
             {% else %}
-            <tr>
-                <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">ยังไม่มีประวัติการทำแบบทดสอบ</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            <p class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white/55">ข้อมูลถูกบันทึกถาวรแล้ว — ชื่อและเบอร์โทรจะเปลี่ยนได้อีกครั้งในเดือนหน้า</p>
+            {% endif %}
+        </form>
+        {% else %}
+        <p class="mt-3 text-sm text-white/55">เข้าสู่ระบบก่อนจึงจะกรอกข้อมูลส่วนตัวและอัปโหลดรูปโปรไฟล์ได้</p>
+        <a href="/auth/login" class="mt-4 inline-flex rounded-xl bg-sweden-gold px-4 py-2 text-sm font-bold text-sweden-navy">ไปหน้าเข้าสู่ระบบ</a>
+        {% endif %}
+    </section>
+
+    {% if not is_admin %}
+    <h2 class="mt-10 font-display text-xl font-bold">เหรียญตราความสำเร็จ</h2>
+    <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {% for ach in achievements %}
+        <article class="rounded-2xl border p-5 text-center {% if ach.unlocked %}border-sweden-gold/50 bg-sweden-gold/10 glow-pulse{% else %}border-white/10 bg-night-100/60 opacity-50 grayscale{% endif %}">
+            <div class="text-4xl">{{ ach.icon or '🏅' }}</div>
+            <h3 class="mt-3 font-display font-bold">{{ ach.title_th }}</h3>
+            <p class="text-xs text-sweden-gold">{{ ach.title_en }}</p>
+            <p class="mt-2 text-sm text-white/60">{{ ach.description }}</p>
+            <p class="mt-3 text-[11px] font-semibold uppercase tracking-widest {% if ach.unlocked %}text-sweden-gold{% else %}text-white/35{% endif %}">
+                {% if ach.unlocked %}ปลดล็อกแล้ว{% else %}เรียนให้ครบ {{ ach.required }} บท{% endif %}
+            </p>
+        </article>
+        {% endfor %}
+    </div>
+
+    <h2 class="mt-10 font-display text-xl font-bold">ประวัติแบบทดสอบ</h2>
+    <div class="mt-4 overflow-x-auto rounded-2xl border border-white/10">
+        <table class="min-w-full text-sm">
+            <thead class="bg-sweden-navy/70 text-left text-sweden-gold">
+                <tr>
+                    <th class="px-4 py-3">รายการ</th>
+                    <th class="px-4 py-3">ได้</th>
+                    <th class="px-4 py-3">เต็ม</th>
+                    <th class="px-4 py-3">%</th>
+                    <th class="px-4 py-3">ผล</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 bg-night-100/80">
+                {% for item in quiz_history %}
+                <tr>
+                    <td class="px-4 py-3 font-medium">{{ item.title }}</td>
+                    <td class="px-4 py-3">{{ item.earned }}</td>
+                    <td class="px-4 py-3">{{ item.total }}</td>
+                    <td class="px-4 py-3">{{ item.score_pct }}%</td>
+                    <td class="px-4 py-3">
+                        {% if item.score_pct >= 70 %}
+                        <span class="rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs text-emerald-300">ผ่าน</span>
+                        {% else %}
+                        <span class="rounded-full bg-amber-500/15 px-2 py-0.5 text-xs text-amber-200">ทบทวน</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="px-4 py-8 text-center text-white/40">ยังไม่มีประวัติการทำแบบทดสอบ</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function () {
+    const fileInput = document.getElementById('avatarFile');
+    const canvas = document.getElementById('avatarCanvas');
+    if (!fileInput || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    const zoomEl = document.getElementById('zoomRange');
+    const oxEl = document.getElementById('offsetXRange');
+    const oyEl = document.getElementById('offsetYRange');
+    const cropPanel = document.getElementById('cropPanel');
+    const currentAvatar = document.getElementById('currentAvatar');
+    const initials = document.getElementById('avatarInitials');
+    let image = null;
+
+    function draw() {
+        const zoom = parseFloat(zoomEl.value);
+        const ox = parseFloat(oxEl.value);
+        const oy = parseFloat(oyEl.value);
+        document.getElementById('zoomLabel').textContent = zoom.toFixed(1);
+        document.getElementById('oxLabel').textContent = ox.toFixed(2);
+        document.getElementById('oyLabel').textContent = oy.toFixed(2);
+        ctx.fillStyle = '#002B5C';
+        ctx.fillRect(0, 0, 300, 300);
+        if (!image) return;
+        const w = image.width;
+        const h = image.height;
+        const minDim = Math.min(w, h);
+        let crop = Math.floor(minDim / zoom);
+        crop = Math.min(crop, w, h);
+        crop = Math.max(crop, 10);
+        let cx = w / 2;
+        let cy = h / 2;
+        const maxOx = (w - crop) / 2;
+        const maxOy = (h - crop) / 2;
+        cx += ox * 2 * maxOx;
+        cy += oy * 2 * maxOy;
+        let left = Math.max(0, Math.floor(cx - crop / 2));
+        let top = Math.max(0, Math.floor(cy - crop / 2));
+        let right = Math.min(w, left + crop);
+        let bottom = Math.min(h, top + crop);
+        const box = Math.min(right - left, bottom - top);
+        ctx.drawImage(image, left, top, box, box, 0, 0, 300, 300);
+    }
+
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+            image = new Image();
+            image.onload = () => {
+                canvas.classList.remove('hidden');
+                if (currentAvatar) currentAvatar.classList.add('hidden');
+                if (initials) initials.classList.add('hidden');
+                if (cropPanel) cropPanel.classList.remove('hidden');
+                draw();
+            };
+            image.src = reader.result;
+        };
+        reader.readAsDataURL(file);
+    });
+    [zoomEl, oxEl, oyEl].forEach((el) => el.addEventListener('input', draw));
+})();
+</script>
 {% endblock %}

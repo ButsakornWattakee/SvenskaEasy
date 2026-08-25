@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}ไม่พบหน้า — SvenskaEasy{% endblock %}
+{% block content %}
+<div class="fade-up mx-auto max-w-lg py-20 text-center">
+    <p class="font-display text-7xl font-extrabold text-sweden-gold">404</p>
+    <h1 class="mt-4 font-display text-2xl font-bold">ไม่พบหน้าที่ต้องการ</h1>
+    <p class="mt-2 text-white/50">ลิงก์นี้อาจถูกย้าย หรือบทเรียนยังไม่มีในระบบ</p>
+    <a href="{{ home_url or '/dashboard' }}" class="mt-8 inline-flex rounded-xl bg-sweden-gold px-6 py-3 font-bold text-sweden-navy">กลับหน้าหลัก</a>
+</div>
+{% endblock %}

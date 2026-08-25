@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="{{ theme or 'night' }}" data-theme-mode="{{ theme_mode or 'dark' }}">
+<head>
+    {% include "partials/head.html" %}
+    <title>ตั้งรหัสผ่านใหม่ — SvenskaEasy</title>
+</head>
+<body class="mesh-bg min-h-screen text-sweden-ice">
+<div class="grid min-h-screen lg:grid-cols-2">
+    <section class="theme-on-dark relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between p-12">
+        <div class="absolute inset-0 bg-gradient-to-br from-sweden-navy via-sweden-blue to-night"></div>
+        <div class="absolute -left-16 bottom-10 h-72 w-72 rounded-full bg-sweden-gold/15 blur-3xl"></div>
+        <div class="relative font-display text-2xl font-extrabold text-sweden-gold">🇸🇪 SvenskaEasy</div>
+        <div class="relative max-w-lg">
+            <p class="font-display text-4xl font-extrabold leading-tight text-white">ตั้งรหัสผ่าน<br><span class="text-sweden-gold">ชุดใหม่</span></p>
+            <p class="mt-6 text-lg text-white/70">ใช้รหัสที่จำง่ายและปลอดภัย อย่างน้อย 4 ตัวอักษร</p>
+        </div>
+        <p class="relative text-sm text-white/40">ลิงก์นี้ใช้ได้ 15 นาที</p>
+    </section>
+
+    <section class="flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-md fade-up rounded-3xl border border-white/10 bg-night-100/80 p-8 shadow-card backdrop-blur-xl">
+            <h1 class="font-display text-2xl font-bold">ตั้งรหัสผ่านใหม่</h1>
+            <p class="mt-1 text-sm text-white/50">บัญชี <span class="font-semibold text-sweden-gold">{{ reset_username }}</span></p>
+
+            {% if error_message %}
+            <div class="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ error_message }}</div>
+            {% endif %}
+
+            <form action="/auth/reset-password" method="POST" class="mt-6 space-y-4">
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-white/70" for="newPassword">รหัสผ่านใหม่</label>
+                    <div class="relative" data-password-field>
+                        <input id="newPassword" name="password" type="password" required minlength="4" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 pr-12 outline-none focus:border-sweden-gold/70 focus:ring-2 focus:ring-sweden-gold/20" placeholder="อย่างน้อย 4 ตัวอักษร">
+                        {% include "partials/password_toggle_btn.html" %}
+                    </div>
+                </div>
+                <div>
+                    <label class="mb-1.5 block text-sm font-medium text-white/70" for="confirmPassword">ยืนยันรหัสผ่านใหม่</label>
+                    <div class="relative" data-password-field>
+                        <input id="confirmPassword" name="password_confirm" type="password" required minlength="4" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 pr-12 outline-none focus:border-sweden-gold/70 focus:ring-2 focus:ring-sweden-gold/20" placeholder="พิมพ์ซ้ำอีกครั้ง">
+                        {% include "partials/password_toggle_btn.html" %}
+                    </div>
+                    <p class="mt-2 text-xs text-white/40">กดไอคอนตาเพื่อดูรหัสที่พิมพ์ กันพิมพ์ผิด</p>
+                </div>
+                <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-sweden-gold to-amber-400 py-3 font-semibold text-sweden-navy shadow-glow transition hover:brightness-105">บันทึกรหัสผ่านใหม่</button>
+            </form>
+            <p class="mt-6 text-center text-sm text-white/50"><a href="/auth/login" class="font-semibold text-sweden-gold hover:underline">กลับไปเข้าสู่ระบบ</a></p>
+        </div>
+    </section>
+</div>
+<script src="/static/js/password-toggle.js?v=1"></script>
+</body>
+</html>

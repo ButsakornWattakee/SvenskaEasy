@@ -147,4 +147,8 @@ Thumbs.db
 # Project-specific ignores
 extracted_*_avatar.png
 users_fallback.json
+scratch/
+node_modules/
+remotion-promo/node_modules/
+remotion-promo/out/
 

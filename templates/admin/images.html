@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}รูปคำศัพท์ — Admin{% endblock %}
+{% block content %}
+<div class="fade-up mx-auto max-w-2xl">
+    <h1 class="font-display text-3xl font-extrabold">รูปคำศัพท์</h1>
+    <p class="mt-1 text-white/50">อัปโหลดรูปสำหรับคลังคำศัพท์ — เฉพาะผู้ดูแลระบบ</p>
+
+    <form action="/admin/upload-image" method="POST" enctype="multipart/form-data" class="mt-8 space-y-4 rounded-3xl border border-white/10 bg-night-100/80 p-6">
+        <div>
+            <label class="mb-1.5 block text-sm text-white/70">เลือกคำศัพท์</label>
+            <select name="word" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none">
+                {% for item in vocab_items %}
+                <option value="{{ item.swedish }}">{{ item.swedish }} — {{ item.thai }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="mb-1.5 block text-sm text-white/70">ไฟล์รูป</label>
+            <input type="file" name="image_file" accept="image/*" required class="block w-full text-sm text-white/60">
+        </div>
+        <button class="rounded-xl bg-sweden-gold px-5 py-2.5 font-bold text-sweden-navy">บันทึกรูปภาพ</button>
+    </form>
+</div>
+{% endblock %}

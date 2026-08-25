@@ -1,100 +1,85 @@
 {% extends "base.html" %}
-
-{% block title %}แบบฝึกหัดและควิซ - LearnSwedish Platform{% endblock %}
-
+{% block title %}แบบทดสอบ — SvenskaEasy{% endblock %}
 {% block content %}
-<div class="page-title-box">
-    <h1>📝 แบบฝึกหัดและข้อสอบประเมินผล (Quiz & Assessment)</h1>
-    <p>วัดความรู้ภาษาสวีเดนพร้อมคำอธิบายเฉลยอย่างละเอียดทุกข้อ</p>
-</div>
+<div class="fade-up">
+    <header class="mb-6">
+        <h1 class="font-display text-3xl font-extrabold">แบบฝึกหัดและข้อสอบ</h1>
+        <p class="mt-1 text-white/50">วัดความรู้พร้อมเฉลยละเอียดทุกข้อ</p>
+    </header>
 
-<!-- Mode Tabs -->
-<div class="tab-container" id="quizTabs">
-    <div class="tab-header">
-        <button class="tab-btn {% if not is_final_exam %}active{% endif %}" onclick="switchTab('quizTabs', 'lessonQuizTab')" data-tab="lessonQuizTab">
-            📘 แบบฝึกหัดประจำบทเรียน
-        </button>
-        <button class="tab-btn {% if is_final_exam %}active{% endif %}" onclick="switchTab('quizTabs', 'finalExamTab')" data-tab="finalExamTab">
-            🎓 ข้อสอบวัดผลรวม (Final Exam)
-        </button>
+    <div class="mb-6 flex flex-wrap gap-2">
+        <a href="/quiz" class="rounded-full px-4 py-2 text-sm font-semibold {% if not is_final_exam %}bg-sweden-gold text-sweden-navy{% else %}bg-white/5 text-white/70 hover:bg-white/10{% endif %}">แบบฝึกหัดประจำบท</a>
+        <a href="/quiz/exam" class="rounded-full px-4 py-2 text-sm font-semibold {% if is_final_exam %}bg-sweden-gold text-sweden-navy{% else %}bg-white/5 text-white/70 hover:bg-white/10{% endif %}">ข้อสอบวัดผลรวม</a>
     </div>
 
-    <!-- Lesson Quiz Tab -->
-    <div class="tab-content {% if not is_final_exam %}active{% endif %}" id="lessonQuizTab">
-
-        <!-- Lesson Selector -->
-        <div class="card-box" style="margin-bottom: 20px;">
-            <label class="section-label" for="lessonSelect">เลือกบทเรียนที่ต้องการทำแบบฝึกหัด:</label>
-            <select id="lessonSelect" class="form-control-select" onchange="window.location.href='/quiz/' + this.value">
-                {% for l in lessons %}
-                <option value="{{ l.id }}" {% if l.id == current_lesson.id %}selected{% endif %}>
-                    {{ l.title }} ({{ l.cefr }})
-                </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        {% if quiz_result %}
-        <!-- Quiz Result Box -->
-        <div class="quiz-result-box {% if quiz_result.score_pct >= 70 %}result-pass{% else %}result-fail{% endif %}">
-            <h2>{% if quiz_result.score_pct >= 70 %}🎉{% else %}📖{% endif %} ผลการประเมิน: {{ quiz_result.score_pct }}% ({{ quiz_result.earned }}/{{ quiz_result.total }} ข้อ)</h2>
-            {% if quiz_result.score_pct >= 70 %}
-            <p class="pass-msg">✅ ยินดีด้วย! คุณผ่านการประเมินในบทเรียนนี้แล้ว</p>
-            {% else %}
-            <p class="fail-msg">💪 พยายามอีกนิดนะ! ลองทบทวนบทเรียนแล้วลองใหม่อีกครั้ง</p>
-            {% endif %}
-        </div>
-        {% endif %}
-
-        <!-- Quiz Questions -->
-        <form action="/quiz/{{ current_lesson.id }}/submit" method="POST" class="quiz-form">
-            {% for q in current_lesson.questions %}
-            {% set q_idx = loop.index0 %}
-            <div class="question-item">
-                <div class="q-number">ข้อที่ {{ q_idx + 1 }}</div>
-                <div class="q-text"><strong>{{ q.question }}</strong></div>
-
-                {% if q.options %}
-                <div class="q-options">
-                    {% for opt in q.options %}
-                    <label class="radio-option">
-                        <input type="radio" name="q_{{ q_idx }}" value="{{ opt }}" required
-                            {% if quiz_result and quiz_result.user_answers.get('q_' ~ q_idx) == opt %}checked{% endif %}>
-                        <span>{{ opt }}</span>
-                    </label>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="q-input" style="margin-top:8px;">
-                    <input type="text" name="q_{{ q_idx }}" class="form-control-text"
-                           placeholder="พิมพ์คำตอบภาษาสวีเดนที่นี่..."
-                           value="{{ quiz_result.user_answers.get('q_' ~ q_idx, '') if quiz_result else '' }}" required>
-                </div>
-                {% endif %}
-
-                {% if quiz_result %}
-                <div class="explanation-box">
-                    <p><strong>✅ เฉลยที่ถูกต้อง:</strong> {{ q.answer }}</p>
-                    <p><strong>📖 คำอธิบาย:</strong> {{ q.explanation }}</p>
-                </div>
-                {% endif %}
-            </div>
+    {% if not is_final_exam %}
+    <div class="mb-6 rounded-2xl border border-white/10 bg-night-100/80 p-5">
+        <label class="mb-2 block text-xs font-semibold uppercase tracking-widest text-white/40">เลือกบทเรียน</label>
+        <select onchange="window.location.href='/quiz/' + this.value" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+            {% for l in lessons %}
+            <option value="{{ l.id }}" {% if l.id == current_lesson.id %}selected{% endif %}>{{ l.title }} ({{ l.cefr }})</option>
             {% endfor %}
+        </select>
+    </div>
+    {% endif %}
 
-            <div class="form-submit-box">
-                <button type="submit" class="btn btn-primary btn-lg">✔️ ตรวจคำตอบและบันทึกคะแนน</button>
-            </div>
+    {% if quiz_result %}
+    <div class="mb-6 rounded-2xl border p-6 {% if quiz_result.score_pct >= 70 %}border-emerald-400/30 bg-emerald-500/10{% else %}border-amber-400/30 bg-amber-500/10{% endif %}">
+        <p class="font-display text-2xl font-bold">ผลการประเมิน {{ quiz_result.score_pct }}%</p>
+        <p class="mt-1 text-white/70">{{ quiz_result.earned }} / {{ quiz_result.total }} ข้อ
+            {% if quiz_result.score_pct >= 70 %} — ผ่านแล้ว ยินดีด้วย!{% else %} — ยังไม่ผ่าน ลองทำใหม่อีกรอบได้ โจทย์และตัวเลือกจะถูกสลับลำดับ{% endif %}
+        </p>
+        {% if quiz_result.score_pct < 70 %}
+        <form action="{% if is_final_exam %}/quiz/exam/retry{% else %}/quiz/{{ current_lesson.id }}/retry{% endif %}" method="POST" class="mt-4">
+            <button type="submit" class="rounded-xl bg-sweden-gold px-5 py-2.5 font-bold text-sweden-navy shadow-glow hover:brightness-105">ทดสอบอีกครั้ง</button>
         </form>
+        {% endif %}
     </div>
+    {% endif %}
 
-    <!-- Final Exam Tab -->
-    <div class="tab-content {% if is_final_exam %}active{% endif %}" id="finalExamTab">
-        <div class="card-box" style="text-align:center; padding: 36px;">
-            <div style="font-size:3rem; margin-bottom:12px;">🎓</div>
-            <h3 style="font-size:1.2rem; margin-bottom:10px;">ข้อสอบวัดผลรวมระดับหลักสูตร</h3>
-            <p style="color:var(--text-muted); margin-bottom:24px;">ระบบจะสุ่มโจทย์ข้อสอบ 10 ข้อจากทุกระดับบทเรียนเพื่อวัดความเชี่ยวชาญภาษาสวีเดนโดยรวม</p>
-            <a href="/quiz/exam/start" class="btn btn-accent btn-lg">🚀 เริ่มทำข้อสอบวัดผลรวม</a>
-        </div>
+    {% if questions %}
+    <form action="{% if is_final_exam %}/quiz/exam/submit{% else %}/quiz/{{ current_lesson.id }}/submit{% endif %}" method="POST" class="space-y-5">
+        {% for q in questions %}
+        {% set q_idx = loop.index0 %}
+        {% set user_ans = quiz_result.user_answers.get('q_' ~ q_idx) if quiz_result else '' %}
+        <article class="rounded-2xl border border-white/10 bg-night-100/80 p-6 shadow-card">
+            <p class="text-xs font-semibold uppercase tracking-widest text-sweden-gold">ข้อที่ {{ q_idx + 1 }}</p>
+            <h3 class="mt-2 font-display text-lg font-semibold">{{ q.question }}</h3>
+            {% if q.options %}
+            <div class="mt-4 space-y-2">
+                {% for opt in q.options %}
+                <label class="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-night-200/60 px-4 py-3 transition hover:border-sweden-gold/40">
+                    <input type="radio" name="q_{{ q_idx }}" value="{{ opt }}" class="mt-1 accent-sweden-gold" {% if not quiz_result %}required{% endif %} {% if user_ans == opt %}checked{% endif %} {% if quiz_result %}disabled{% endif %}>
+                    <span>{{ opt }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            {% else %}
+            <input type="text" name="q_{{ q_idx }}" {% if not quiz_result %}required{% endif %} value="{{ user_ans }}" placeholder="พิมพ์คำตอบภาษาสวีเดน..." class="mt-4 w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60" {% if quiz_result %}disabled{% endif %}>
+            {% endif %}
+            {% if quiz_result %}
+            <div class="mt-4 rounded-xl border border-white/10 bg-white/5 p-4 text-sm">
+                <p><span class="text-emerald-300 font-semibold">เฉลย:</span> {{ q.answer }}</p>
+                <p class="mt-1 text-white/60">{{ q.explanation }}</p>
+            </div>
+            {% endif %}
+        </article>
+        {% endfor %}
+        {% if not quiz_result %}
+        <button type="submit" class="rounded-xl bg-sweden-gold px-6 py-3 font-bold text-sweden-navy shadow-glow hover:brightness-105">ตรวจคำตอบและบันทึกคะแนน</button>
+        {% endif %}
+    </form>
+    {% if quiz_result and quiz_result.score_pct < 70 %}
+    <form action="{% if is_final_exam %}/quiz/exam/retry{% else %}/quiz/{{ current_lesson.id }}/retry{% endif %}" method="POST" class="mt-4">
+        <button type="submit" class="rounded-xl bg-sweden-gold px-6 py-3 font-bold text-sweden-navy shadow-glow hover:brightness-105">ทดสอบอีกครั้ง</button>
+    </form>
+    {% endif %}
+    {% else %}
+    <div class="rounded-2xl border border-white/10 bg-night-100/80 p-10 text-center">
+        <p class="font-display text-xl font-bold">🎓 ข้อสอบวัดผลรวม</p>
+        <p class="mt-2 text-white/50">สุ่ม 10 ข้อจากทุกบทเรียน เพื่อวัดความเข้าใจโดยรวม</p>
+        <a href="/quiz/exam" class="mt-6 inline-flex rounded-xl bg-sweden-gold px-6 py-3 font-bold text-sweden-navy">เริ่มทำข้อสอบ</a>
     </div>
+    {% endif %}
 </div>
 {% endblock %}

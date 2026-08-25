@@ -1,100 +1,98 @@
 {% extends "base.html" %}
-
-{% block title %}ผู้ดูแลระบบ - LearnSwedish Platform{% endblock %}
-
+{% block title %}ผู้ดูแลระบบ — SvenskaEasy{% endblock %}
 {% block content %}
-<div class="page-title-box">
-    <h1>🛡️ ผู้ดูแลระบบ (Admin Control Panel)</h1>
-    <p>การจัดการผู้เรียน บัญชีผู้ใช้งาน และคลังรูปภาพคำศัพท์</p>
-</div>
-
-<!-- Admin Tabs -->
-<div class="tab-container" id="adminTabs">
-    <div class="tab-header">
-        <button class="tab-btn active" onclick="switchTab('adminTabs', 'usersTab')" data-tab="usersTab">
-            👥 จัดการผู้เรียน (User Management)
-        </button>
-        <button class="tab-btn" onclick="switchTab('adminTabs', 'imagesTab')" data-tab="imagesTab">
-            🖼️ จัดการรูปภาพคำศัพท์ (Image Assets)
-        </button>
+<div class="fade-up">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <h1 class="font-display text-3xl font-extrabold">แผงผู้ดูแลระบบ</h1>
+            <p class="mt-1 text-white/50">จัดการผู้เรียนและรูปภาพคำศัพท์</p>
+        </div>
+        <span class="rounded-full px-3 py-1 text-xs font-semibold {% if db_online %}bg-emerald-500/15 text-emerald-300{% else %}bg-amber-500/15 text-amber-200{% endif %}">
+            {% if db_online %}MongoDB ออนไลน์{% else %}โหมดไฟล์สำรอง{% endif %}
+        </span>
     </div>
 
-    <!-- Users Tab -->
-    <div class="tab-content active" id="usersTab">
-        <div class="card-box">
-            <h3>รายชื่อผู้ใช้งานในระบบ</h3>
-            <div class="table-responsive">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Display Name</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for u in users_list %}
-                        <tr>
-                            <td><strong>{{ u.username }}</strong></td>
-                            <td>{{ u.display_name }}</td>
-                            <td>{{ u.role }}</td>
-                            <td>
-                                {% if u.is_deleted %}
-                                <span class="status-tag tag-pending">ถูกลบ</span>
-                                {% else %}
-                                <span class="status-tag tag-success">Active</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if u.username != 'admin' %}
-                                    {% if u.is_deleted %}
-                                    <form action="/admin/restore-user" method="POST" style="display:inline;">
-                                        <input type="hidden" name="username" value="{{ u.username }}">
-                                        <button type="submit" class="btn btn-secondary btn-sm">🔄 กู้คืน</button>
-                                    </form>
-                                    {% else %}
-                                    <form action="/admin/delete-user" method="POST" style="display:inline;"
-                                          onsubmit="return confirm('ยืนยันลบผู้ใช้คนนี้หรือไม่?')">
-                                        <input type="hidden" name="username" value="{{ u.username }}">
-                                        <button type="submit" class="btn btn-danger btn-sm">🗑️ ลบผู้ใช้</button>
-                                    </form>
-                                    {% endif %}
-                                {% else %}
-                                <span style="color:var(--text-muted); font-size:0.8rem;">(Main Admin)</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="mt-6 flex flex-wrap gap-2">
+        <button type="button" data-tab="usersPane" class="tab-btn active rounded-full bg-sweden-gold px-4 py-2 text-sm font-semibold text-sweden-navy">ผู้ใช้งาน</button>
+        <button type="button" data-tab="deletedPane" class="tab-btn rounded-full bg-white/5 px-4 py-2 text-sm font-semibold text-white/70 hover:bg-white/10">ถังขยะ</button>
+        <button type="button" data-tab="imagesPane" class="tab-btn rounded-full bg-white/5 px-4 py-2 text-sm font-semibold text-white/70 hover:bg-white/10">รูปคำศัพท์</button>
     </div>
 
-    <!-- Images Tab -->
-    <div class="tab-content" id="imagesTab">
-        <div class="card-box">
-            <h3>📤 อัปโหลดรูปภาพคำศัพท์เพิ่มเติม</h3>
-            <form action="/admin/upload-image" method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="wordSelect">เลือกคำศัพท์:</label>
-                    <select name="word" id="wordSelect" class="form-control-select">
-                        {% for item in vocab_items %}
-                        <option value="{{ item.swedish }}">{{ item.swedish }} — {{ item.thai }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="form-group" style="margin-top: 14px;">
-                    <label for="imgFile">เลือกไฟล์รูปภาพ (PNG / JPG):</label>
-                    <input type="file" name="image_file" id="imgFile" class="form-control-text" accept="image/*" required>
-                </div>
-                <div style="margin-top: 16px;">
-                    <button type="submit" class="btn btn-primary">💾 บันทึกรูปภาพคลังคำศัพท์</button>
-                </div>
-            </form>
-        </div>
+    <div id="usersPane" class="tab-pane mt-6 overflow-x-auto rounded-2xl border border-white/10">
+        <table class="min-w-full text-sm">
+            <thead class="bg-sweden-navy/70 text-left text-sweden-gold">
+                <tr>
+                    <th class="px-4 py-3">Username</th>
+                    <th class="px-4 py-3">ชื่อที่แสดง</th>
+                    <th class="px-4 py-3">บทบาท</th>
+                    <th class="px-4 py-3">บทเรียนที่จบ</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 bg-night-100/80">
+                {% for u in users_list %}
+                <tr>
+                    <td class="px-4 py-3 font-semibold">{{ u.username }}</td>
+                    <td class="px-4 py-3">{{ u.display_name or u.username }}</td>
+                    <td class="px-4 py-3">{{ u.role }}</td>
+                    <td class="px-4 py-3">{{ (u.completed_lessons or []) | length }}</td>
+                    <td class="px-4 py-3 text-right">
+                        {% if u.username != user.username %}
+                        <form action="/admin/delete-user" method="POST" onsubmit="return confirm('ยืนยันลบผู้ใช้นี้?')">
+                            <input type="hidden" name="username" value="{{ u.username }}">
+                            <button class="rounded-lg border border-red-400/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300">ลบ</button>
+                        </form>
+                        {% else %}
+                        <span class="text-xs text-white/35">บัญชีปัจจุบัน</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="deletedPane" class="tab-pane mt-6 hidden overflow-x-auto rounded-2xl border border-white/10">
+        <table class="min-w-full text-sm">
+            <thead class="bg-sweden-navy/70 text-left text-sweden-gold">
+                <tr>
+                    <th class="px-4 py-3">Username</th>
+                    <th class="px-4 py-3">อีเมล</th>
+                    <th class="px-4 py-3">ลบเมื่อ</th>
+                    <th class="px-4 py-3"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-white/5 bg-night-100/80">
+                {% for u in deleted_users %}
+                <tr>
+                    <td class="px-4 py-3 font-semibold">{{ u.username }}</td>
+                    <td class="px-4 py-3">{{ u.email }}</td>
+                    <td class="px-4 py-3">{{ u.deleted_at }}</td>
+                    <td class="px-4 py-3 text-right">
+                        <form action="/admin/restore-user" method="POST">
+                            <input type="hidden" name="username" value="{{ u.username }}">
+                            <button class="rounded-lg bg-sweden-blue px-3 py-1.5 text-xs font-semibold text-white">กู้คืน</button>
+                        </form>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="4" class="px-4 py-8 text-center text-white/40">ถังขยะว่าง</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="imagesPane" class="tab-pane mt-6 hidden rounded-2xl border border-white/10 bg-night-100/80 p-6">
+        <h2 class="font-display text-lg font-bold">อัปโหลดรูปคำศัพท์</h2>
+        <form action="/admin/upload-image" method="POST" enctype="multipart/form-data" class="mt-4 space-y-4">
+            <select name="word" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none">
+                {% for item in vocab_items %}
+                <option value="{{ item.swedish }}">{{ item.swedish }} — {{ item.thai }}</option>
+                {% endfor %}
+            </select>
+            <input type="file" name="image_file" accept="image/*" required class="block w-full text-sm text-white/60">
+            <button class="rounded-xl bg-sweden-gold px-5 py-2.5 font-bold text-sweden-navy">บันทึกรูปภาพ</button>
+        </form>
     </div>
 </div>
 {% endblock %}

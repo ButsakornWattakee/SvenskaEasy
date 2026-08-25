@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}เพิ่มผู้ใช้ — Admin{% endblock %}
+{% block content %}
+<div class="fade-up mx-auto max-w-xl">
+    <h1 class="font-display text-3xl font-extrabold">เพิ่มผู้ใช้งานใหม่เข้าระบบ</h1>
+    <p class="mt-1 text-white/50">สร้างบัญชีผู้เรียนหรือผู้ดูแลระบบ</p>
+
+    <form action="/admin/users/new" method="POST" class="mt-8 space-y-4 rounded-3xl border border-white/10 bg-night-100/80 p-6">
+        <div>
+            <label class="mb-1.5 block text-sm text-white/70" for="new_username">ชื่อผู้ใช้</label>
+            <input id="new_username" name="username" required minlength="3" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+        </div>
+        <div>
+            <label class="mb-1.5 block text-sm text-white/70" for="new_display">ชื่อที่แสดง</label>
+            <input id="new_display" name="display_name" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+        </div>
+        <div>
+            <label class="mb-1.5 block text-sm text-white/70" for="new_email">อีเมล</label>
+            <input id="new_email" name="email" type="email" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+        </div>
+        <div>
+            <label class="mb-1.5 block text-sm text-white/70" for="new_password">รหัสผ่าน</label>
+            <div class="relative" data-password-field>
+                <input id="new_password" name="password" type="password" required minlength="4" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 pr-12 outline-none focus:border-sweden-gold/60">
+                {% include "partials/password_toggle_btn.html" %}
+            </div>
+        </div>
+        <div>
+            <label class="mb-1.5 block text-sm text-white/70" for="new_role">บทบาท</label>
+            <select id="new_role" name="role" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+                <option value="Student">ผู้เรียน</option>
+                <option value="Admin">ผู้ดูแลระบบ</option>
+            </select>
+        </div>
+        <button type="submit" class="w-full rounded-xl bg-sweden-gold py-3 font-bold text-sweden-navy">สร้างบัญชี</button>
+    </form>
+</div>
+{% endblock %}

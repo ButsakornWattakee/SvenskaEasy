@@ -1,0 +1,15 @@
+<div class="avatar-medal avatar-medal-{{ size or 'md' }} {% if is_admin %}is-admin-frame{% elif top_achievement %}is-earned frame-{{ top_achievement.frame or 'gold' }}{% endif %}"
+     {% if is_admin %}title="ผู้ดูแลระบบ"{% elif top_achievement %}style="--medal: {{ top_achievement.color }}" title="{{ top_achievement.title_th }}"{% endif %}>
+    <div class="avatar-medal-inner">
+        {% if has_avatar and avatar_url %}
+        <img src="{{ avatar_url }}" alt="" class="h-full w-full object-cover">
+        {% else %}
+        {% include "partials/person_icon.html" %}
+        {% endif %}
+    </div>
+    {% if is_admin %}
+    <span class="avatar-medal-pin" title="ผู้ดูแลระบบ">👑</span>
+    {% elif top_achievement %}
+    <span class="avatar-medal-pin" title="{{ top_achievement.title_th }}">{{ top_achievement.icon or '🏅' }}</span>
+    {% endif %}
+</div>

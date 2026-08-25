@@ -1,26 +1,51 @@
-# SvenskaEasy - เว็บไซต์การเรียนภาษาสวีเดนง่ายๆ (learnswedish)
+# SvenskaEasy
 
-แอพพลิเคชันสำหรับเรียนภาษาชวีเดนด้วยตนเองสำหรับคนไทย พัฒนาด้วย Python และ Streamlit
+แอพเรียนภาษาสวีเดนสำหรับคนไทย สร้างด้วย **FastAPI + Jinja2 + Tailwind CSS**
 
-## ฟีเจอร์หลัก (Features)
-1. **บทเรียนภาษาชวีเดน (Swedish Lessons)**: บทเรียนพร้อมคำอธิบายภาษาไทย การออกเสียง และประโยคตัวอย่าง
-2. **แบบฝึกหัดแบบโต้ตอบ (Quizzes & Exercises)**: ทดสอบความรู้หลังเรียนด้วยระบบตอบคำถามและคำนวณคะแนน
-3. **ระบบช่วยเหลือด้วย AI (AI Tutor Chat)**: แชทบอทถาม-ตอบเกี่ยวกับภาษาชวีเดนผ่านทาง Gemini API (มีโหมดจำลองหากไม่มี API key)
+## สแต็กที่แนะนำ (และใช้อยู่ตอนนี้)
 
-## วิธีการติดตั้งและรัน (Installation & Setup)
+| ชั้น | เทคโนโลยี | เหตุผล |
+| --- | --- | --- |
+| Backend | FastAPI | เร็ว, session + ฟอร์ม + JSON API สำหรับครู AI |
+| Templates | Jinja2 | เนื้อหาบทเรียนเป็น Python data อยู่แล้ว ไม่ต้องย้ายไป SPA |
+| UI | Tailwind CSS | ดีไซน์ทันสมัย ปรับ responsive ได้ง่าย |
+| ข้อมูลผู้ใช้ | MongoDB + JSON fallback | ทำงานได้แม้ฐานข้อมูลออฟไลน์ |
+| ทดสอบ | pytest + TestClient | ครอบคลุมหน้าเว็บ ควิซ และครู AI |
 
-1. ติดตั้งไลบรารีที่จำเป็น:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## ฟีเจอร์
 
-2. สร้างไฟล์ `.env` ที่โฟลเดอร์โปรเจกต์ แล้วใส่ Gemini API Key:
-   ```
-   GEMINI_API_KEY=your_key_here
-   ```
-   รับคีย์ฟรีได้ที่ [Google AI Studio](https://aistudio.google.com/apikey)
+- บทเรียน 25 บท (Beginner → Intermediate) พร้อมคำอธิบายภาษาไทย
+- ฝึกพิมพ์ / เกมจับคู่คำศัพท์
+- ควิซรายบท และข้อสอบวัดผลรวม
+- คลังคำศัพท์ + แฟลชการ์ด
+- ครู AI (Gemini หรือโหมดจำลอง)
+- โปรไฟล์ เหรียญรางวัล แผงแอดมิน
 
-3. รันโปรแกรมด้วย Streamlit:
-   ```bash
-   py -m streamlit run app.py
-   ```
+## ติดตั้งและรัน
+
+```bash
+pip install -r requirements.txt
+```
+
+สร้างไฟล์ `.env` (ไม่บังคับ):
+
+```
+SECRET_KEY=change-me
+GEMINI_API_KEY=your_key_here
+```
+
+รันเซิร์ฟเวอร์:
+
+```bash
+py -m uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+```
+
+เปิด http://127.0.0.1:8000
+
+บัญชีเริ่มต้นเมื่อใช้ไฟล์สำรอง: `admin` / `admin`
+
+## ทดสอบ
+
+```bash
+py -m pytest
+```

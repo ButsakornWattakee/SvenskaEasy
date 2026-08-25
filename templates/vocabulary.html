@@ -1,51 +1,109 @@
 {% extends "base.html" %}
-
-{% block title %}คลังคำศัพท์ - LearnSwedish Platform{% endblock %}
-
+{% block title %}คลังคำศัพท์ — SvenskaEasy{% endblock %}
 {% block content %}
-<div class="page-title-box">
-    <h1>🔤 คลังคำศัพท์ภาษาสวีเดน (Vocabulary Hub)</h1>
-    <p>รวบรวมคำศัพท์หลักพร้อมคำอ่านถอดเสียงภาษาไทย การผันรูป และคำอธิบายการใช้งาน</p>
-</div>
+<div class="fade-up">
+    <header class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="font-display text-3xl font-extrabold">คลังคำศัพท์</h1>
+            <p class="mt-1 text-white/50">
+                {% if active_lesson %}
+                    คำศัพท์จาก {{ active_lesson.title }}
+                {% elif active_level and active_level != 'all' %}
+                    ระดับ {{ cefr_levels[active_level].emoji }} {{ cefr_levels[active_level].label }} · {{ cefr_levels[active_level].cefr }} · {{ vocab_count }} คำ
+                    — ใช้ร่วมกันทั้งการ์ด ตาราง และแฟลชการ์ด
+                {% else %}
+                    คำศัพท์หลักทั้งหลักสูตร · {{ vocab_count }} คำ พร้อมรูป คำอ่าน และตัวอย่าง
+                {% endif %}
+            </p>
+        </div>
+        <form class="flex gap-2">
+            <select name="lesson_id" onchange="this.form.submit()" class="rounded-xl border border-white/10 bg-night-200 px-3 py-2 text-sm outline-none">
+                <option value="">ทุกบทเรียน</option>
+                {% for l in lessons %}
+                <option value="{{ l.id }}" {% if active_lesson and active_lesson.id == l.id %}selected{% endif %}>บทที่ {{ l.id }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </header>
 
-<!-- Tabs -->
-<div class="tab-container" id="vocabTabs">
-    <div class="tab-header">
-        <button class="tab-btn active" onclick="switchTab('vocabTabs', 'vocabTableTab')" data-tab="vocabTableTab">
-            📋 ตารางคำศัพท์ (Key Vocabulary)
-        </button>
-        <button class="tab-btn" onclick="switchTab('vocabTabs', 'flashcardsTab')" data-tab="flashcardsTab">
-            🃏 การ์ดฝึกจำ (Flashcards)
-        </button>
+    <div class="mb-5 flex flex-wrap gap-2">
+        <a href="/vocabulary" class="rounded-full px-4 py-2 text-sm font-semibold {% if (active_level or 'all') == 'all' and not active_lesson %}bg-sweden-gold text-sweden-navy{% else %}bg-white/5 text-white/70 hover:bg-white/10{% endif %}">ทั้งหมด</a>
+        {% for item in cefr_level_items %}
+        <a href="/vocabulary?level={{ item.key }}" class="rounded-full px-4 py-2 text-sm font-semibold {% if active_level == item.key and not active_lesson %}bg-sweden-gold text-sweden-navy{% else %}bg-white/5 text-white/70 hover:bg-white/10{% endif %}">{{ item.emoji }} {{ item.label }}</a>
+        {% endfor %}
     </div>
 
-    <!-- Vocabulary Table -->
-    <div class="tab-content active" id="vocabTableTab">
-        <div class="card-box" style="margin-bottom: 20px;">
-            <input type="text" id="vocabSearchInput" class="form-control-text"
-                   placeholder="🔍 พิมพ์ค้นหาคำศัพท์ภาษาสวีเดน หรือคำแปลภาษาไทย..."
-                   onkeyup="filterVocabTable()">
-        </div>
+    <div class="mb-5 flex flex-wrap gap-2">
+        <button type="button" data-tab="cardsGridPane" class="tab-btn active rounded-full bg-sweden-gold px-4 py-2 text-sm font-semibold text-sweden-navy">การ์ดคำศัพท์</button>
+        <button type="button" data-tab="tablePane" class="tab-btn rounded-full bg-white/5 px-4 py-2 text-sm font-semibold text-white/70 hover:bg-white/10">ตาราง</button>
+        <button type="button" data-tab="flipPane" class="tab-btn rounded-full bg-white/5 px-4 py-2 text-sm font-semibold text-white/70 hover:bg-white/10">แฟลชการ์ด</button>
+    </div>
 
-        <div class="table-responsive">
-            <table class="data-table" id="vocabTable">
-                <thead>
+    <input id="vocabSearchInput" type="search" placeholder="ค้นหาคำสวีเดน คำอ่าน หรือคำไทย..." class="mb-5 w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+
+    <div id="cardsGridPane" class="tab-pane space-y-4">
+        {% for item in vocab_items %}
+        <article class="vocab-entry flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-night-100/80 shadow-card md:flex-row">
+            <div class="min-w-0 flex-1 border-l-4 border-sweden-gold p-5">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                    <h2 class="font-display text-2xl font-bold text-white">{{ item.swedish }}</h2>
+                    <div class="flex flex-wrap gap-2">
+                        {% if item.level %}
+                        <span class="rounded-full bg-sweden-blue px-2.5 py-0.5 text-[11px] font-semibold text-sweden-gold">{{ item.level }}</span>
+                        {% endif %}
+                        {% if item.pos %}
+                        <span class="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-white/70">{{ item.pos }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if item.category %}
+                <p class="mt-2 text-sm text-white/45">หมวด: {{ item.category }}</p>
+                {% endif %}
+                <p class="mt-2 text-sm">คำอ่าน: <span class="rounded-md bg-sweden-gold/15 px-2 py-0.5 font-semibold text-sweden-gold">{{ item.pronunciation }}</span></p>
+                <p class="mt-2 text-lg font-medium">{{ item.thai }}</p>
+                <div class="mt-4 border-t border-white/10 pt-3 text-sm">
+                    <p class="text-white/40">ตัวอย่าง</p>
+                    <p class="mt-1 text-white/85">{{ item.example_swedish }}</p>
+                    <p class="text-white/55">{{ item.example_thai }}</p>
+                </div>
+            </div>
+            {% if item.image_url %}
+            <div class="md:w-56 lg:w-64">
+                <img src="{{ item.image_url }}" alt="{{ item.swedish }}" class="h-44 w-full object-cover md:h-full">
+            </div>
+            {% endif %}
+        </article>
+        {% else %}
+        <p class="rounded-2xl border border-white/10 bg-night-100/80 px-5 py-8 text-center text-white/50">ไม่พบคำศัพท์ในช่วงนี้</p>
+        {% endfor %}
+    </div>
+
+    <div id="tablePane" class="tab-pane hidden">
+        <div class="overflow-x-auto rounded-2xl border border-white/10">
+            <table class="data-table min-w-full text-sm" id="vocabTable">
+                <thead class="bg-sweden-navy/80 text-left text-sweden-gold">
                     <tr>
-                        <th>คำศัพท์ (Swedish)</th>
-                        <th>คำอ่าน (Phonetics)</th>
-                        <th>คำแปล (Thai)</th>
-                        <th>ประเภทคำ (POS)</th>
-                        <th>ตัวอย่าง</th>
+                        <th class="px-4 py-3 font-semibold">รูป</th>
+                        <th class="px-4 py-3 font-semibold">Swedish</th>
+                        <th class="px-4 py-3 font-semibold">คำอ่าน</th>
+                        <th class="px-4 py-3 font-semibold">ไทย</th>
+                        <th class="px-4 py-3 font-semibold">ประเภท</th>
+                        <th class="px-4 py-3 font-semibold">ตัวอย่าง</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="divide-y divide-white/5 bg-night-100/80">
                     {% for item in vocab_items %}
-                    <tr>
-                        <td><strong style="color:#FFCD00;">{{ item.swedish }}</strong></td>
-                        <td style="color:#8b92a8; font-size:0.82rem;">[{{ item.pronunciation }}]</td>
-                        <td>{{ item.thai }}</td>
-                        <td style="font-size:0.8rem; color:#8b92a8;">{{ item.pos }}</td>
-                        <td style="font-size:0.8rem; color:#8b92a8;">{{ item.example_swedish }}</td>
+                    <tr class="hover:bg-white/5">
+                        <td class="px-4 py-2">
+                            {% if item.image_url %}
+                            <img src="{{ item.image_url }}" alt="" class="h-12 w-12 rounded-lg object-cover">
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 font-semibold text-sweden-gold">{{ item.swedish }}</td>
+                        <td class="px-4 py-3 text-white/45">{{ item.pronunciation }}</td>
+                        <td class="px-4 py-3">{{ item.thai }}</td>
+                        <td class="px-4 py-3 text-white/45">{{ item.pos }}</td>
+                        <td class="px-4 py-3 text-white/45">{{ item.example_swedish }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -53,20 +111,19 @@
         </div>
     </div>
 
-    <!-- Flashcards -->
-    <div class="tab-content" id="flashcardsTab">
-        <div class="flashcards-grid">
-            {% for item in vocab_items[:24] %}
-            <div class="flashcard-container" onclick="this.classList.toggle('flipped')">
+    <div id="flipPane" class="tab-pane hidden">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {% for item in vocab_items %}
+            <div class="flashcard vocab-flash" onclick="this.classList.toggle('flipped')">
                 <div class="flashcard-inner">
-                    <div class="flashcard-front">
-                        <div class="card-swedish">{{ item.swedish }}</div>
-                        <div class="card-phonetic">[{{ item.pronunciation }}]</div>
-                        <div class="card-hint">แตะ / คลิก เพื่อดูคำแปล</div>
+                    <div class="flashcard-face flashcard-front overflow-hidden border border-white/10 bg-gradient-to-br from-sweden-blue/40 to-night-100">
+                        <p class="font-display text-2xl font-bold text-sweden-gold">{{ item.swedish }}</p>
+                        <p class="mt-1 text-sm text-white/50">{{ item.pronunciation }}</p>
+                        <p class="mt-3 text-[11px] uppercase tracking-widest text-white/35">คลิกเพื่อดูคำแปล</p>
                     </div>
-                    <div class="flashcard-back">
-                        <div class="card-thai">{{ item.thai }}</div>
-                        <div class="card-desc">{{ item.example_thai }}</div>
+                    <div class="flashcard-face flashcard-back border border-sweden-gold/30 bg-sweden-navy">
+                        <p class="font-display text-xl font-bold">{{ item.thai }}</p>
+                        <p class="mt-2 text-center text-sm text-white/60">{{ item.example_thai }}</p>
                     </div>
                 </div>
             </div>
@@ -75,18 +132,20 @@
     </div>
 </div>
 {% endblock %}
-
 {% block extra_js %}
 <script>
-function filterVocabTable() {
-    const filter = document.getElementById('vocabSearchInput').value.toLowerCase();
-    const trs = document.getElementById('vocabTable').getElementsByTagName('tr');
-    for (let i = 1; i < trs.length; i++) {
-        const cells = trs[i].getElementsByTagName('td');
-        const sw = cells[0] ? cells[0].textContent.toLowerCase() : '';
-        const th = cells[2] ? cells[2].textContent.toLowerCase() : '';
-        trs[i].style.display = (sw.includes(filter) || th.includes(filter)) ? '' : 'none';
-    }
+function filterVocab() {
+    const filter = (document.getElementById('vocabSearchInput').value || '').toLowerCase();
+    document.querySelectorAll('.vocab-entry').forEach((card) => {
+        card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+    document.querySelectorAll('#vocabTable tbody tr').forEach((row) => {
+        row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
+    document.querySelectorAll('.vocab-flash').forEach((card) => {
+        card.style.display = card.textContent.toLowerCase().includes(filter) ? '' : 'none';
+    });
 }
+document.getElementById('vocabSearchInput')?.addEventListener('input', filterVocab);
 </script>
 {% endblock %}

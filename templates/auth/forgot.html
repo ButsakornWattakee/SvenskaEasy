@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="{{ theme or 'night' }}" data-theme-mode="{{ theme_mode or 'dark' }}">
+<head>
+    {% include "partials/head.html" %}
+    <title>ลืมรหัสผ่าน — SvenskaEasy</title>
+</head>
+<body class="mesh-bg min-h-screen text-sweden-ice">
+<div class="grid min-h-screen lg:grid-cols-2">
+    <section class="theme-on-dark relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between p-12">
+        <div class="absolute inset-0 bg-gradient-to-br from-sweden-navy via-sweden-blue to-night"></div>
+        <div class="absolute -right-24 -top-24 h-80 w-80 rounded-full bg-sweden-gold/20 blur-3xl"></div>
+        <div class="relative">
+            <div class="font-display text-2xl font-extrabold text-sweden-gold">🇸🇪 SvenskaEasy</div>
+            <p class="mt-2 text-sm text-white/60">ตั้งรหัสผ่านใหม่</p>
+        </div>
+        <div class="relative max-w-lg">
+            <p class="font-display text-4xl font-extrabold leading-tight text-white">ลืมรหัสผ่าน<br><span class="text-sweden-gold">ไม่เป็นไร</span></p>
+            <p class="mt-6 text-lg text-white/70">ยืนยันชื่อผู้ใช้และอีเมลที่ใช้สมัคร แล้วตั้งรหัสผ่านใหม่ได้ทันที</p>
+        </div>
+        <p class="relative text-sm text-white/40">รหัสผ่านใหม่จะใช้เข้าสู่ระบบครั้งถัดไป</p>
+    </section>
+
+    <section class="flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-md fade-up">
+            <div class="mb-8 lg:hidden text-center">
+                <div class="font-display text-2xl font-extrabold text-sweden-gold">🇸🇪 SvenskaEasy</div>
+            </div>
+            <div class="rounded-3xl border border-white/10 bg-night-100/80 p-8 shadow-card backdrop-blur-xl">
+                <h1 class="font-display text-2xl font-bold">ลืมรหัสผ่าน</h1>
+                <p class="mt-1 text-sm text-white/50">กรอกชื่อผู้ใช้และอีเมลให้ตรงกับบัญชีที่สมัครไว้</p>
+
+                {% if flash_message %}
+                <div class="mt-5 rounded-xl border px-4 py-3 text-sm
+                    {% if flash_type == 'success' %}border-emerald-400/30 bg-emerald-500/10 text-emerald-200
+                    {% elif flash_type == 'warning' %}border-amber-400/30 bg-amber-500/10 text-amber-200
+                    {% else %}border-sky-400/30 bg-sky-500/10 text-sky-200{% endif %}">{{ flash_message }}</div>
+                {% endif %}
+                {% if error_message %}
+                <div class="mt-5 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ error_message }}</div>
+                {% endif %}
+
+                <form action="/auth/forgot-password" method="POST" class="mt-6 space-y-4">
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-white/70" for="forgotUsername">ชื่อผู้ใช้</label>
+                        <input id="forgotUsername" name="username" required class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/70 focus:ring-2 focus:ring-sweden-gold/20" placeholder="เช่น anna">
+                    </div>
+                    <div>
+                        <label class="mb-1.5 block text-sm font-medium text-white/70" for="forgotEmail">อีเมล</label>
+                        <input id="forgotEmail" name="email" type="email" required class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/70 focus:ring-2 focus:ring-sweden-gold/20" placeholder="you@gmail.com">
+                    </div>
+                    <button type="submit" class="w-full rounded-xl bg-gradient-to-r from-sweden-blue to-sweden-navy py-3 font-semibold text-white shadow-lg shadow-sweden-blue/30 transition hover:brightness-110">ยืนยันบัญชี</button>
+                </form>
+                <p class="mt-6 text-center text-sm text-white/50"><a href="/auth/login" class="font-semibold text-sweden-gold hover:underline">กลับไปเข้าสู่ระบบ</a></p>
+            </div>
+        </div>
+    </section>
+</div>
+</body>
+</html>

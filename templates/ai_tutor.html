@@ -1,68 +1,77 @@
 {% extends "base.html" %}
-
-{% block title %}ถาม-ตอบกับครู AI - LearnSwedish Platform{% endblock %}
-
+{% block title %}ครู AI — SvenskaEasy{% endblock %}
 {% block content %}
-<div class="page-title-box">
-    <h1>🤖 ถาม-ตอบภาษาสวีเดนกับครู AI</h1>
-    <p>พบปัญหาการออกเสียง ไวยากรณ์ หรืออยากทดสอบบทสนทนา? ถามคุณครู AI ได้เลยทันทีครับ!</p>
-</div>
-
-<!-- API Status -->
-{% if is_api_connected %}
-<div class="alert alert-success">✅ กำลังเชื่อมต่อผ่าน Gemini API — คุยกับครู AI ได้อย่างอิสระไร้ขีดจำกัด!</div>
-{% else %}
-<div class="alert alert-warning">⚠️ ขณะนี้อยู่ใน Sandbox Mode (โหมดทดลองบอทจำลองคำตอบ) — ตั้งค่า GEMINI_API_KEY ในไฟล์ .env เพื่อคุยกับครู AI เต็มรูปแบบ</div>
-{% endif %}
-
-<!-- Active Lesson Context -->
-{% if active_lesson_title %}
-<div class="alert alert-info">📚 <strong>[Lesson Context] บทเรียนที่กำลังสอบถาม:</strong> {{ active_lesson_title }}</div>
-{% endif %}
-
-<!-- Chat Header -->
-<div class="chat-header-bar">
-    <span>💬 การสนทนากับครู AI</span>
-    <form action="/ai-tutor/clear" method="POST" style="margin: 0;">
-        <button type="submit" class="btn btn-secondary btn-sm">🗑️ ล้างห้องแชท</button>
-    </form>
-</div>
-
-<!-- Chat Container -->
-<div class="chat-container" id="chatContainer">
-    {% if not chat_history %}
-    <div class="chat-message message-assistant">
-        <div class="message-role">[AI Tutor] ครู AI</div>
-        <div class="message-bubble">
-            👋 สวัสดีครับ! ผมคือ AI Teacher ผู้ช่วยสอนภาษาสวีเดน<br>
-            ถามได้เลยครับ ทั้งคำศัพท์ ไวยากรณ์ หรือการออกเสียง 🇸🇪
+<div class="fade-up flex h-[calc(100vh-7rem)] min-h-[560px] flex-col">
+    <header class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <h1 class="font-display text-3xl font-extrabold">ครู AI</h1>
+            <p class="text-sm text-white/50">ถามคำศัพท์ ไวยากรณ์ หรือฝึกบทสนทนาเป็นภาษาไทยได้เลย</p>
         </div>
-    </div>
-    {% endif %}
-    {% for msg in chat_history %}
-    <div class="chat-message message-{{ msg.role }}">
-        <div class="message-role">{% if msg.role == 'user' %}[User] คุณ{% else %}[AI Tutor] ครู AI{% endif %}</div>
-        <div class="message-bubble">{{ msg.content | safe }}</div>
-    </div>
-    {% endfor %}
-</div>
+        <form action="/ai-tutor/clear" method="POST">
+            <button class="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold hover:bg-white/10">ล้างห้องแชท</button>
+        </form>
+    </header>
 
-<!-- Chat Input -->
-<div style="padding: 12px 16px; background: var(--bg-card); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--radius-md) var(--radius-md);">
-    <form id="aiChatForm" class="chat-input-form" style="padding:0; border:none; border-radius:0; background:none;" onsubmit="sendAIMessage(event)">
-        <input type="text" id="userPrompt" class="form-control-text"
-               placeholder="พิมพ์คำถามของคุณที่นี่ เช่น 'คำว่า ส้ม ในภาษาสวีเดนคืออะไร?'..."
-               autocomplete="off" required style="flex:1;">
-        <button type="submit" class="btn btn-primary" id="btnSendPrompt">ส่งคำถาม →</button>
+    {% if is_api_connected %}
+    <div class="mb-3 rounded-xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">เชื่อมต่อ Gemini แล้ว — ตอบได้อย่างอิสระ</div>
+    {% else %}
+    <div class="mb-3 rounded-xl border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-200">โหมดจำลอง — ตั้งค่า GEMINI_API_KEY ที่หน้าตั้งค่าเพื่อคุยกับครูจริง</div>
+    {% endif %}
+    {% if active_lesson_title %}
+    <div class="mb-3 rounded-xl border border-sky-400/30 bg-sky-500/10 px-4 py-2 text-sm text-sky-200">บริบทบทเรียน: {{ active_lesson_title }}</div>
+    {% endif %}
+
+    <div class="mb-3">
+        <label class="sr-only" for="lessonContext">เลือกบทเรียน</label>
+        <select id="lessonContext" onchange="if(this.value) window.location.href='/ai-tutor?lesson_id='+this.value" class="rounded-xl border border-white/10 bg-night-200 px-3 py-2 text-sm outline-none">
+            <option value="">ไม่ล็อกบทเรียน</option>
+            {% for l in lessons %}
+            <option value="{{ l.id }}" {% if active_lesson_title == l.title %}selected{% endif %}>บทที่ {{ l.id }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div id="chatContainer" class="pretty-scroll flex-1 space-y-5 overflow-y-auto rounded-2xl border border-white/10 bg-night-100/70 p-4 sm:p-5">
+        {% if not chat_history %}
+        <div class="chat-assistant max-w-2xl">
+            <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">ครู AI</p>
+            <div class="bubble tutor-prose rounded-2xl rounded-tl-sm px-4 py-3 text-sm">
+                <p>Hej! ผมคือครูสอนภาษาสวีเดนครับ</p>
+                <p>ถามมาได้เลยเป็นข้อๆ เช่น</p>
+                <ul>
+                    <li>คำศัพท์และความหมาย</li>
+                    <li>ไวยากรณ์ <span class="tutor-term"><span class="tutor-sv">en</span></span> / <span class="tutor-term"><span class="tutor-sv">ett</span></span></li>
+                    <li>การออกเสียง หรือประโยคตัวอย่าง</li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        {% for msg in chat_history %}
+        <div class="{% if msg.role == 'user' %}chat-user ml-auto max-w-xl{% else %}chat-assistant max-w-2xl{% endif %}">
+            <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">{% if msg.role == 'user' %}คุณ{% else %}ครู AI{% endif %}</p>
+            {% if msg.role == 'user' %}
+            <div class="bubble rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed">{{ msg.content }}</div>
+            {% else %}
+            <div class="bubble tutor-prose rounded-2xl rounded-tl-sm px-4 py-3 text-sm">{{ (msg.html or msg.content) | safe }}</div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <form id="aiChatForm" class="mt-4 flex gap-3" onsubmit="sendAIMessage(event)">
+        <input id="userPrompt" required autocomplete="off" placeholder="เช่น คำว่า ส้ม ในภาษาสวีเดนคืออะไร?" class="flex-1 rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+        <button id="btnSendPrompt" type="submit" class="rounded-xl bg-sweden-gold px-5 py-3 font-bold text-sweden-navy">ส่ง</button>
     </form>
 </div>
 {% endblock %}
-
 {% block extra_js %}
 <script>
-// Auto-scroll to bottom
 const chatContainer = document.getElementById('chatContainer');
 if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
+
+function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
 async function sendAIMessage(event) {
     event.preventDefault();
@@ -71,25 +80,20 @@ async function sendAIMessage(event) {
     const messageText = promptInput.value.trim();
     if (!messageText) return;
 
-    // Add user bubble
     chatContainer.insertAdjacentHTML('beforeend', `
-        <div class="chat-message message-user">
-            <div class="message-role">[User] คุณ</div>
-            <div class="message-bubble">${escapeHtml(messageText)}</div>
-        </div>
-    `);
+        <div class="chat-user ml-auto max-w-xl">
+            <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">คุณ</p>
+            <div class="bubble rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed">${escapeHtml(messageText)}</div>
+        </div>`);
     promptInput.value = '';
     promptInput.disabled = true;
     sendBtn.disabled = true;
-
-    // Loading bubble
     const loadId = 'load_' + Date.now();
     chatContainer.insertAdjacentHTML('beforeend', `
-        <div class="chat-message message-assistant loading-msg" id="${loadId}">
-            <div class="message-role">[AI Tutor] ครู AI</div>
-            <div class="message-bubble"><em>⏳ คุณครูกำลังพิมพ์คำตอบ...</em></div>
-        </div>
-    `);
+        <div class="chat-assistant max-w-2xl" id="${loadId}">
+            <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">ครู AI</p>
+            <div class="bubble rounded-2xl rounded-tl-sm px-4 py-3 text-sm italic text-white/50">กำลังจัดคำตอบ...</div>
+        </div>`);
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     try {
@@ -100,31 +104,22 @@ async function sendAIMessage(event) {
         });
         const data = await response.json();
         document.getElementById(loadId)?.remove();
-
         chatContainer.insertAdjacentHTML('beforeend', `
-            <div class="chat-message message-assistant">
-                <div class="message-role">[AI Tutor] ครู AI</div>
-                <div class="message-bubble">${data.reply_html || data.reply || 'เกิดข้อผิดพลาด'}</div>
-            </div>
-        `);
+            <div class="chat-assistant max-w-2xl">
+                <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">ครู AI</p>
+                <div class="bubble tutor-prose rounded-2xl rounded-tl-sm px-4 py-3 text-sm">${data.reply_html || 'เกิดข้อผิดพลาด'}</div>
+            </div>`);
     } catch (err) {
         document.getElementById(loadId)?.remove();
         chatContainer.insertAdjacentHTML('beforeend', `
-            <div class="chat-message message-assistant">
-                <div class="message-role">[AI Tutor] ครู AI</div>
-                <div class="message-bubble" style="color:#ff8a80;">❌ เกิดข้อผิดพลาดในการเชื่อมต่อ กรุณาลองใหม่อีกครั้ง</div>
-            </div>
-        `);
+            <div class="chat-assistant max-w-2xl">
+                <div class="bubble rounded-2xl px-4 py-3 text-sm text-red-300">เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่</div>
+            </div>`);
     }
-
     promptInput.disabled = false;
     sendBtn.disabled = false;
     promptInput.focus();
     chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-function escapeHtml(text) {
-    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 </script>
 {% endblock %}

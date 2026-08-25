@@ -217,7 +217,7 @@ def get_user(username):
     finally:
         client.close()
 
-def create_user(username, email, password, role="User"):
+def create_user(username, email, password, role="User", display_name=None):
     client, err = get_db_client()
     if client is None:
         # Fallback to JSON database
@@ -238,6 +238,7 @@ def create_user(username, email, password, role="User"):
             "email": email_clean,
             "password": hash_password(password),
             "role": role,
+            "display_name": display_name or username_clean,
             "completed_lessons": [],
             "quiz_scores": {}
         }
@@ -263,6 +264,7 @@ def create_user(username, email, password, role="User"):
             "email": email.strip().lower(),
             "password": hash_password(password),
             "role": role,
+            "display_name": display_name or username.strip(),
             "completed_lessons": [],
             "quiz_scores": {}
         })
@@ -382,6 +384,63 @@ def get_all_users():
         return []
     finally:
         client.close()
+
+def save_user_avatar(username, avatar_bytes):
+    """Store PNG avatar bytes without touching other profile fields."""
+    if not username or not avatar_bytes:
+        return False
+    client, err = get_db_client()
+    import base64
+
+    if client is None:
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean not in users:
+            return False
+        users[username_clean]["avatar"] = base64.b64encode(avatar_bytes).decode("utf-8")
+        return save_fallback_users(users)
+
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
+        users_col.update_one({"username": username.strip()}, {"$set": {"avatar": avatar_bytes}})
+        return True
+    except Exception as e:
+        print(f" Error saving avatar for {username} in MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
+
+def save_user_profile_fields(username, fields: dict) -> bool:
+    """Update personal details without touching the avatar."""
+    if not username or not isinstance(fields, dict):
+        return False
+    allowed = ("phone", "gender", "birthday", "display_name", "profile_change_log")
+    update_data = {key: fields[key] for key in allowed if key in fields}
+    if not update_data:
+        return False
+
+    client, err = get_db_client()
+    if client is None:
+        users = load_fallback_users()
+        username_clean = username.strip()
+        if username_clean not in users:
+            return False
+        users[username_clean].update(update_data)
+        return save_fallback_users(users)
+
+    try:
+        db = client[DB_NAME]
+        users_col = db[COLLECTION_NAME]
+        result = users_col.update_one({"username": username.strip()}, {"$set": update_data})
+        return result.matched_count > 0
+    except Exception as e:
+        print(f" Error saving profile fields for {username} in MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
 
 def update_user_profile(username, phone, avatar_bytes):
     client, err = get_db_client()
@@ -942,23 +1001,144 @@ def delete_vocab_image(swedish_word):
     except Exception as e:
         print(f" Error deleting vocab image for {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
         return False
+    finally:
+        client.close()
+
+
+CUSTOM_VOCAB_COLLECTION_NAME = "custom_vocabulary"
+FALLBACK_CUSTOM_VOCAB_PATH = "fallback_custom_vocab.json"
+
+
+def load_fallback_custom_vocab():
+    import json
+    if not os.path.exists(FALLBACK_CUSTOM_VOCAB_PATH):
+        return {}
+    try:
+        with open(FALLBACK_CUSTOM_VOCAB_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            return data if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def save_fallback_custom_vocab(words):
+    import json
+    try:
+        with open(FALLBACK_CUSTOM_VOCAB_PATH, "w", encoding="utf-8") as f:
+            json.dump(words, f, ensure_ascii=False, indent=4)
+        return True
+    except Exception:
+        return False
+
+
+def _custom_vocab_entry(fields: dict) -> dict:
+    swedish = (fields.get("swedish") or "").strip()
+    return {
+        "swedish": swedish,
+        "swedish_key": swedish.lower(),
+        "pronunciation": (fields.get("pronunciation") or swedish).strip(),
+        "thai": (fields.get("thai") or "").strip(),
+        "pos": (fields.get("pos") or "คำนาม (substantiv)").strip(),
+        "level": (fields.get("level") or "ง่าย").strip(),
+        "category": (fields.get("category") or "เพิ่มโดยผู้ดูแลระบบ").strip(),
+        "example_swedish": (fields.get("example_swedish") or f"{swedish[:1].upper()}{swedish[1:]}." if swedish else "").strip(),
+        "example_thai": (fields.get("example_thai") or fields.get("thai") or "").strip(),
+        "is_custom": True,
+    }
+
+
+def save_custom_vocab_word(fields: dict) -> tuple[bool, str]:
+    entry = _custom_vocab_entry(fields)
+    if not entry["swedish"] or not entry["thai"]:
+        return False, "กรอกคำสวีเดนและคำแปลภาษาไทย"
+    client, err = get_db_client()
+    if client is None:
+        words = load_fallback_custom_vocab()
+        words[entry["swedish_key"]] = entry
+        if save_fallback_custom_vocab(words):
+            return True, "บันทึกคำศัพท์แล้ว"
+        return False, "บันทึกคำศัพท์ไม่สำเร็จ"
+    try:
+        db = client[DB_NAME]
+        col = db[CUSTOM_VOCAB_COLLECTION_NAME]
+        try:
+            col.create_index("swedish_key", unique=True)
+        except Exception:
+            pass
+        col.replace_one({"swedish_key": entry["swedish_key"]}, entry, upsert=True)
+        return True, "บันทึกคำศัพท์แล้ว"
+    except Exception as e:
+        print(f" Error saving custom vocab {entry.get('swedish')} in MongoDB: {str(e)}", file=sys.stderr)
+        return False, "บันทึกคำศัพท์ไม่สำเร็จ"
+    finally:
+        client.close()
+
+
+def list_custom_vocab_words() -> list:
+    client, err = get_db_client()
+    if client is None:
+        words = load_fallback_custom_vocab()
+        return sorted(words.values(), key=lambda item: str(item.get("swedish") or "").lower())
+    try:
+        db = client[DB_NAME]
+        col = db[CUSTOM_VOCAB_COLLECTION_NAME]
+        docs = list(col.find({}, {"_id": 0}))
+        return sorted(docs, key=lambda item: str(item.get("swedish") or "").lower())
+    except Exception as e:
+        print(f" Error listing custom vocab from MongoDB: {str(e)}", file=sys.stderr)
+        return []
+    finally:
+        client.close()
+
+
+def delete_custom_vocab_word(swedish_word: str) -> bool:
+    word_key = (swedish_word or "").strip().lower()
+    if not word_key:
+        return False
+    client, err = get_db_client()
+    if client is None:
+        words = load_fallback_custom_vocab()
+        if word_key not in words:
+            return False
+        del words[word_key]
+        return save_fallback_custom_vocab(words)
+    try:
+        db = client[DB_NAME]
+        col = db[CUSTOM_VOCAB_COLLECTION_NAME]
+        res = col.delete_one({"swedish_key": word_key})
+        if res.deleted_count == 0:
+            res = col.delete_one({"swedish": {"$regex": f"^{word_key}$", "$options": "i"}})
+        return res.deleted_count > 0
+    except Exception as e:
+        print(f" Error deleting custom vocab {swedish_word} in MongoDB: {str(e)}", file=sys.stderr)
+        return False
+    finally:
+        client.close()
+
+
 def register_user(username, password, display_name=None, email=None):
     if not email:
-        email = f"{username.strip().lower()}@learnswedish.local"
-    success, msg = create_user(username=username, email=email, password=password, role="Student")
-    if success and display_name:
-        user = get_user(username)
-        if user:
-            user["display_name"] = display_name
-            # Save profile with updated display_name
-            update_user_profile(username, user.get("phone", ""), None)
+        email = f"{username.strip().lower()}@svenskaeasy.local"
+    success, _msg = create_user(
+        username=username,
+        email=email,
+        password=password,
+        role="Student",
+        display_name=display_name or username,
+    )
     return success
 
 def get_user_completed_lessons(username):
     user = get_user(username)
     if not user:
         return []
-    return list(user.get("completed_lessons", []))
+    result = []
+    for value in user.get("completed_lessons", []):
+        try:
+            result.append(int(value))
+        except (TypeError, ValueError):
+            continue
+    return result
 
 def get_user_quiz_scores(username):
     user = get_user(username)

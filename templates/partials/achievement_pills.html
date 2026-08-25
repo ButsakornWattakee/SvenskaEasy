@@ -1,0 +1,6 @@
+{% set latest = items[-1] if items else none %}
+{% if latest %}
+<span class="ach-pills">
+    <span class="ach-pill" title="{{ latest.title_th }} · {{ latest.title_en }}">{{ latest.icon or '🏅' }}</span>
+</span>
+{% endif %}

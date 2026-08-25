@@ -1,0 +1,1001 @@
+{
+  "pairing": {
+    "apelsin": {
+      "url": "/static/word_images/apelsin.png",
+      "source": "game",
+      "mongo_key": "apelsin"
+    },
+    "arbeta": {
+      "url": "/static/word_images/arbeta.png",
+      "source": "vocab",
+      "mongo_key": "arbeta"
+    },
+    "arg": {
+      "url": "/static/word_images/arg.png",
+      "source": "vocab",
+      "mongo_key": "arg"
+    },
+    "barn": {
+      "url": "/static/word_images/barn.png",
+      "source": "game",
+      "mongo_key": "barn"
+    },
+    "bil": {
+      "url": "/static/word_images/bil.png",
+      "source": "vocab",
+      "mongo_key": "bil"
+    },
+    "biljett": {
+      "url": "/static/word_images/biljett.png",
+      "source": "vocab",
+      "mongo_key": "biljett"
+    },
+    "billig": {
+      "url": "/static/word_images/billig.png",
+      "source": "vocab",
+      "mongo_key": "billig"
+    },
+    "blå": {
+      "url": "/static/word_images/blå.png",
+      "source": "game",
+      "mongo_key": "blå"
+    },
+    "bra": {
+      "url": "/static/word_images/bra.png",
+      "source": "vocab",
+      "mongo_key": "bra"
+    },
+    "bror": {
+      "url": "/static/word_images/bror.png",
+      "source": "vocab",
+      "mongo_key": "bror"
+    },
+    "brun": {
+      "url": "/static/word_images/brun.png",
+      "source": "vocab",
+      "mongo_key": "brun"
+    },
+    "bröd": {
+      "url": "/static/word_images/bröd.png",
+      "source": "game",
+      "mongo_key": "bröd"
+    },
+    "buss": {
+      "url": "/static/word_images/buss.png",
+      "source": "game",
+      "mongo_key": "buss"
+    },
+    "butik": {
+      "url": "/static/word_images/butik.png",
+      "source": "vocab",
+      "mongo_key": "butik"
+    },
+    "cykel": {
+      "url": "/static/word_images/cykel.png",
+      "source": "vocab",
+      "mongo_key": "cykel"
+    },
+    "dag": {
+      "url": "/static/word_images/dag.png",
+      "source": "vocab",
+      "mongo_key": "dag"
+    },
+    "dator": {
+      "url": "/static/word_images/dator.png",
+      "source": "game",
+      "mongo_key": "dator"
+    },
+    "dricka": {
+      "url": "/static/word_images/dricka.png",
+      "source": "game",
+      "mongo_key": "dricka"
+    },
+    "du": {
+      "url": "/static/word_images/du.png",
+      "source": "game",
+      "mongo_key": "du"
+    },
+    "dyr": {
+      "url": "/static/word_images/dyr.png",
+      "source": "vocab",
+      "mongo_key": "dyr"
+    },
+    "dålig": {
+      "url": "/static/word_images/dålig.png",
+      "source": "vocab",
+      "mongo_key": "dålig"
+    },
+    "dåtid": {
+      "url": "/static/word_images/dåtid.png",
+      "source": "game",
+      "mongo_key": "dåtid"
+    },
+    "en": {
+      "url": "/static/word_images/en.png",
+      "source": "vocab",
+      "mongo_key": "en"
+    },
+    "ett": {
+      "url": "/static/word_images/ett.png",
+      "source": "vocab",
+      "mongo_key": "ett"
+    },
+    "fem": {
+      "url": "/static/word_images/fem.png",
+      "source": "game",
+      "mongo_key": "fem"
+    },
+    "fika": {
+      "url": "/static/word_images/fika.png",
+      "source": "vocab",
+      "mongo_key": "fika"
+    },
+    "fisk": {
+      "url": "/static/word_images/fisk.png",
+      "source": "vocab",
+      "mongo_key": "fisk"
+    },
+    "flicka": {
+      "url": "/static/word_images/flicka.png",
+      "source": "game",
+      "mongo_key": "flicka"
+    },
+    "flyg": {
+      "url": "/static/word_images/flyg.png",
+      "source": "vocab",
+      "mongo_key": "flyg"
+    },
+    "flygplan": {
+      "url": "/static/word_images/flygplan.png",
+      "source": "game",
+      "mongo_key": "flygplan"
+    },
+    "framtid": {
+      "url": "/static/word_images/framtid.png",
+      "source": "game",
+      "mongo_key": "framtid"
+    },
+    "fredag": {
+      "url": "/static/word_images/fredag.png",
+      "source": "game",
+      "mongo_key": "fredag"
+    },
+    "fru": {
+      "url": "/static/word_images/fru.png",
+      "source": "vocab",
+      "mongo_key": "fru"
+    },
+    "frukt": {
+      "url": "/static/word_images/frukt.png",
+      "source": "vocab",
+      "mongo_key": "frukt"
+    },
+    "fråga": {
+      "url": "/static/word_images/fråga.png",
+      "source": "game",
+      "mongo_key": "fråga"
+    },
+    "fyra": {
+      "url": "/static/word_images/fyra.png",
+      "source": "vocab",
+      "mongo_key": "fyra"
+    },
+    "fågel": {
+      "url": "/static/word_images/fågel.png",
+      "source": "game",
+      "mongo_key": "fågel"
+    },
+    "förlåt": {
+      "url": "/static/word_images/förlåt.png",
+      "source": "vocab",
+      "mongo_key": "förlåt"
+    },
+    "förstå": {
+      "url": "/static/word_images/förstå.png",
+      "source": "vocab",
+      "mongo_key": "förstå"
+    },
+    "gilla": {
+      "url": "/static/word_images/gilla.png",
+      "source": "vocab",
+      "mongo_key": "gilla"
+    },
+    "glad": {
+      "url": "/static/word_images/glad.png",
+      "source": "game",
+      "mongo_key": "glad"
+    },
+    "god kväll": {
+      "url": "/static/word_images/god_kväll.png",
+      "source": "vocab",
+      "mongo_key": "god kväll"
+    },
+    "god morgon": {
+      "url": "/static/word_images/god_morgon.png",
+      "source": "vocab",
+      "mongo_key": "god morgon"
+    },
+    "grammatik": {
+      "url": "/static/word_images/grammatik.png",
+      "source": "game",
+      "mongo_key": "grammatik"
+    },
+    "grå": {
+      "url": "/static/word_images/grå.png",
+      "source": "vocab",
+      "mongo_key": "grå"
+    },
+    "grön": {
+      "url": "/static/word_images/grön.png",
+      "source": "vocab",
+      "mongo_key": "grön"
+    },
+    "grönsaker": {
+      "url": "/static/word_images/grönsaker.png",
+      "source": "vocab",
+      "mongo_key": "grönsaker"
+    },
+    "gul": {
+      "url": "/static/word_images/gul.png",
+      "source": "vocab",
+      "mongo_key": "gul"
+    },
+    "gå": {
+      "url": "/static/word_images/gå.png",
+      "source": "vocab",
+      "mongo_key": "gå"
+    },
+    "göra": {
+      "url": "/static/word_images/göra.png",
+      "source": "vocab",
+      "mongo_key": "göra"
+    },
+    "hej": {
+      "url": "/static/word_images/hej.png",
+      "source": "game",
+      "mongo_key": "hej"
+    },
+    "hejdå": {
+      "url": "/static/word_images/hejdå.png",
+      "source": "game",
+      "mongo_key": "hejdå"
+    },
+    "hjälpa": {
+      "url": "/static/word_images/hjälpa.png",
+      "source": "vocab",
+      "mongo_key": "hjälpa"
+    },
+    "hotell": {
+      "url": "/static/word_images/hotell.png",
+      "source": "game",
+      "mongo_key": "hotell"
+    },
+    "hund": {
+      "url": "/static/word_images/hund.png",
+      "source": "game",
+      "mongo_key": "hund"
+    },
+    "hungrig": {
+      "url": "/static/word_images/hungrig.png",
+      "source": "vocab",
+      "mongo_key": "hungrig"
+    },
+    "hus": {
+      "url": "/static/word_images/hus.png",
+      "source": "game",
+      "mongo_key": "hus"
+    },
+    "häst": {
+      "url": "/static/word_images/häst.png",
+      "source": "vocab",
+      "mongo_key": "häst"
+    },
+    "höst": {
+      "url": "/static/word_images/höst.png",
+      "source": "vocab",
+      "mongo_key": "höst"
+    },
+    "idag": {
+      "url": "/static/word_images/idag.png",
+      "source": "vocab",
+      "mongo_key": "idag"
+    },
+    "igår": {
+      "url": "/static/word_images/igår.png",
+      "source": "vocab",
+      "mongo_key": "igår"
+    },
+    "imorgon": {
+      "url": "/static/word_images/imorgon.png",
+      "source": "vocab",
+      "mongo_key": "imorgon"
+    },
+    "ingenjör": {
+      "url": "/static/word_images/ingenjör.png",
+      "source": "vocab",
+      "mongo_key": "ingenjör"
+    },
+    "ja": {
+      "url": "/static/word_images/ja.png",
+      "source": "game",
+      "mongo_key": "ja"
+    },
+    "jag": {
+      "url": "/static/word_images/jag.png",
+      "source": "game",
+      "mongo_key": "jag"
+    },
+    "kaffe": {
+      "url": "/static/word_images/kaffe.png",
+      "source": "game",
+      "mongo_key": "kaffe"
+    },
+    "kall": {
+      "url": "/static/word_images/kall.png",
+      "source": "vocab",
+      "mongo_key": "kall"
+    },
+    "kanelbulle": {
+      "url": "/static/word_images/kanelbulle.png",
+      "source": "vocab",
+      "mongo_key": "kanelbulle"
+    },
+    "karta": {
+      "url": "/static/word_images/karta.png",
+      "source": "vocab",
+      "mongo_key": "karta"
+    },
+    "katt": {
+      "url": "/static/word_images/katt.png",
+      "source": "game",
+      "mongo_key": "katt"
+    },
+    "kock": {
+      "url": "/static/word_images/kock.png",
+      "source": "vocab",
+      "mongo_key": "kock"
+    },
+    "kunna": {
+      "url": "/static/word_images/kunna.png",
+      "source": "vocab",
+      "mongo_key": "kunna"
+    },
+    "kvinna": {
+      "url": "/static/word_images/kvinna.png",
+      "source": "vocab",
+      "mongo_key": "kvinna"
+    },
+    "kök": {
+      "url": "/static/word_images/kök.png",
+      "source": "game",
+      "mongo_key": "kök"
+    },
+    "köpa": {
+      "url": "/static/word_images/köpa.png",
+      "source": "vocab",
+      "mongo_key": "köpa"
+    },
+    "kött": {
+      "url": "/static/word_images/kött.png",
+      "source": "vocab",
+      "mongo_key": "kött"
+    },
+    "land": {
+      "url": "/static/word_images/land.png",
+      "source": "vocab",
+      "mongo_key": "land"
+    },
+    "ledsen": {
+      "url": "/static/word_images/ledsen.png",
+      "source": "vocab",
+      "mongo_key": "ledsen"
+    },
+    "liten": {
+      "url": "/static/word_images/liten.png",
+      "source": "game",
+      "mongo_key": "liten"
+    },
+    "läkare": {
+      "url": "/static/word_images/läkare.png",
+      "source": "game",
+      "mongo_key": "läkare"
+    },
+    "lära": {
+      "url": "/static/word_images/lära.png",
+      "source": "vocab",
+      "mongo_key": "lära"
+    },
+    "lärare": {
+      "url": "/static/word_images/lärare.png",
+      "source": "game",
+      "mongo_key": "lärare"
+    },
+    "läsa": {
+      "url": "/static/word_images/läsa.png",
+      "source": "game",
+      "mongo_key": "läsa"
+    },
+    "läxa": {
+      "url": "/static/word_images/läxa.png",
+      "source": "vocab",
+      "mongo_key": "läxa"
+    },
+    "lördag": {
+      "url": "/static/word_images/lördag.png",
+      "source": "vocab",
+      "mongo_key": "lördag"
+    },
+    "mamma": {
+      "url": "/static/word_images/mamma.png",
+      "source": "game",
+      "mongo_key": "mamma"
+    },
+    "man": {
+      "url": "/static/word_images/man.png",
+      "source": "vocab",
+      "mongo_key": "man"
+    },
+    "mjölk": {
+      "url": "/static/word_images/mjölk.png",
+      "source": "game",
+      "mongo_key": "mjölk"
+    },
+    "morfar": {
+      "url": "/static/word_images/morfar.png",
+      "source": "game",
+      "mongo_key": "morfar"
+    },
+    "måndag": {
+      "url": "/static/word_images/måndag.png",
+      "source": "game",
+      "mongo_key": "måndag"
+    },
+    "måste": {
+      "url": "/static/word_images/måste.png",
+      "source": "vocab",
+      "mongo_key": "måste"
+    },
+    "mössa": {
+      "url": "/static/word_images/mössa.png",
+      "source": "game",
+      "mongo_key": "mössa"
+    },
+    "möte": {
+      "url": "/static/word_images/möte.png",
+      "source": "game",
+      "mongo_key": "möte"
+    },
+    "namn": {
+      "url": "/static/word_images/namn.png",
+      "source": "game",
+      "mongo_key": "namn"
+    },
+    "natt": {
+      "url": "/static/word_images/natt.png",
+      "source": "vocab",
+      "mongo_key": "natt"
+    },
+    "nej": {
+      "url": "/static/word_images/nej.png",
+      "source": "game",
+      "mongo_key": "nej"
+    },
+    "nio": {
+      "url": "/static/word_images/nio.png",
+      "source": "vocab",
+      "mongo_key": "nio"
+    },
+    "noll": {
+      "url": "/static/word_images/noll.png",
+      "source": "vocab",
+      "mongo_key": "noll"
+    },
+    "nutid": {
+      "url": "/static/word_images/nutid.png",
+      "source": "game",
+      "mongo_key": "nutid"
+    },
+    "nyckel": {
+      "url": "/static/word_images/nyckel.png",
+      "source": "vocab",
+      "mongo_key": "nyckel"
+    },
+    "nyheter": {
+      "url": "/static/word_images/nyheter.png",
+      "source": "game",
+      "mongo_key": "nyheter"
+    },
+    "onsdag": {
+      "url": "/static/word_images/onsdag.png",
+      "source": "vocab",
+      "mongo_key": "onsdag"
+    },
+    "orange": {
+      "url": "/static/word_images/orange.png",
+      "source": "vocab",
+      "mongo_key": "orange"
+    },
+    "ord": {
+      "url": "/static/word_images/ord.png",
+      "source": "game",
+      "mongo_key": "ord"
+    },
+    "ordbok": {
+      "url": "/static/word_images/ordbok.png",
+      "source": "vocab",
+      "mongo_key": "ordbok"
+    },
+    "ost": {
+      "url": "/static/word_images/ost.png",
+      "source": "vocab",
+      "mongo_key": "ost"
+    },
+    "pappa": {
+      "url": "/static/word_images/pappa.png",
+      "source": "game",
+      "mongo_key": "pappa"
+    },
+    "pengar": {
+      "url": "/static/word_images/pengar.png",
+      "source": "game",
+      "mongo_key": "pengar"
+    },
+    "pojke": {
+      "url": "/static/word_images/pojke.png",
+      "source": "vocab",
+      "mongo_key": "pojke"
+    },
+    "polis": {
+      "url": "/static/word_images/polis.png",
+      "source": "vocab",
+      "mongo_key": "polis"
+    },
+    "pris": {
+      "url": "/static/word_images/pris.png",
+      "source": "game",
+      "mongo_key": "pris"
+    },
+    "regn": {
+      "url": "/static/word_images/regn.png",
+      "source": "vocab",
+      "mongo_key": "regn"
+    },
+    "resa": {
+      "url": "/static/word_images/resa.png",
+      "source": "vocab",
+      "mongo_key": "resa"
+    },
+    "restaurang": {
+      "url": "/static/word_images/restaurang.png",
+      "source": "game",
+      "mongo_key": "restaurang"
+    },
+    "rosa": {
+      "url": "/static/word_images/rosa.png",
+      "source": "vocab",
+      "mongo_key": "rosa"
+    },
+    "röd": {
+      "url": "/static/word_images/röd.png",
+      "source": "game",
+      "mongo_key": "röd"
+    },
+    "samtal": {
+      "url": "/static/word_images/samtal.png",
+      "source": "vocab",
+      "mongo_key": "samtal"
+    },
+    "sex": {
+      "url": "/static/word_images/sex.png",
+      "source": "vocab",
+      "mongo_key": "sex"
+    },
+    "sju": {
+      "url": "/static/word_images/sju.png",
+      "source": "vocab",
+      "mongo_key": "sju"
+    },
+    "sjukdom": {
+      "url": "/static/word_images/sjukdom.png",
+      "source": "vocab",
+      "mongo_key": "sjukdom"
+    },
+    "sjukhus": {
+      "url": "/static/word_images/sjukhus.png",
+      "source": "game",
+      "mongo_key": "sjukhus"
+    },
+    "sjuksköterska": {
+      "url": "/static/word_images/sjuksköterska.png",
+      "source": "vocab",
+      "mongo_key": "sjuksköterska"
+    },
+    "sjö": {
+      "url": "/static/word_images/sjö.png",
+      "source": "vocab",
+      "mongo_key": "sjö"
+    },
+    "skog": {
+      "url": "/static/word_images/skog.png",
+      "source": "vocab",
+      "mongo_key": "skog"
+    },
+    "skola": {
+      "url": "/static/word_images/skola.png",
+      "source": "vocab",
+      "mongo_key": "skola"
+    },
+    "skor": {
+      "url": "/static/word_images/skor.png",
+      "source": "game",
+      "mongo_key": "skor"
+    },
+    "skriva": {
+      "url": "/static/word_images/skriva.png",
+      "source": "game",
+      "mongo_key": "skriva"
+    },
+    "skylt": {
+      "url": "/static/word_images/skylt.png",
+      "source": "game",
+      "mongo_key": "skylt"
+    },
+    "snäll": {
+      "url": "/static/word_images/snäll.png",
+      "source": "vocab",
+      "mongo_key": "snäll"
+    },
+    "snö": {
+      "url": "/static/word_images/snö.png",
+      "source": "vocab",
+      "mongo_key": "snö"
+    },
+    "sommar": {
+      "url": "/static/word_images/sommar.png",
+      "source": "game",
+      "mongo_key": "sommar"
+    },
+    "sova": {
+      "url": "/static/word_images/sova.png",
+      "source": "vocab",
+      "mongo_key": "sova"
+    },
+    "springa": {
+      "url": "/static/word_images/springa.png",
+      "source": "vocab",
+      "mongo_key": "springa"
+    },
+    "språk": {
+      "url": "/static/word_images/språk.png",
+      "source": "vocab",
+      "mongo_key": "språk"
+    },
+    "stad": {
+      "url": "/static/word_images/stad.png",
+      "source": "vocab",
+      "mongo_key": "stad"
+    },
+    "station": {
+      "url": "/static/word_images/station.png",
+      "source": "vocab",
+      "mongo_key": "station"
+    },
+    "stol": {
+      "url": "/static/word_images/stol.png",
+      "source": "game",
+      "mongo_key": "stol"
+    },
+    "stor": {
+      "url": "/static/word_images/stor.png",
+      "source": "game",
+      "mongo_key": "stor"
+    },
+    "student": {
+      "url": "/static/word_images/student.png",
+      "source": "game",
+      "mongo_key": "student"
+    },
+    "svar": {
+      "url": "/static/word_images/svar.png",
+      "source": "vocab",
+      "mongo_key": "svar"
+    },
+    "svart": {
+      "url": "/static/word_images/svart.png",
+      "source": "game",
+      "mongo_key": "svart"
+    },
+    "syster": {
+      "url": "/static/word_images/syster.png",
+      "source": "vocab",
+      "mongo_key": "syster"
+    },
+    "sälja": {
+      "url": "/static/word_images/sälja.png",
+      "source": "vocab",
+      "mongo_key": "sälja"
+    },
+    "säng": {
+      "url": "/static/word_images/säng.png",
+      "source": "game",
+      "mongo_key": "säng"
+    },
+    "söndag": {
+      "url": "/static/word_images/söndag.png",
+      "source": "vocab",
+      "mongo_key": "söndag"
+    },
+    "tack": {
+      "url": "/static/word_images/tack.png",
+      "source": "game",
+      "mongo_key": "tack"
+    },
+    "tak": {
+      "url": "/static/word_images/tak.png",
+      "source": "vocab",
+      "mongo_key": "tak"
+    },
+    "tala": {
+      "url": "/static/word_images/tala.png",
+      "source": "vocab",
+      "mongo_key": "tala"
+    },
+    "telefon": {
+      "url": "/static/word_images/telefon.png",
+      "source": "game",
+      "mongo_key": "telefon"
+    },
+    "tidning": {
+      "url": "/static/word_images/tidning.png",
+      "source": "game",
+      "mongo_key": "tidning"
+    },
+    "tio": {
+      "url": "/static/word_images/tio.png",
+      "source": "vocab",
+      "mongo_key": "tio"
+    },
+    "tisdag": {
+      "url": "/static/word_images/tisdag.png",
+      "source": "vocab",
+      "mongo_key": "tisdag"
+    },
+    "torsdag": {
+      "url": "/static/word_images/torsdag.png",
+      "source": "vocab",
+      "mongo_key": "torsdag"
+    },
+    "tre": {
+      "url": "/static/word_images/tre.png",
+      "source": "game",
+      "mongo_key": "tre"
+    },
+    "trevligt att träffas": {
+      "url": "/static/word_images/trevligt_att_träffas.png",
+      "source": "vocab",
+      "mongo_key": "trevligt att träffas"
+    },
+    "tröja": {
+      "url": "/static/word_images/tröja.png",
+      "source": "game",
+      "mongo_key": "tröja"
+    },
+    "trött": {
+      "url": "/static/word_images/trött.png",
+      "source": "vocab",
+      "mongo_key": "trött"
+    },
+    "två": {
+      "url": "/static/word_images/två.png",
+      "source": "game",
+      "mongo_key": "två"
+    },
+    "tycka om": {
+      "url": "/static/word_images/tycka_om.png",
+      "source": "vocab",
+      "mongo_key": "tycka om"
+    },
+    "tåg": {
+      "url": "/static/word_images/tåg.png",
+      "source": "game",
+      "mongo_key": "tåg"
+    },
+    "ursäkta": {
+      "url": "/static/word_images/ursäkta.png",
+      "source": "vocab",
+      "mongo_key": "ursäkta"
+    },
+    "vacker": {
+      "url": "/static/word_images/vacker.png",
+      "source": "vocab",
+      "mongo_key": "vacker"
+    },
+    "varm": {
+      "url": "/static/word_images/varm.png",
+      "source": "vocab",
+      "mongo_key": "varm"
+    },
+    "varsågod": {
+      "url": "/static/word_images/varsågod.png",
+      "source": "vocab",
+      "mongo_key": "varsågod"
+    },
+    "vatten": {
+      "url": "/static/word_images/vatten.png",
+      "source": "vocab",
+      "mongo_key": "vatten"
+    },
+    "vi": {
+      "url": "/static/word_images/vi.png",
+      "source": "game",
+      "mongo_key": "vi"
+    },
+    "vi ses": {
+      "url": "/static/word_images/vi_ses.png",
+      "source": "vocab",
+      "mongo_key": "vi ses"
+    },
+    "vilja": {
+      "url": "/static/word_images/vilja.png",
+      "source": "vocab",
+      "mongo_key": "vilja"
+    },
+    "vinter": {
+      "url": "/static/word_images/vinter.png",
+      "source": "vocab",
+      "mongo_key": "vinter"
+    },
+    "vit": {
+      "url": "/static/word_images/vit.png",
+      "source": "game",
+      "mongo_key": "vit"
+    },
+    "vår": {
+      "url": "/static/word_images/vår.png",
+      "source": "vocab",
+      "mongo_key": "vår"
+    },
+    "älska": {
+      "url": "/static/word_images/älska.png",
+      "source": "vocab",
+      "mongo_key": "älska"
+    },
+    "äpple": {
+      "url": "/static/word_images/äpple.png",
+      "source": "game",
+      "mongo_key": "äpple"
+    },
+    "äta": {
+      "url": "/static/word_images/äta.png",
+      "source": "game",
+      "mongo_key": "äta"
+    },
+    "år": {
+      "url": "/static/word_images/år.png",
+      "source": "vocab",
+      "mongo_key": "år"
+    },
+    "åtta": {
+      "url": "/static/word_images/åtta.png",
+      "source": "game",
+      "mongo_key": "åtta"
+    }
+  },
+  "stats": {
+    "words": 176,
+    "mongo_paired": 176,
+    "lesson_fallback": 0,
+    "missing": [],
+    "unused_mongo_keys": [
+      "arbeta",
+      "arg",
+      "bil",
+      "biljett",
+      "billig",
+      "bra",
+      "bror",
+      "brun",
+      "butik",
+      "cykel",
+      "dag",
+      "dyr",
+      "dålig",
+      "en",
+      "en_flicka",
+      "ett",
+      "ett_hus",
+      "fika",
+      "fisk",
+      "flyg",
+      "fru",
+      "frukt",
+      "fyra",
+      "förlåt",
+      "förstå",
+      "gilla",
+      "god kväll",
+      "god morgon",
+      "grå",
+      "grön",
+      "grönsaker",
+      "gul",
+      "gå",
+      "göra",
+      "hjälpa",
+      "hungrig",
+      "häst",
+      "höst",
+      "idag",
+      "igår",
+      "imorgon",
+      "ingenjör",
+      "kall",
+      "kanelbulle",
+      "karta",
+      "kock",
+      "kunna",
+      "kvinna",
+      "köpa",
+      "kött",
+      "land",
+      "ledsen",
+      "lära",
+      "läxa",
+      "lördag",
+      "man",
+      "måste",
+      "natt",
+      "nio",
+      "noll",
+      "nyckel",
+      "onsdag",
+      "orange",
+      "ordbok",
+      "ost",
+      "pojke",
+      "polis",
+      "regn",
+      "resa",
+      "rosa",
+      "samtal",
+      "sex",
+      "sju",
+      "sjukdom",
+      "sjuksköterska",
+      "sjö",
+      "skog",
+      "skola",
+      "snäll",
+      "snö",
+      "sova",
+      "springa",
+      "språk",
+      "stad",
+      "station",
+      "svar",
+      "syster",
+      "sälja",
+      "söndag",
+      "tak",
+      "tala",
+      "tio",
+      "tisdag",
+      "torsdag",
+      "trevligt att träffas",
+      "trött",
+      "tycka om",
+      "ursäkta",
+      "vacker",
+      "varm",
+      "varsågod",
+      "vatten",
+      "vi ses",
+      "vilja",
+      "vinter",
+      "vår",
+      "älska",
+      "ålder",
+      "år"
+    ]
+  }
+}

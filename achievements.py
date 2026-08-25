@@ -19,43 +19,48 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "First Step",
         "title_th": "ก้าวแรก",
         "description": "เรียนบทแรกสำเร็จแล้ว เยี่ยมมาก!",
-        "icon": "",
+        "icon": "🥉",
+        "frame": "bronze",
         "required": 1,
-        "color": "#27ae60",
+        "color": "#cd7f32",
     },
     {
         "id": "getting_started",
         "title_en": "Getting Started",
         "title_th": "เริ่มต้นได้ดี",
         "description": "เรียนครบ 3 บทเรียนแล้ว ไปต่อเลย!",
-        "icon": "",
+        "icon": "🥈",
+        "frame": "silver",
         "required": 3,
-        "color": "#f39c12",
+        "color": "#c0c7d1",
     },
     {
         "id": "on_a_roll",
         "title_en": "On a Roll",
         "title_th": "ฮอตแรง",
         "description": "เรียนครบ 5 บทเรียนแล้ว กำลังร้อนแรงเลย!",
-        "icon": "",
+        "icon": "🥇",
+        "frame": "gold",
         "required": 5,
-        "color": "#e74c3c",
+        "color": "#FECB00",
     },
     {
         "id": "halfway",
         "title_en": "Halfway There",
         "title_th": "ครึ่งทางแล้ว",
         "description": "เรียนครบ 10 บทเรียน ยังไม่หยุดนะ!",
-        "icon": "",
+        "icon": "🏅",
+        "frame": "gold",
         "required": 10,
-        "color": "#3498db",
+        "color": "#4aa3df",
     },
     {
         "id": "dedicated",
         "title_en": "Dedicated Learner",
         "title_th": "นักเรียนขยัน",
         "description": "เรียนครบ 15 บทเรียน ความมุ่งมั่นของคุณน่าชื่นชม!",
-        "icon": "",
+        "icon": "🎖️",
+        "frame": "royal",
         "required": 15,
         "color": "#9b59b6",
     },
@@ -64,16 +69,18 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Almost There",
         "title_th": "ใกล้ถึงแล้ว",
         "description": "เรียนครบ 20 บทเรียน เกือบถึงจุดหมายแล้ว!",
-        "icon": "",
+        "icon": "⭐",
+        "frame": "royal",
         "required": 20,
-        "color": "#16a085",
+        "color": "#1abc9c",
     },
     {
         "id": "swedish_master",
         "title_en": "Swedish Master",
         "title_th": "ปรมาจารย์สวีเดน",
         "description": "เรียนครบ 25 บทเรียน คุณคือผู้เชี่ยวชาญ!",
-        "icon": "",
+        "icon": "👑",
+        "frame": "legend",
         "required": 25,
         "color": "#e67e22",
     },
@@ -82,7 +89,8 @@ ACHIEVEMENT_DEFINITIONS = [
         "title_en": "Legend",
         "title_th": "ตำนาน",
         "description": "เรียนครบทุกบทเรียน คุณคือตำนานแห่ง SvenskaEasy!",
-        "icon": "",
+        "icon": "🏆",
+        "frame": "legend",
         "required": "all",  # resolved dynamically against total_lessons
         "color": "#004B87",
     },
@@ -140,6 +148,29 @@ def get_newly_earned(prev_count: int, new_count: int, total_lessons: int) -> lis
         a for a in all_ach
         if prev_count < a["required"] <= new_count
     ]
+
+
+def badge_payload(completed, total_lessons: int, *, for_admin: bool = False) -> dict:
+    """Earned medals for UI: chips after a name, and a frame on the avatar."""
+    if for_admin:
+        return {"earned_achievements": [], "top_achievement": None}
+    if isinstance(completed, int):
+        count = completed
+    else:
+        count = len(completed or [])
+    earned = get_earned_achievements(count, total_lessons)
+    return {
+        "earned_achievements": earned,
+        "top_achievement": earned[-1] if earned else None,
+    }
+
+
+def attach_user_badges(users, total_lessons: int) -> list:
+    for row in users or []:
+        role = str(row.get("role") or "").lower()
+        payload = badge_payload(row.get("completed_lessons") or [], total_lessons, for_admin=role == "admin")
+        row.update(payload)
+    return users
 
 
 def evaluate_achievements(completed_lessons, quiz_scores, total_lessons):
