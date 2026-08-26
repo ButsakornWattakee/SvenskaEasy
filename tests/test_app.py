@@ -65,7 +65,7 @@ def test_dashboard_uses_tailwind(client):
     assert "SvenskaEasy" in html
     assert "mesh-bg" in html
     assert "theme-on-dark" in html
-    assert "20260826-vocab-mobile" in html
+    assert "20260826-match-mobile" in html
 
 
 def test_login_page(client):
@@ -77,7 +77,7 @@ def test_login_page(client):
     assert "ลืมรหัสผ่าน" in response.text
     assert "/auth/forgot-password" in response.text
     assert "theme-on-dark" in response.text
-    css = client.get("/static/css/app.css?v=20260826-vocab-mobile")
+    css = client.get("/static/css/app.css?v=20260826-match-mobile")
     assert css.status_code == 200
     assert "--text-muted:" in css.text
     assert "[data-theme=\"aurora\"]" in css.text
@@ -457,6 +457,8 @@ def test_matching_thai_under_image_swedish_choices(client):
     assert "ตัวเลือกคำภาษาสวีเดน" in pane
     assert "ตรวจการจับคู่" in pane
     assert "match-thai" in pane
+    assert "match-check-btn" in pane
+    assert "แตะภาพที่ต้องการ" in pane
     assert re.search(r">\s*tack\s*<", pane, flags=re.I)
     assert "(Tack" not in pane
 

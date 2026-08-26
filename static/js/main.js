@@ -78,6 +78,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const assignedCount = () => images.filter((card) => card.dataset.guess).length;
 
+    const selectCard = (card) => {
+      images.forEach((el) => el.classList.remove("selected"));
+      selectedImage = card || null;
+      if (card) card.classList.add("selected");
+    };
+
+    const nextOpenCard = () =>
+      images.find((card) => !card.dataset.guess) || selectedImage || images[0] || null;
+
     const refreshStatus = () => {
       if (checked) return;
       const done = assignedCount();
@@ -86,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
         status.textContent =
           done === total
             ? "เลือกครบแล้ว กดตรวจการจับคู่ได้"
-            : `เลือกแล้ว ${done} / ${total} ภาพ`;
+            : `เลือกแล้ว ${done} / ${total} ภาพ — แตะคำด้านล่าง`;
       }
     };
 
@@ -99,19 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
     images.forEach((card) => {
       card.addEventListener("click", () => {
         if (checked) return;
-        images.forEach((el) => el.classList.remove("selected"));
-        if (selectedImage === card) {
-          selectedImage = null;
-          return;
-        }
-        card.classList.add("selected");
-        selectedImage = card;
+        selectCard(card);
       });
     });
 
     choices.forEach((choice) => {
       choice.addEventListener("click", () => {
-        if (checked || !selectedImage) return;
+        if (checked) return;
+        if (!selectedImage) selectCard(nextOpenCard());
+        if (!selectedImage) return;
         const word = choice.dataset.match;
         images.forEach((card) => {
           if (card !== selectedImage && card.dataset.guess === word) {
@@ -136,8 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
               .forEach((el) => el.classList.add("used"));
           }
         });
-        selectedImage.classList.remove("selected");
-        selectedImage = null;
+        selectCard(nextOpenCard());
         refreshStatus();
       });
     });
@@ -175,6 +179,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    selectCard(images[0] || null);
     refreshStatus();
   }
 

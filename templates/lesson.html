@@ -111,7 +111,7 @@
 
     {% if lesson.matching_practice %}
     <div id="matchPane" class="tab-pane mt-5 hidden">
-        <p class="mb-5 text-sm text-white/50">เลือกภาพ แล้วเลือกคำสวีเดนด้านล่าง ให้ครบทุกภาพก่อนกดตรวจ</p>
+        <p class="mb-4 text-sm leading-relaxed text-white/50">แตะภาพที่ต้องการ แล้วแตะคำสวีเดนด้านล่าง จับให้ครบแล้วกดตรวจ</p>
         <div id="matchGame" class="match-board" data-total="{{ lesson.matching_practice | length }}">
             <div class="match-images">
                 {% for item in lesson.matching_practice | shuffle %}
@@ -130,9 +130,9 @@
                 </button>
                 {% endfor %}
             </div>
-            <div class="mt-5 flex flex-col items-center gap-3">
-                <button type="button" id="checkMatchBtn" disabled class="rounded-xl bg-sweden-gold px-5 py-2.5 text-sm font-bold text-sweden-navy disabled:cursor-not-allowed disabled:opacity-40">ตรวจการจับคู่</button>
-                <p id="matchStatus" class="text-center text-sm text-white/50">จับคู่ให้ครบ {{ lesson.matching_practice | length }} ภาพ แล้วกดตรวจ</p>
+            <div class="match-actions">
+                <button type="button" id="checkMatchBtn" disabled class="match-check-btn">ตรวจการจับคู่</button>
+                <p id="matchStatus" class="match-status">จับคู่ให้ครบ {{ lesson.matching_practice | length }} ภาพ แล้วกดตรวจ</p>
             </div>
         </div>
     </div>
