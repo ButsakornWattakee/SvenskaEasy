@@ -26,8 +26,33 @@ def _admin_or_home(request: Request):
     return ctx, None
 
 
+def _clean_secret(value: str) -> str:
+    text = str(value or "").replace("\r", "").strip()
+    if len(text) >= 2 and text[0] == text[-1] and text[0] in {'"', "'"}:
+        text = text[1:-1].strip()
+    return text
+
+
 def _env_code() -> str:
-    return (os.getenv("ADMIN_SETTINGS_CODE") or "").strip()
+    for key in ("ADMIN_SETTINGS_CODE", "ADMIN_SETTING_CODE", "SETTINGS_CODE"):
+        raw = os.getenv(key)
+        if raw:
+            return _clean_secret(raw)
+        stored = db_helper.get_app_setting(key)
+        if stored:
+            return _clean_secret(str(stored))
+    return ""
+
+
+def _secrets_equal(left: str, right: str) -> bool:
+    a = (left or "").encode("utf-8")
+    b = (right or "").encode("utf-8")
+    if not a or len(a) != len(b):
+        return False
+    try:
+        return hmac.compare_digest(a, b)
+    except Exception:
+        return False
 
 
 def _stored_hash() -> str:
@@ -47,14 +72,14 @@ def pin_is_configured() -> bool:
 
 
 def _verify_pin(plain: str) -> bool:
-    code = (plain or "").strip()
-    if len(code) < PIN_MIN_LEN:
+    code = _clean_secret(plain)
+    if not code:
         return False
+    env_code = _env_code()
+    if env_code and _secrets_equal(code, env_code):
+        return True
     stored = _stored_hash()
     if stored and db_helper.is_hashed(stored) and db_helper.verify_password(code, stored):
-        return True
-    env_code = _env_code()
-    if env_code and hmac.compare_digest(code, env_code):
         return True
     return False
 
@@ -102,9 +127,11 @@ def _current_api_key(request: Request) -> str:
 
 
 def _verify_gate_password(ctx: dict, plain: str) -> bool:
-    code = (plain or "").strip()
+    code = _clean_secret(plain)
     if not code:
         return False
+    if _env_code():
+        return _verify_pin(code)
     if _verify_pin(code):
         return True
     username = (ctx.get("user") or {}).get("username") or ""
@@ -115,6 +142,7 @@ def _verify_gate_password(ctx: dict, plain: str) -> bool:
 def _api_page(request: Request, ctx: dict):
     if not _is_unlocked(request):
         ctx["settings_lock_seconds"] = _lock_remaining(request)
+        ctx["settings_code_ready"] = bool(_env_code())
         return templates.TemplateResponse(request=request, name="settings.html", context=ctx)
     api_key = _current_api_key(request)
     ctx.update(
@@ -161,13 +189,17 @@ def settings_post(
     confirm_pin: str = Form(""),
     admin_password: str = Form(""),
 ):
-    if (intent or "").strip() == "lock":
-        return settings_lock(request)
-    if (new_pin or "").strip() or (intent or "").strip() == "pin":
-        return settings_set_pin(request, new_pin=new_pin, confirm_pin=confirm_pin, admin_password=admin_password)
-    if (password or "").strip() or (pin or "").strip() or (intent or "").strip() == "unlock":
-        return settings_unlock(request, password=password, pin=pin)
-    return settings_save(request, api_key=api_key, clear_api_key=clear_api_key)
+    try:
+        if (intent or "").strip() == "lock":
+            return settings_lock(request)
+        if (new_pin or "").strip() or (intent or "").strip() == "pin":
+            return settings_set_pin(request, new_pin=new_pin, confirm_pin=confirm_pin, admin_password=admin_password)
+        if (password or "").strip() or (pin or "").strip() or (intent or "").strip() == "unlock":
+            return settings_unlock(request, password=password, pin=pin)
+        return settings_save(request, api_key=api_key, clear_api_key=clear_api_key)
+    except Exception:
+        set_flash(request, "ปลดล็อกไม่สำเร็จ กรุณาลองใหม่", "danger")
+        return RedirectResponse(url="/settings", status_code=303)
 
 
 def settings_unlock(

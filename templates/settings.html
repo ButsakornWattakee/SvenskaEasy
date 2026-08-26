@@ -4,13 +4,19 @@
 <div class="fade-up mx-auto max-w-md">
     <p class="text-xs font-semibold uppercase tracking-widest text-sweden-gold">API Settings</p>
     <h1 class="mt-1 font-display text-3xl font-extrabold">ใส่รหัสผ่านก่อน</h1>
-    <p class="mt-2 text-sm text-white/50">กดตั้งค่า API แล้วต้องยืนยันรหัสผ่านผู้ดูแลระบบก่อน จึงจะเข้าไปแก้คีย์ได้</p>
+    <p class="mt-2 text-sm text-white/50">
+        {% if settings_code_ready %}
+        ใส่รหัสที่บันทึกใน Railway ชื่อ <code class="rounded bg-white/10 px-1.5 text-sweden-gold">ADMIN_SETTINGS_CODE</code>
+        {% else %}
+        เซิร์ฟเวอร์ยังไม่พบ <code class="rounded bg-white/10 px-1.5 text-sweden-gold">ADMIN_SETTINGS_CODE</code> — ใส่รหัสผ่านบัญชีผู้ดูแลไปก่อนได้ หรือ Redeploy หลังบันทึกตัวแปร
+        {% endif %}
+    </p>
 
     <section class="mt-8 rounded-2xl border border-sweden-gold/25 bg-night-100/80 p-6 shadow-card">
         <form action="/settings" method="POST" class="space-y-4">
             <input type="hidden" name="intent" value="unlock">
             <label class="block text-sm font-semibold" for="settingsPassword">รหัสผ่าน</label>
-            <input id="settingsPassword" type="password" name="password" required minlength="1" autocomplete="current-password" {% if settings_lock_seconds %}disabled{% endif %} placeholder="รหัสผ่านบัญชีผู้ดูแลระบบ" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60" autofocus>
+            <input id="settingsPassword" type="password" name="password" required minlength="1" autocomplete="current-password" {% if settings_lock_seconds %}disabled{% endif %} placeholder="{% if settings_code_ready %}รหัสจาก ADMIN_SETTINGS_CODE{% else %}รหัสผ่านบัญชีผู้ดูแลระบบ{% endif %}" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60" autofocus>
             {% if settings_lock_seconds %}
             <p class="text-sm text-red-300">ถูกล็อกชั่วคราว อีก {{ settings_lock_seconds }} วินาที</p>
             {% endif %}

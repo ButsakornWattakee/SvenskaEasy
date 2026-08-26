@@ -417,6 +417,23 @@ def test_settings_api_requires_second_pin(client, monkeypatch):
     assert "AIzaSy-test-lock-key" not in saved.text
 
 
+def test_settings_unlocks_with_admin_settings_code(client, monkeypatch):
+    monkeypatch.setenv("ADMIN_SETTINGS_CODE", "rail-gate-42")
+    import db_helper
+
+    db_helper.create_user("codeadmin", "codeadmin@learnswedish.local", "pass123", role="Admin", display_name="Code")
+    client.post("/auth/login", data={"username": "codeadmin", "password": "pass123"}, follow_redirects=True)
+
+    page = client.get("/settings")
+    assert "ADMIN_SETTINGS_CODE" in page.text
+    denied = client.post("/settings", data={"intent": "unlock", "password": "pass123"}, follow_redirects=True)
+    assert 'name="api_key"' not in denied.text
+    opened = client.post("/settings", data={"intent": "unlock", "password": "rail-gate-42"}, follow_redirects=True)
+    assert opened.status_code == 200
+    assert "ตั้งค่า Gemini API" in opened.text
+    assert 'name="api_key"' in opened.text
+
+
 def test_admin_requires_admin(client):
     response = client.get("/admin", follow_redirects=False)
     assert response.status_code in (303, 307)
