@@ -78,6 +78,16 @@ app.include_router(ai_tutor.router)
 app.include_router(vocabulary.router)
 app.include_router(profile.router)
 app.include_router(settings.router)
+
+
+@app.get("/settings/api", response_class=HTMLResponse)
+@app.get("/settings/api/", response_class=HTMLResponse)
+def settings_api_alias(request: Request):
+    from routers.settings import settings_page
+
+    return settings_page(request)
+
+
 app.include_router(admin.router)
 
 

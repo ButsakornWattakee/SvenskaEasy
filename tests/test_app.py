@@ -366,6 +366,57 @@ def test_gemini_quota_message_is_readable():
     assert "Streamlit" not in message
 
 
+def test_settings_api_requires_second_pin(client, monkeypatch):
+    monkeypatch.delenv("ADMIN_SETTINGS_CODE", raising=False)
+    guest = client.get("/settings/api", follow_redirects=False)
+    assert guest.status_code in (303, 307)
+
+    import db_helper
+
+    db_helper.create_user("gateadmin", "gateadmin@learnswedish.local", "pass123", role="Admin", display_name="Gate")
+    client.post("/auth/login", data={"username": "gateadmin", "password": "pass123"}, follow_redirects=True)
+
+    home = client.get("/admin")
+    assert 'href="/settings"' in home.text
+    assert "ตั้งค่า API" in home.text
+
+    page = client.get("/settings")
+    assert page.status_code == 200
+    assert "ใส่รหัสผ่านก่อน" in page.text
+    assert 'name="password"' in page.text
+    assert "เข้าสู่หน้าตั้งค่า API" in page.text
+    assert 'name="api_key"' not in page.text
+    assert "AIza" not in page.text
+    alias = client.get("/settings/api")
+    assert alias.status_code == 200
+    assert 'name="password"' in alias.text
+
+    denied_save = client.post("/settings/save", data={"api_key": "AIzaSy-should-not-save"}, follow_redirects=True)
+    assert "รหัสผ่าน" in denied_save.text
+    assert 'name="api_key"' not in denied_save.text
+
+    client.post("/settings/lock", follow_redirects=True)
+    locked = client.get("/settings")
+    assert "ใส่รหัสผ่านก่อน" in locked.text
+    assert 'name="password"' in locked.text
+    assert 'name="api_key"' not in locked.text
+
+    wrong = client.post("/settings/unlock", data={"password": "wrong99"}, follow_redirects=True)
+    assert "ไม่ถูกต้อง" in wrong.text
+    assert 'name="api_key"' not in wrong.text
+
+    opened = client.post("/settings/unlock", data={"password": "pass123"}, follow_redirects=True)
+    assert opened.status_code == 200
+    assert "ตั้งค่า Gemini API" in opened.text
+    assert 'name="api_key"' in opened.text
+    assert "AIzaSy-should-not-save" not in opened.text
+
+    saved = client.post("/settings/save", data={"api_key": "AIzaSy-test-lock-key"}, follow_redirects=True)
+    assert saved.status_code == 200
+    assert "••••" in saved.text
+    assert "AIzaSy-test-lock-key" not in saved.text
+
+
 def test_admin_requires_admin(client):
     response = client.get("/admin", follow_redirects=False)
     assert response.status_code in (303, 307)
