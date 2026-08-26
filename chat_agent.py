@@ -6,16 +6,33 @@ from html import unescape
 from google import genai
 from google.genai import types
 
-DEFAULT_MODEL = "gemini-2.5-flash-lite"
-CANDIDATE_MODELS = [
-    os.getenv("GEMINI_MODEL", "").strip(),
-    DEFAULT_MODEL,
+DEFAULT_MODEL = "gemini-flash-lite-latest"
+# 2.5/2.0 Flash are 404 for new Google AI Studio keys; 3-flash-preview is a 20/day free-tier trap.
+UNAVAILABLE_MODELS = {
+    "gemini-2.5-flash-lite",
     "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+}
+PREFERRED_MODELS = [
+    DEFAULT_MODEL,
+    "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
-    "gemini-3-flash-preview",
+    "gemini-3.6-flash",
+    "gemini-flash-latest",
 ]
-CANDIDATE_MODELS = [name for name in CANDIDATE_MODELS if name]
 _resolved_model_name = None
+
+
+def _candidate_models() -> list[str]:
+    names: list[str] = []
+    env_model = (os.getenv("GEMINI_MODEL") or "").strip()
+    if env_model and env_model not in UNAVAILABLE_MODELS and env_model not in names:
+        names.append(env_model)
+    for name in PREFERRED_MODELS:
+        if name and name not in names and name not in UNAVAILABLE_MODELS:
+            names.append(name)
+    return names
 
 SYSTEM_INSTRUCTION = """คุณเป็นครูสอนภาษาสวีเดนชาวสวีเดนผู้ใจดีและใจเย็น ที่พูดภาษาไทยได้คล่อง หน้าที่คือช่วยคนไทยเรียนคำศัพท์ ไวยากรณ์ การออกเสียง และฝึกบทสนทนา
 
@@ -197,7 +214,12 @@ def _error_text(error) -> str:
 
 def _is_missing_model_error(error):
     text = _error_text(error)
-    return "404" in text or "not found" in text or "is not supported" in text
+    return (
+        "404" in text
+        or "not_found" in text
+        or "not found" in text
+        or "no longer available" in text
+    )
 
 
 def _is_quota_error(error):
@@ -211,15 +233,25 @@ def _is_quota_error(error):
     )
 
 
-def _is_thinking_unsupported(error):
+def _is_unavailable_error(error):
     text = _error_text(error)
-    return "thinking" in text and (
-        "not support" in text or "invalid" in text or "unknown" in text
+    return "503" in text or "unavailable" in text or "high demand" in text
+
+
+def _is_auth_error(error):
+    text = _error_text(error)
+    return (
+        "api key not valid" in text
+        or "api_key_invalid" in text
+        or "invalid api key" in text
+        or "permission_denied" in text
     )
 
 
 def _should_try_next_model(error):
-    return _is_quota_error(error) or _is_missing_model_error(error)
+    if _is_auth_error(error):
+        return False
+    return _is_quota_error(error) or _is_missing_model_error(error) or _is_unavailable_error(error)
 
 
 def _friendly_gemini_error(error) -> str:
@@ -238,29 +270,17 @@ def _friendly_gemini_error(error) -> str:
 
 
 def _send_with_model(client, model_name, history, message, system_instruction):
-    configs = [
-        types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            thinking_config=types.ThinkingConfig(thinking_level="low"),
-        ),
-        types.GenerateContentConfig(system_instruction=system_instruction),
-    ]
-    last_error = None
-    for index, config in enumerate(configs):
-        try:
-            chat = client.chats.create(
-                model=model_name,
-                history=history,
-                config=config,
-            )
-            response = chat.send_message(message)
-            return response.text
-        except Exception as error:
-            last_error = error
-            if index == 0 and _is_thinking_unsupported(error):
-                continue
-            raise
-    raise last_error
+    contents = list(history or [])
+    contents.append(types.Content(role="user", parts=[types.Part(text=message)]))
+    response = client.models.generate_content(
+        model=model_name,
+        contents=contents,
+        config=types.GenerateContentConfig(system_instruction=system_instruction),
+    )
+    text = (response.text or "").strip()
+    if not text:
+        raise RuntimeError(f"empty response from {model_name}")
+    return text
 
 
 def _history_as_contents(formatted_history):
@@ -286,9 +306,9 @@ def get_ai_response(user_prompt, chat_history=None, api_key=None, lesson_context
             system_instruction += f"\n\nบริบทบทเรียนปัจจุบันที่ผู้เรียนกำลังศึกษา: {lesson_context}"
 
         model_names = []
-        if _resolved_model_name:
+        if _resolved_model_name and _resolved_model_name not in UNAVAILABLE_MODELS:
             model_names.append(_resolved_model_name)
-        for name in CANDIDATE_MODELS:
+        for name in _candidate_models():
             if name not in model_names:
                 model_names.append(name)
 

@@ -313,22 +313,20 @@ def test_gemini_quota_falls_back_to_another_model(monkeypatch):
     class FakeResponse:
         text = "คำว่า **Hej** ใช้ทักทายครับ"
 
-    class FakeChat:
-        def send_message(self, _message):
-            return FakeResponse()
-
-    class FakeChats:
-        def create(self, model, history, config):
-            if model in ("gemini-3-flash-preview", "gemini-3-flash"):
+    class FakeModels:
+        def generate_content(self, model, contents, config):
+            if model in ("gemini-3-flash-preview", "gemini-3-flash", "gemini-2.5-flash-lite"):
                 raise QuotaError(
                     "429 RESOURCE_EXHAUSTED. Quota exceeded for metric: "
                     "generate_content_free_tier_requests, model: gemini-3-flash"
                 )
-            return FakeChat()
+            if model in ("gemini-2.5-flash",):
+                raise QuotaError("404 NOT_FOUND. This model is no longer available to new users.")
+            return FakeResponse()
 
     class FakeClient:
         def __init__(self, api_key):
-            self.chats = FakeChats()
+            self.models = FakeModels()
 
     chat_agent._resolved_model_name = "gemini-3-flash-preview"
     monkeypatch.setattr(chat_agent.genai, "Client", FakeClient)
@@ -336,7 +334,17 @@ def test_gemini_quota_falls_back_to_another_model(monkeypatch):
     reply = chat_agent.get_ai_response("hej", api_key="AIzaSy-test-key-12345")
     assert "Hej" in reply
     assert "429" not in reply
-    assert chat_agent._resolved_model_name == "gemini-2.5-flash-lite"
+    assert chat_agent._resolved_model_name == "gemini-flash-lite-latest"
+
+
+def test_gemini_skips_retired_flash_models(monkeypatch):
+    import chat_agent
+
+    monkeypatch.setenv("GEMINI_MODEL", "gemini-2.5-flash-lite")
+    names = chat_agent._candidate_models()
+    assert "gemini-2.5-flash-lite" not in names
+    assert names[0] == "gemini-flash-lite-latest"
+    assert "gemini-3.5-flash-lite" in names
 
 
 def test_gemini_quota_message_is_readable():
