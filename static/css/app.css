@@ -701,19 +701,19 @@ h1 .ach-pill {
 }
 .avatar-medal-inner {
   position: relative;
-  display: flex;
+  display: grid;
+  place-items: center;
   overflow: hidden;
   width: 100%;
   height: 100%;
-  align-items: center;
-  justify-content: center;
   border-radius: 999px;
   background: #002B5C;
   color: #FECB00;
 }
 .avatar-medal-inner .person-icon {
-  width: 62%;
-  height: 62%;
+  width: 52%;
+  height: 52%;
+  transform: none;
 }
 .avatar-medal-pin {
   position: absolute;
@@ -852,9 +852,11 @@ input[type="tel"] {
 }
 
 .person-icon {
-  width: 58%;
-  height: 58%;
+  display: block;
+  width: 54%;
+  height: 54%;
   color: rgb(var(--sweden-gold));
+  transform: none;
 }
 
 .lock-pill {
@@ -977,10 +979,17 @@ input[type="tel"] {
 }
 
 .sidebar-panel {
-  overflow-x: hidden;
+  width: 280px;
+  min-width: 280px;
+  max-width: 280px;
+  flex: 0 0 280px;
+  overflow: hidden;
   transition:
     transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
-    width 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+    width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    min-width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    max-width 0.36s cubic-bezier(0.22, 1, 0.36, 1),
+    flex-basis 0.36s cubic-bezier(0.22, 1, 0.36, 1);
 }
 #sidebarOverlay {
   transition: opacity 0.32s ease;
@@ -1063,13 +1072,16 @@ input[type="tel"] {
 
 @media (min-width: 1024px) {
   body.nav-collapsed .sidebar-panel {
-    width: 4.75rem;
+    width: 4.5rem;
+    min-width: 4.5rem;
+    max-width: 4.5rem;
+    flex-basis: 4.5rem;
   }
   body.nav-collapsed .sidebar-head {
     flex-direction: column;
     justify-content: center;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
   }
   body.nav-collapsed .sidebar-wide {
     max-height: 0;
@@ -1081,24 +1093,38 @@ input[type="tel"] {
     pointer-events: none;
   }
   body.nav-collapsed .nav-label {
+    width: 0;
     max-width: 0;
     opacity: 0;
+    pointer-events: none;
+  }
+  body.nav-collapsed #appNav {
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
   }
   body.nav-collapsed .nav-link {
     justify-content: center;
     gap: 0;
-    padding: 0.75rem 0.45rem;
+    padding: 0.7rem 0.35rem;
+  }
+  body.nav-collapsed .nav-link:hover,
+  body.nav-collapsed .nav-link:focus {
+    transform: none;
   }
   body.nav-collapsed .sidebar-profile {
     justify-content: center;
     gap: 0;
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-    padding: 0.45rem;
+    margin-left: 0.4rem;
+    margin-right: 0.4rem;
+    padding: 0.35rem;
+    overflow: hidden;
   }
   body.nav-collapsed .sidebar-profile .avatar-medal-md {
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+  body.nav-collapsed .sidebar-profile .avatar-medal-pin {
+    display: none;
   }
   body.nav-collapsed .nav-toggle-chevron {
     transform: rotate(180deg);

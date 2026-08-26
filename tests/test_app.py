@@ -65,7 +65,7 @@ def test_dashboard_uses_tailwind(client):
     assert "SvenskaEasy" in html
     assert "mesh-bg" in html
     assert "theme-on-dark" in html
-    assert "20260826-nav-smooth" in html
+    assert "20260826-nav-lock2" in html
     assert "nav-icon" in html
     assert "toggleNav" in html
 
@@ -79,7 +79,7 @@ def test_login_page(client):
     assert "ลืมรหัสผ่าน" in response.text
     assert "/auth/forgot-password" in response.text
     assert "theme-on-dark" in response.text
-    css = client.get("/static/css/app.css?v=20260826-nav-smooth")
+    css = client.get("/static/css/app.css?v=20260826-nav-lock2")
     assert css.status_code == 200
     assert "--text-muted:" in css.text
     assert "[data-theme=\"aurora\"]" in css.text

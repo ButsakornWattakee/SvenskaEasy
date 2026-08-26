@@ -36,7 +36,8 @@ app.add_middleware(SessionMiddleware, secret_key=config.SECRET_KEY)
 async def no_store_html(request: Request, call_next):
     response = await call_next(request)
     content_type = response.headers.get("content-type", "")
-    if "text/html" in content_type:
+    path = request.url.path.lower()
+    if "text/html" in content_type or path.endswith((".css", ".js")):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
         response.headers["Expires"] = "0"

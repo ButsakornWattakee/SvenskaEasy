@@ -5,7 +5,7 @@
     <title>{% block title %}SvenskaEasy — เรียนภาษาสวีเดนออนไลน์{% endblock %}</title>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full mesh-bg text-sweden-ice antialiased" data-presence="{% if user and not user.is_guest %}1{% else %}0{% endif %}" data-admin="{% if is_admin %}1{% else %}0{% endif %}">
+<body class="h-full mesh-bg text-sweden-ice antialiased" data-ui="20260826-nav-lock2" data-presence="{% if user and not user.is_guest %}1{% else %}0{% endif %}" data-admin="{% if is_admin %}1{% else %}0{% endif %}">
 <div class="min-h-screen lg:flex">
 
     <!-- Mobile top bar -->
@@ -23,7 +23,7 @@
     <div id="sidebarOverlay" class="fixed inset-0 z-40 bg-black/50 opacity-0 pointer-events-none transition lg:hidden"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar-panel fixed inset-y-0 left-0 z-50 flex w-[280px] -translate-x-full flex-col border-r border-white/10 bg-night-50/95 backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
+    <aside id="sidebar" class="sidebar-panel fixed inset-y-0 left-0 z-50 flex -translate-x-full flex-col border-r border-white/10 bg-night-50/95 backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
         <div class="sidebar-head flex items-center justify-between gap-2 px-3 pt-5 pb-4 lg:px-4">
             <div class="flex min-w-0 items-center gap-2">
                 <span class="shrink-0 text-lg leading-none">🇸🇪</span>
@@ -121,7 +121,7 @@
         {% block content %}{% endblock %}
     </main>
 </div>
-<script src="/static/js/main.js?v=20260826-nav-smooth"></script>
+<script src="/static/js/main.js?v=20260826-nav-lock2"></script>
 <script src="/static/js/password-toggle.js?v=1"></script>
 {% block extra_js %}{% endblock %}
 </body>
