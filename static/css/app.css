@@ -524,6 +524,10 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--prose);
 }
+.chat-pending .bubble {
+  color: rgb(var(--sweden-gold)) !important;
+  font-style: italic;
+}
 
 .tutor-prose {
   font-size: 0.95rem;

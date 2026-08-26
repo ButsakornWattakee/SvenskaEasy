@@ -274,4 +274,81 @@ document.addEventListener("DOMContentLoaded", () => {
     load();
     setInterval(load, 4000);
   }
+
+  const chatForm = document.getElementById("aiChatForm");
+  const chatBox = document.getElementById("chatContainer");
+  const promptInput = document.getElementById("userPrompt");
+  const sendBtn = document.getElementById("btnSendPrompt");
+  if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+  const escapeHtml = (text) =>
+    String(text || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  const paintReply = (html) => {
+    if (!chatBox) return;
+    chatBox.insertAdjacentHTML(
+      "beforeend",
+      `<div class="chat-assistant max-w-2xl">
+        <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">ครู AI</p>
+        <div class="bubble tutor-prose rounded-2xl rounded-tl-sm px-4 py-3 text-sm">${html}</div>
+      </div>`
+    );
+    chatBox.scrollTop = chatBox.scrollHeight;
+  };
+  if (chatForm && promptInput && sendBtn && chatBox) {
+    chatForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const messageText = promptInput.value.trim();
+      if (!messageText || sendBtn.disabled) return;
+      chatBox.insertAdjacentHTML(
+        "beforeend",
+        `<div class="chat-user ml-auto max-w-xl">
+          <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">คุณ</p>
+          <div class="bubble rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed">${escapeHtml(messageText)}</div>
+        </div>`
+      );
+      promptInput.value = "";
+      promptInput.disabled = true;
+      sendBtn.disabled = true;
+      const loadId = "load_" + Date.now();
+      chatBox.insertAdjacentHTML(
+        "beforeend",
+        `<div class="chat-assistant chat-pending max-w-2xl" id="${loadId}">
+          <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">ครู AI</p>
+          <div class="bubble rounded-2xl rounded-tl-sm px-4 py-3 text-sm">กำลังคิดคำตอบ...</div>
+        </div>`
+      );
+      chatBox.scrollTop = chatBox.scrollHeight;
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 45000);
+      try {
+        const response = await fetch("/api/ai-chat", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ message: messageText }),
+          signal: controller.signal,
+        });
+        let data = {};
+        try {
+          data = await response.json();
+        } catch (error) {
+          data = {};
+        }
+        document.getElementById(loadId)?.remove();
+        paintReply(data.reply_html || "<p>ครูตอบไม่สำเร็จ กรุณาลองใหม่ครับ</p>");
+      } catch (error) {
+        document.getElementById(loadId)?.remove();
+        paintReply("<p>เชื่อมต่อครู AI ไม่สำเร็จ กรุณาลองใหม่ครับ</p>");
+      } finally {
+        window.clearTimeout(timer);
+        promptInput.disabled = false;
+        sendBtn.disabled = false;
+        promptInput.focus();
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    });
+  }
 });

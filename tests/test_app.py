@@ -68,7 +68,7 @@ def test_dashboard_uses_tailwind(client):
     assert "SvenskaEasy" in html
     assert "mesh-bg" in html
     assert "theme-on-dark" in html
-    assert "20260826-flash-read" in html
+    assert "20260826-ai-chat" in html
     assert "sidebar-wordmark" in html
     assert "sidebar-profile" in html
     assert "Svenska som andraspråk" in html
@@ -85,7 +85,7 @@ def test_login_page(client):
     assert "ลืมรหัสผ่าน" in response.text
     assert "/auth/forgot-password" in response.text
     assert "theme-on-dark" in response.text
-    css = client.get("/static/css/app.css?v=20260826-flash-read")
+    css = client.get("/static/css/app.css?v=20260826-ai-chat")
     assert css.status_code == 200
     assert "--text-muted:" in css.text
     assert "[data-theme=\"aurora\"]" in css.text
@@ -266,7 +266,11 @@ def test_vocabulary_filters_by_cefr_level(client):
     assert hard.text.count("vocab-entry") < beginner.text.count("vocab-entry")
 
 
-def test_ai_chat_sandbox(client):
+def test_ai_chat_sandbox(client, monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    import db_helper
+
+    monkeypatch.setattr(db_helper, "get_app_setting", lambda key, default=None: default)
     response = client.post("/api/ai-chat", json={"message": "hej สวัสดี"})
     assert response.status_code == 200
     body = response.json()
@@ -279,6 +283,10 @@ def test_ai_chat_sandbox(client):
     assert page.status_code == 200
     assert "tutor-prose" in page.text
     assert "tutor-term" in page.text
+    assert "aiChatForm" in page.text
+    js = client.get("/static/js/main.js?v=20260826-ai-chat")
+    assert js.status_code == 200
+    assert "/api/ai-chat" in js.text
 
 
 def test_tutor_reply_is_easy_to_scan():
@@ -325,7 +333,7 @@ def test_gemini_quota_falls_back_to_another_model(monkeypatch):
             return FakeResponse()
 
     class FakeClient:
-        def __init__(self, api_key):
+        def __init__(self, api_key, **kwargs):
             self.models = FakeModels()
 
     chat_agent._resolved_model_name = "gemini-3-flash-preview"

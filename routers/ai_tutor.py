@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
-from pydantic import BaseModel
+from starlette.concurrency import run_in_threadpool
 
 import chat_agent
 import db_helper
@@ -9,10 +9,6 @@ from content_utils import format_tutor_reply, page_context
 from templating import templates
 
 router = APIRouter(tags=["ai_tutor"])
-
-
-class ChatRequest(BaseModel):
-    message: str
 
 
 @router.get("/ai-tutor", response_class=HTMLResponse)
@@ -54,18 +50,43 @@ def clear_ai_chat(request: Request):
 
 
 @router.post("/api/ai-chat")
-def api_ai_chat(request: Request, body: ChatRequest):
-    chat_history = request.session.get("chat_history", [])
-    user_prompt = body.message.strip()
-    chat_history.append({"role": "user", "content": user_prompt})
+async def api_ai_chat(request: Request):
+    user_prompt = ""
+    content_type = (request.headers.get("content-type") or "").lower()
+    try:
+        if "application/json" in content_type:
+            data = await request.json()
+            user_prompt = str((data or {}).get("message") or "")
+        else:
+            form = await request.form()
+            user_prompt = str(form.get("message") or "")
+    except Exception:
+        user_prompt = ""
+    user_prompt = user_prompt.strip()[:2000]
+    if not user_prompt:
+        return JSONResponse(
+            {"status": "error", "reply_html": "<p>กรุณาพิมพ์ข้อความก่อนส่งครับ</p>"},
+            status_code=400,
+        )
 
+    chat_history = list(request.session.get("chat_history") or [])
+    pending = chat_history + [{"role": "user", "content": user_prompt}]
     api_key = request.session.get("api_key") or db_helper.get_app_setting("GEMINI_API_KEY")
-    lesson_context = request.session.get("ai_active_lesson", "")
-    reply = chat_agent.get_ai_response(
-        user_prompt, chat_history, api_key=api_key, lesson_context=lesson_context
-    )
+    lesson_context = request.session.get("ai_active_lesson") or ""
+    try:
+        reply = await run_in_threadpool(
+            chat_agent.get_ai_response,
+            user_prompt,
+            pending,
+            api_key,
+            lesson_context,
+        )
+    except Exception:
+        reply = "ครูติดปัญหาในการตอบตอนนี้ครับ ลองส่งใหม่อีกครั้งได้เลย"
+    reply = (reply or "").strip()[:3500]
+    chat_history.append({"role": "user", "content": user_prompt})
     chat_history.append({"role": "assistant", "content": reply})
-    request.session["chat_history"] = chat_history
+    request.session["chat_history"] = chat_history[-16:]
     return JSONResponse({"status": "success", "reply_html": format_tutor_reply(reply)})
 
 

@@ -83,7 +83,13 @@ app.include_router(admin.router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "app": "svenskaeasy"}
+    import chat_agent
+
+    return {
+        "status": "ok",
+        "app": "svenskaeasy",
+        "gemini_model": chat_agent.DEFAULT_MODEL,
+    }
 
 
 @app.exception_handler(StarletteHTTPException)

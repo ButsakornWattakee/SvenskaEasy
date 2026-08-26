@@ -58,68 +58,9 @@
         {% endfor %}
     </div>
 
-    <form id="aiChatForm" class="mt-4 flex gap-3" onsubmit="sendAIMessage(event)">
-        <input id="userPrompt" required autocomplete="off" placeholder="เช่น คำว่า ส้ม ในภาษาสวีเดนคืออะไร?" class="flex-1 rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
+    <form id="aiChatForm" class="mt-4 flex gap-3" action="/api/ai-chat" method="post">
+        <input id="userPrompt" name="message" required autocomplete="off" placeholder="เช่น คำว่า ส้ม ในภาษาสวีเดนคืออะไร?" class="flex-1 rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
         <button id="btnSendPrompt" type="submit" class="rounded-xl bg-sweden-gold px-5 py-3 font-bold text-sweden-navy">ส่ง</button>
     </form>
 </div>
-{% endblock %}
-{% block extra_js %}
-<script>
-const chatContainer = document.getElementById('chatContainer');
-if (chatContainer) chatContainer.scrollTop = chatContainer.scrollHeight;
-
-function escapeHtml(text) {
-    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-async function sendAIMessage(event) {
-    event.preventDefault();
-    const promptInput = document.getElementById('userPrompt');
-    const sendBtn = document.getElementById('btnSendPrompt');
-    const messageText = promptInput.value.trim();
-    if (!messageText) return;
-
-    chatContainer.insertAdjacentHTML('beforeend', `
-        <div class="chat-user ml-auto max-w-xl">
-            <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">คุณ</p>
-            <div class="bubble rounded-2xl rounded-tr-sm px-4 py-3 text-sm leading-relaxed">${escapeHtml(messageText)}</div>
-        </div>`);
-    promptInput.value = '';
-    promptInput.disabled = true;
-    sendBtn.disabled = true;
-    const loadId = 'load_' + Date.now();
-    chatContainer.insertAdjacentHTML('beforeend', `
-        <div class="chat-assistant max-w-2xl" id="${loadId}">
-            <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">ครู AI</p>
-            <div class="bubble rounded-2xl rounded-tl-sm px-4 py-3 text-sm italic text-white/50">กำลังจัดคำตอบ...</div>
-        </div>`);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    try {
-        const response = await fetch('/api/ai-chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: messageText })
-        });
-        const data = await response.json();
-        document.getElementById(loadId)?.remove();
-        chatContainer.insertAdjacentHTML('beforeend', `
-            <div class="chat-assistant max-w-2xl">
-                <p class="mb-1 text-[11px] uppercase tracking-widest text-white/35">ครู AI</p>
-                <div class="bubble tutor-prose rounded-2xl rounded-tl-sm px-4 py-3 text-sm">${data.reply_html || 'เกิดข้อผิดพลาด'}</div>
-            </div>`);
-    } catch (err) {
-        document.getElementById(loadId)?.remove();
-        chatContainer.insertAdjacentHTML('beforeend', `
-            <div class="chat-assistant max-w-2xl">
-                <div class="bubble rounded-2xl px-4 py-3 text-sm text-red-300">เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่</div>
-            </div>`);
-    }
-    promptInput.disabled = false;
-    sendBtn.disabled = false;
-    promptInput.focus();
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-</script>
 {% endblock %}

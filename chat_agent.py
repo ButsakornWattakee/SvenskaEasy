@@ -248,10 +248,20 @@ def _is_auth_error(error):
     )
 
 
+def _is_timeout_error(error):
+    text = _error_text(error)
+    return "timeout" in text or "timed out" in text or "deadline" in text
+
+
 def _should_try_next_model(error):
     if _is_auth_error(error):
         return False
-    return _is_quota_error(error) or _is_missing_model_error(error) or _is_unavailable_error(error)
+    return (
+        _is_quota_error(error)
+        or _is_missing_model_error(error)
+        or _is_unavailable_error(error)
+        or _is_timeout_error(error)
+    )
 
 
 def _friendly_gemini_error(error) -> str:
@@ -299,7 +309,10 @@ def get_ai_response(user_prompt, chat_history=None, api_key=None, lesson_context
     message = user_prompt
 
     if api_key and len(api_key.strip()) > 10:
-        client = genai.Client(api_key=api_key.strip())
+        client = genai.Client(
+            api_key=api_key.strip(),
+            http_options=types.HttpOptions(timeout=20_000),
+        )
         history = _history_as_contents(_format_gemini_history(chat_history))
         system_instruction = SYSTEM_INSTRUCTION
         if lesson_context:
