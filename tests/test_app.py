@@ -384,6 +384,7 @@ def test_settings_api_requires_second_pin(client, monkeypatch):
     assert page.status_code == 200
     assert "ใส่รหัสผ่านก่อน" in page.text
     assert 'name="password"' in page.text
+    assert "ADMIN_SETTINGS_CODE" not in page.text
     assert "เข้าสู่หน้าตั้งค่า API" in page.text
     assert 'name="api_key"' not in page.text
     assert "AIza" not in page.text
@@ -425,7 +426,8 @@ def test_settings_unlocks_with_admin_settings_code(client, monkeypatch):
     client.post("/auth/login", data={"username": "codeadmin", "password": "pass123"}, follow_redirects=True)
 
     page = client.get("/settings")
-    assert "ADMIN_SETTINGS_CODE" in page.text
+    assert "ADMIN_SETTINGS_CODE" not in page.text
+    assert "Railway" not in page.text
     denied = client.post("/settings", data={"intent": "unlock", "password": "pass123"}, follow_redirects=True)
     assert 'name="api_key"' not in denied.text
     opened = client.post("/settings", data={"intent": "unlock", "password": "rail-gate-42"}, follow_redirects=True)

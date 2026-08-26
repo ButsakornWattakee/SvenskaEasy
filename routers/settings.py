@@ -142,7 +142,6 @@ def _verify_gate_password(ctx: dict, plain: str) -> bool:
 def _api_page(request: Request, ctx: dict):
     if not _is_unlocked(request):
         ctx["settings_lock_seconds"] = _lock_remaining(request)
-        ctx["settings_code_ready"] = bool(_env_code())
         return templates.TemplateResponse(request=request, name="settings.html", context=ctx)
     api_key = _current_api_key(request)
     ctx.update(
