@@ -17,11 +17,13 @@
         </div>
         <div class="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
             <span>คีย์ที่บันทึก: <code class="rounded bg-black/20 px-1.5">{{ api_key_masked or 'ยังไม่มี' }}</code></span>
-            <form action="/settings/lock" method="POST">
+            <form action="/settings" method="POST">
+                <input type="hidden" name="intent" value="lock">
                 <button type="submit" class="text-xs font-semibold uppercase tracking-widest text-emerald-200 hover:underline">ล็อกหน้านี้</button>
             </form>
         </div>
-        <form action="/settings/save" method="POST" class="mt-5 space-y-4">
+        <form action="/settings" method="POST" class="mt-5 space-y-4">
+            <input type="hidden" name="intent" value="save">
             <label class="block text-sm font-semibold">API Key ใหม่</label>
             <input type="password" name="api_key" value="" autocomplete="off" placeholder="วางคีย์ใหม่ที่นี่ เว้นว่างถ้าไม่เปลี่ยน" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
             <label class="flex items-center gap-2 text-sm text-white/70">
@@ -32,7 +34,8 @@
         </form>
         <details class="mt-6 rounded-xl border border-white/10 bg-night-200/40 p-4">
             <summary class="cursor-pointer text-sm font-semibold">เปลี่ยนรหัสผ่านหน้านี้</summary>
-            <form action="/settings/pin" method="POST" class="mt-4 space-y-3">
+            <form action="/settings" method="POST" class="mt-4 space-y-3">
+                <input type="hidden" name="intent" value="pin">
                 <input type="password" name="new_pin" required minlength="6" autocomplete="new-password" placeholder="รหัสผ่านใหม่" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
                 <input type="password" name="confirm_pin" required minlength="6" autocomplete="new-password" placeholder="ยืนยันรหัสผ่านใหม่" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">
                 <input type="password" name="admin_password" required autocomplete="current-password" placeholder="รหัสผ่านบัญชีผู้ดูแล" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60">

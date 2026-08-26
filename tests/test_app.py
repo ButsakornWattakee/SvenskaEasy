@@ -368,7 +368,7 @@ def test_gemini_quota_message_is_readable():
 
 def test_settings_api_requires_second_pin(client, monkeypatch):
     monkeypatch.delenv("ADMIN_SETTINGS_CODE", raising=False)
-    guest = client.get("/settings/api", follow_redirects=False)
+    guest = client.get("/settings", follow_redirects=False)
     assert guest.status_code in (303, 307)
 
     import db_helper
@@ -391,27 +391,27 @@ def test_settings_api_requires_second_pin(client, monkeypatch):
     assert alias.status_code == 200
     assert 'name="password"' in alias.text
 
-    denied_save = client.post("/settings/save", data={"api_key": "AIzaSy-should-not-save"}, follow_redirects=True)
+    denied_save = client.post("/settings", data={"intent": "save", "api_key": "AIzaSy-should-not-save"}, follow_redirects=True)
     assert "รหัสผ่าน" in denied_save.text
     assert 'name="api_key"' not in denied_save.text
 
-    client.post("/settings/lock", follow_redirects=True)
+    client.post("/settings", data={"intent": "lock"}, follow_redirects=True)
     locked = client.get("/settings")
     assert "ใส่รหัสผ่านก่อน" in locked.text
     assert 'name="password"' in locked.text
     assert 'name="api_key"' not in locked.text
 
-    wrong = client.post("/settings/unlock", data={"password": "wrong99"}, follow_redirects=True)
+    wrong = client.post("/settings", data={"intent": "unlock", "password": "wrong99"}, follow_redirects=True)
     assert "ไม่ถูกต้อง" in wrong.text
     assert 'name="api_key"' not in wrong.text
 
-    opened = client.post("/settings/unlock", data={"password": "pass123"}, follow_redirects=True)
+    opened = client.post("/settings", data={"intent": "unlock", "password": "pass123"}, follow_redirects=True)
     assert opened.status_code == 200
     assert "ตั้งค่า Gemini API" in opened.text
     assert 'name="api_key"' in opened.text
     assert "AIzaSy-should-not-save" not in opened.text
 
-    saved = client.post("/settings/save", data={"api_key": "AIzaSy-test-lock-key"}, follow_redirects=True)
+    saved = client.post("/settings", data={"intent": "save", "api_key": "AIzaSy-test-lock-key"}, follow_redirects=True)
     assert saved.status_code == 200
     assert "••••" in saved.text
     assert "AIzaSy-test-lock-key" not in saved.text

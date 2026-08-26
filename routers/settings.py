@@ -10,7 +10,7 @@ import db_helper
 from content_utils import is_admin, page_context, set_flash
 from templating import templates
 
-router = APIRouter(prefix="/settings", tags=["settings"])
+router = APIRouter(tags=["settings"])
 
 PIN_MIN_LEN = 6
 UNLOCK_SECONDS = 15 * 60
@@ -126,10 +126,6 @@ def _api_page(request: Request, ctx: dict):
     return templates.TemplateResponse(request=request, name="settings_api.html", context=ctx)
 
 
-@router.get("", response_class=HTMLResponse)
-@router.get("/", response_class=HTMLResponse)
-@router.get("/api", response_class=HTMLResponse)
-@router.get("/api/", response_class=HTMLResponse)
 def settings_page(request: Request):
     ctx, denied = _admin_or_home(request)
     if denied:
@@ -137,11 +133,47 @@ def settings_page(request: Request):
     return _api_page(request, ctx)
 
 
-@router.post("/unlock")
-def settings_unlock(
+@router.get("/settings", response_class=HTMLResponse)
+@router.get("/settings/", response_class=HTMLResponse)
+@router.get("/settings/api", response_class=HTMLResponse)
+@router.get("/settings/api/", response_class=HTMLResponse)
+@router.get("/settings/unlock", response_class=HTMLResponse)
+@router.get("/settings/save", response_class=HTMLResponse)
+def settings_get(request: Request):
+    return settings_page(request)
+
+
+@router.post("/settings")
+@router.post("/settings/")
+@router.post("/settings/api")
+@router.post("/settings/unlock")
+@router.post("/settings/save")
+@router.post("/settings/lock")
+@router.post("/settings/pin")
+def settings_post(
     request: Request,
+    intent: str = Form(""),
     password: str = Form(""),
     pin: str = Form(""),
+    api_key: str = Form(""),
+    clear_api_key: str = Form(""),
+    new_pin: str = Form(""),
+    confirm_pin: str = Form(""),
+    admin_password: str = Form(""),
+):
+    if (intent or "").strip() == "lock":
+        return settings_lock(request)
+    if (new_pin or "").strip() or (intent or "").strip() == "pin":
+        return settings_set_pin(request, new_pin=new_pin, confirm_pin=confirm_pin, admin_password=admin_password)
+    if (password or "").strip() or (pin or "").strip() or (intent or "").strip() == "unlock":
+        return settings_unlock(request, password=password, pin=pin)
+    return settings_save(request, api_key=api_key, clear_api_key=clear_api_key)
+
+
+def settings_unlock(
+    request: Request,
+    password: str = "",
+    pin: str = "",
 ):
     ctx, denied = _admin_or_home(request)
     if denied:
@@ -163,7 +195,6 @@ def settings_unlock(
     return RedirectResponse(url="/settings", status_code=303)
 
 
-@router.post("/lock")
 def settings_lock(request: Request):
     ctx, denied = _admin_or_home(request)
     if denied:
@@ -173,7 +204,6 @@ def settings_lock(request: Request):
     return RedirectResponse(url="/settings", status_code=303)
 
 
-@router.post("/pin")
 def settings_set_pin(
     request: Request,
     new_pin: str = Form(""),
@@ -204,7 +234,6 @@ def settings_set_pin(
     return RedirectResponse(url="/settings", status_code=303)
 
 
-@router.post("/save")
 def settings_save(
     request: Request,
     api_key: str = Form(""),

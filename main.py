@@ -82,6 +82,7 @@ app.include_router(settings.router)
 
 @app.get("/settings/api", response_class=HTMLResponse)
 @app.get("/settings/api/", response_class=HTMLResponse)
+@app.get("/settings/unlock", response_class=HTMLResponse)
 def settings_api_alias(request: Request):
     from routers.settings import settings_page
 

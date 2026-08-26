@@ -7,7 +7,8 @@
     <p class="mt-2 text-sm text-white/50">กดตั้งค่า API แล้วต้องยืนยันรหัสผ่านผู้ดูแลระบบก่อน จึงจะเข้าไปแก้คีย์ได้</p>
 
     <section class="mt-8 rounded-2xl border border-sweden-gold/25 bg-night-100/80 p-6 shadow-card">
-        <form action="/settings/unlock" method="POST" class="space-y-4">
+        <form action="/settings" method="POST" class="space-y-4">
+            <input type="hidden" name="intent" value="unlock">
             <label class="block text-sm font-semibold" for="settingsPassword">รหัสผ่าน</label>
             <input id="settingsPassword" type="password" name="password" required minlength="1" autocomplete="current-password" {% if settings_lock_seconds %}disabled{% endif %} placeholder="รหัสผ่านบัญชีผู้ดูแลระบบ" class="w-full rounded-xl border border-white/10 bg-night-200 px-4 py-3 outline-none focus:border-sweden-gold/60" autofocus>
             {% if settings_lock_seconds %}
