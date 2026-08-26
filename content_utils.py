@@ -162,7 +162,7 @@ def lesson_vocab(lesson: dict | None) -> list:
     if not lesson:
         return []
     if lesson.get("detailed_vocab"):
-        return lesson["detailed_vocab"]
+        return [prepare_vocab_item(item) for item in lesson["detailed_vocab"]]
 
     seen: set[str] = set()
     items: list[dict] = []
@@ -172,17 +172,20 @@ def lesson_vocab(lesson: dict | None) -> list:
         if not key or key in seen:
             return
         seen.add(key)
-        thai_clean = thai.split(" (")[0] if " (" in thai else thai
+        thai_clean = thai_gloss_only(thai)
         lesson_level = (lesson or {}).get("level", "Beginner")
+        pron = pronunciation_only(pronunciation) or swedish.strip()
+        raw_example = (example or "").strip()
+        example_thai = "" if is_redundant_vocab_example(raw_example, swedish, pron, thai_clean) else raw_example
         items.append(
             {
                 "swedish": swedish.strip(),
-                "pronunciation": pronunciation or swedish,
+                "pronunciation": pron,
                 "thai": thai_clean,
                 "pos": "คำศัพท์บทเรียน",
                 "level": CEFR_LEVELS.get(lesson_level, CEFR_LEVELS["Beginner"])["th"],
-                "example_swedish": example or f"{swedish.strip().capitalize()}.",
-                "example_thai": example or thai_clean,
+                "example_swedish": f"{swedish.strip().capitalize()}.",
+                "example_thai": example_thai,
             }
         )
 
@@ -564,6 +567,47 @@ def pronunciation_only(text: str | None) -> str:
         if end > start:
             return raw[start + 1 : end].strip()
     return raw
+
+
+def is_redundant_vocab_example(
+    text: str | None,
+    swedish: str = "",
+    pronunciation: str = "",
+    thai: str = "",
+) -> bool:
+    """True when the 'example' is just a gloss that repeats the word/reading."""
+    raw = str(text or "").strip()
+    if not raw:
+        return True
+    lowered = raw.lower()
+    if "แปลว่า" in raw:
+        return True
+    if re.search(r"\[[^\]]+\]", raw):
+        return True
+    if lowered.startswith("คำศัพท์หมวด"):
+        return True
+    thai_l = str(thai or "").strip().lower()
+    if thai_l and lowered == thai_l:
+        return True
+    sw = str(swedish or "").strip().lower()
+    pron = str(pronunciation or "").strip()
+    if sw and sw in lowered and pron and pron in raw:
+        return True
+    return False
+
+
+def prepare_vocab_item(item: dict) -> dict:
+    """Normalize a vocab row for display: Thai-only reading, no repeated gloss."""
+    row = dict(item)
+    swedish = (row.get("swedish") or "").strip()
+    row["swedish"] = swedish
+    row["thai"] = thai_gloss_only(row.get("thai"))
+    row["pronunciation"] = pronunciation_only(row.get("pronunciation") or swedish)
+    if is_redundant_vocab_example(
+        row.get("example_thai"), swedish, row["pronunciation"], row.get("thai")
+    ):
+        row["example_thai"] = ""
+    return row
 
 
 def thai_gloss_only(text: str | None) -> str:

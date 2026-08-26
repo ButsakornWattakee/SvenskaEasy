@@ -1,5 +1,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script>
+  try {
+    if (localStorage.getItem("ls_nav_collapsed") === "1" && window.matchMedia("(min-width: 1024px)").matches) {
+      document.documentElement.classList.add("nav-collapsed");
+    }
+  } catch (error) {}
+</script>
 <meta name="description" content="SvenskaEasy — เรียนภาษาสวีเดนออนไลน์ หลักสูตร SFI / SVA พร้อมครู AI">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,4 +49,4 @@
 </script>
 <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
-<link rel="stylesheet" href="/static/css/app.css?v=20260826-nav-lock2">
+<link rel="stylesheet" href="/static/css/app.css?v=20260826-flash-read">

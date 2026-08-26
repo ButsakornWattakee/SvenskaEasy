@@ -1491,6 +1491,7 @@ VOCABULARY = [
 
 def get_all_vocabulary():
     import lessons_data
+    from content_utils import is_redundant_vocab_example, pronunciation_only
 
     def _infer_pos(category, thai_text, swedish_text):
         cat_lower = category.lower() if category else ""
@@ -1568,16 +1569,19 @@ def get_all_vocabulary():
                         thai_clean = thai_clean.split(" (")[0]
 
                     clue = tp.get("clue", sw)
+                    pron = pronunciation_only(clue) or sw
+                    explanation = (tp.get("explanation") or "").strip()
+                    example_thai = "" if is_redundant_vocab_example(explanation, sw, pron, thai_clean) else explanation
 
                     vocab_list.append({
                         "swedish": sw,
-                        "pronunciation": clue,
+                        "pronunciation": pron,
                         "thai": thai_clean,
                         "pos": _infer_pos(l_cat, thai_clean, sw),
                         "level": l_level_th,
                         "category": l_cat,
                         "example_swedish": f"{sw.capitalize()}.",
-                        "example_thai": tp.get("explanation", f"{sw} แปลว่า {thai_clean}")
+                        "example_thai": example_thai,
                     })
                     existing_swedish_words.add(sw.lower())
 
@@ -1631,6 +1635,7 @@ def vocab_categories() -> list[str]:
 def all_vocabulary() -> list[dict]:
     """Built-in vocabulary plus words added by admins."""
     import db_helper
+    from content_utils import prepare_vocab_item
 
     merged = []
     seen: set[str] = set()
@@ -1640,8 +1645,7 @@ def all_vocabulary() -> list[dict]:
         if not key or key in seen:
             continue
         seen.add(key)
-        row = dict(item)
-        row["swedish"] = swedish
+        row = prepare_vocab_item(item)
         row["is_custom"] = bool(item.get("is_custom"))
         merged.append(row)
     return sorted(merged, key=lambda item: item["swedish"].lower())

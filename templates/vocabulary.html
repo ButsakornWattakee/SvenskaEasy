@@ -116,14 +116,17 @@
             {% for item in vocab_items %}
             <div class="flashcard vocab-flash" onclick="this.classList.toggle('flipped')">
                 <div class="flashcard-inner">
-                    <div class="flashcard-face flashcard-front overflow-hidden border border-white/10 bg-gradient-to-br from-sweden-blue/40 to-night-100">
-                        <p class="font-display text-2xl font-bold text-sweden-gold">{{ item.swedish }}</p>
-                        <p class="mt-1 text-sm text-white/50">{{ item.pronunciation }}</p>
-                        <p class="mt-3 text-[11px] uppercase tracking-widest text-white/35">คลิกเพื่อดูคำแปล</p>
+                    <div class="flashcard-face flashcard-front overflow-hidden">
+                        <p class="flash-word font-display text-2xl font-bold">{{ item.swedish }}</p>
+                        {% set pron = item.pronunciation | pronunciation %}
+                        {% if pron and pron|lower != item.swedish|lower %}
+                        <p class="flash-pron mt-1 text-sm">{{ pron }}</p>
+                        {% endif %}
+                        <p class="flash-cta mt-3 text-[11px] uppercase tracking-widest">คลิกเพื่อดูคำแปล</p>
                     </div>
-                    <div class="flashcard-face flashcard-back border border-sweden-gold/30 bg-sweden-navy">
-                        <p class="font-display text-xl font-bold">{{ item.thai }}</p>
-                        <p class="mt-2 text-center text-sm text-white/60">{{ item.example_thai }}</p>
+                    <div class="flashcard-face flashcard-back theme-on-dark overflow-hidden">
+                        <p class="flash-label text-[11px] font-semibold uppercase tracking-[0.16em]">คำแปล</p>
+                        <p class="flash-word mt-1 font-display text-xl font-bold leading-snug">{{ item.thai | thai_gloss }}</p>
                     </div>
                 </div>
             </div>

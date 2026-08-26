@@ -16,17 +16,24 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay?.classList.remove("opacity-0", "pointer-events-none");
     openBtn?.setAttribute("aria-expanded", "true");
   };
-  const setNavCollapsed = (collapsed) => {
+  const setNavCollapsed = (collapsed, animate = true) => {
+    const root = document.documentElement;
+    if (animate) root.classList.add("nav-animating");
+    root.classList.toggle("nav-collapsed", collapsed);
     document.body.classList.toggle("nav-collapsed", collapsed);
     localStorage.setItem("ls_nav_collapsed", collapsed ? "1" : "0");
     toggleNav?.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    if (animate) {
+      window.setTimeout(() => root.classList.remove("nav-animating"), 380);
+    }
   };
   const syncNavMode = () => {
     if (desktopNav.matches) {
       sidebar?.classList.remove("-translate-x-full");
       overlay?.classList.add("opacity-0", "pointer-events-none");
-      setNavCollapsed(localStorage.getItem("ls_nav_collapsed") === "1");
+      setNavCollapsed(localStorage.getItem("ls_nav_collapsed") === "1", false);
     } else {
+      document.documentElement.classList.remove("nav-collapsed");
       document.body.classList.remove("nav-collapsed");
     }
   };
@@ -35,7 +42,8 @@ document.addEventListener("DOMContentLoaded", () => {
   closeBtn?.addEventListener("click", closeSidebar);
   overlay?.addEventListener("click", closeSidebar);
   toggleNav?.addEventListener("click", () => {
-    setNavCollapsed(!document.body.classList.contains("nav-collapsed"));
+    const collapsed = document.documentElement.classList.contains("nav-collapsed");
+    setNavCollapsed(!collapsed, true);
   });
   desktopNav.addEventListener("change", syncNavMode);
   syncNavMode();

@@ -6,11 +6,13 @@ from html import unescape
 from google import genai
 from google.genai import types
 
-DEFAULT_MODEL = "gemini-3-flash-preview"
+DEFAULT_MODEL = "gemini-2.5-flash-lite"
 CANDIDATE_MODELS = [
     os.getenv("GEMINI_MODEL", "").strip(),
     DEFAULT_MODEL,
+    "gemini-2.5-flash",
     "gemini-3.1-flash-lite",
+    "gemini-3-flash-preview",
 ]
 CANDIDATE_MODELS = [name for name in CANDIDATE_MODELS if name]
 _resolved_model_name = None
@@ -189,9 +191,76 @@ def _format_gemini_history(chat_history):
     return formatted
 
 
+def _error_text(error) -> str:
+    return str(error or "").lower()
+
+
 def _is_missing_model_error(error):
-    text = str(error).lower()
+    text = _error_text(error)
     return "404" in text or "not found" in text or "is not supported" in text
+
+
+def _is_quota_error(error):
+    text = _error_text(error)
+    return (
+        "429" in text
+        or "resource_exhausted" in text
+        or "quota" in text
+        or "rate limit" in text
+        or "rate-limit" in text
+    )
+
+
+def _is_thinking_unsupported(error):
+    text = _error_text(error)
+    return "thinking" in text and (
+        "not support" in text or "invalid" in text or "unknown" in text
+    )
+
+
+def _should_try_next_model(error):
+    return _is_quota_error(error) or _is_missing_model_error(error)
+
+
+def _friendly_gemini_error(error) -> str:
+    if _is_quota_error(error):
+        return (
+            "โควต้า Gemini ฟรีของโมเดลนี้เต็มแล้วครับ "
+            "ครูสลับโมเดลให้แล้วยังใช้ต่อไม่ได้ในรอบนี้ "
+            "รอสัก 1 นาทีแล้วลองใหม่ หรือรอโควต้ารีเซ็ตเที่ยงคืนเวลาแปซิฟิก "
+            "(ดูโควต้าได้ที่ https://ai.dev/rate-limit)"
+        )
+    return (
+        "เชื่อมต่อครู AI ไม่สำเร็จในตอนนี้ครับ\n\n"
+        f"{error}\n\n"
+        "ตรวจ GEMINI_API_KEY ที่ Railway Variables แล้ว Redeploy"
+    )
+
+
+def _send_with_model(client, model_name, history, message, system_instruction):
+    configs = [
+        types.GenerateContentConfig(
+            system_instruction=system_instruction,
+            thinking_config=types.ThinkingConfig(thinking_level="low"),
+        ),
+        types.GenerateContentConfig(system_instruction=system_instruction),
+    ]
+    last_error = None
+    for index, config in enumerate(configs):
+        try:
+            chat = client.chats.create(
+                model=model_name,
+                history=history,
+                config=config,
+            )
+            response = chat.send_message(message)
+            return response.text
+        except Exception as error:
+            last_error = error
+            if index == 0 and _is_thinking_unsupported(error):
+                continue
+            raise
+    raise last_error
 
 
 def _history_as_contents(formatted_history):
@@ -216,10 +285,6 @@ def get_ai_response(user_prompt, chat_history=None, api_key=None, lesson_context
         if lesson_context:
             system_instruction += f"\n\nบริบทบทเรียนปัจจุบันที่ผู้เรียนกำลังศึกษา: {lesson_context}"
 
-        config = types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            thinking_config=types.ThinkingConfig(thinking_level="low"),
-        )
         model_names = []
         if _resolved_model_name:
             model_names.append(_resolved_model_name)
@@ -230,24 +295,20 @@ def get_ai_response(user_prompt, chat_history=None, api_key=None, lesson_context
         last_error = None
         for model_name in model_names:
             try:
-                chat = client.chats.create(
-                    model=model_name,
-                    history=history,
-                    config=config,
+                text = _send_with_model(
+                    client, model_name, history, message, system_instruction
                 )
-                response = chat.send_message(message)
                 _resolved_model_name = model_name
-                return response.text
+                return text
             except Exception as error:
                 last_error = error
-                if not _is_missing_model_error(error):
-                    break
+                if _should_try_next_model(error):
+                    if _resolved_model_name == model_name:
+                        _resolved_model_name = None
+                    continue
+                break
 
-        return (
-            " เกิดข้อผิดพลาดในการเชื่อมต่อกับ Gemini API: "
-            f"{last_error}\n\n"
-            "(ตรวจสอบ GEMINI_API_KEY ในไฟล์ .env หรือ Streamlit secrets แล้วรีสตาร์ทแอป)"
-        )
+        return _friendly_gemini_error(last_error)
 
     message_lower = message.lower()
     for item in MOCK_RESPONSES:

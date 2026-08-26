@@ -16,8 +16,11 @@ import lessons_data
 from content_utils import (
     asset_url,
     format_tutor_reply,
+    is_redundant_vocab_example,
     lesson_questions,
     lesson_vocab,
+    prepare_vocab_item,
+    pronunciation_only,
     render_markdown,
     word_image_url,
 )
@@ -65,7 +68,10 @@ def test_dashboard_uses_tailwind(client):
     assert "SvenskaEasy" in html
     assert "mesh-bg" in html
     assert "theme-on-dark" in html
-    assert "20260826-nav-lock2" in html
+    assert "20260826-flash-read" in html
+    assert "sidebar-wordmark" in html
+    assert "sidebar-profile" in html
+    assert "Svenska som andraspråk" in html
     assert "nav-icon" in html
     assert "toggleNav" in html
 
@@ -79,11 +85,13 @@ def test_login_page(client):
     assert "ลืมรหัสผ่าน" in response.text
     assert "/auth/forgot-password" in response.text
     assert "theme-on-dark" in response.text
-    css = client.get("/static/css/app.css?v=20260826-nav-lock2")
+    css = client.get("/static/css/app.css?v=20260826-flash-read")
     assert css.status_code == 200
     assert "--text-muted:" in css.text
     assert "[data-theme=\"aurora\"]" in css.text
     assert "[data-theme=\"midsummer\"]" in css.text
+    assert ".flashcard-back .flash-word" in css.text
+    assert "text-on-dark" in css.text
 
 
 def test_forgot_password_resets_with_matching_email(client):
@@ -226,6 +234,20 @@ def test_vocabulary_and_search_markup(client):
     assert response.status_code == 200
     assert "hej" in response.text.lower()
     assert "vocabSearchInput" in response.text
+    assert "flashcard-back" in response.text
+    assert "flash-word" in response.text
+    assert "คลิกเพื่อดูคำแปล" in response.text
+    assert 'class="flashcard-face flashcard-back theme-on-dark overflow-hidden"' in response.text
+    cards = re.findall(r'<div class="flashcard vocab-flash".*?</div>\s*</div>\s*</div>', response.text, re.S)
+    apelsin = next((card for card in cards if ">apelsin<" in card.lower()), "")
+    assert apelsin
+    front, back = apelsin.split("flashcard-back", 1)
+    assert "อปเปลซีน" in front
+    assert "apelsin [" not in front.lower()
+    assert "ส้ม" in back
+    assert "อปเปลซีน" not in back
+    assert "แปลว่า" not in back
+    assert "apelsin" not in back.lower()
 
 
 def test_vocabulary_filters_by_cefr_level(client):
@@ -280,6 +302,52 @@ def test_tutor_reply_is_easy_to_scan():
     assert "<h3>" in gemini_style
     assert "ประโยคตัวอย่าง" in gemini_style
     assert 'tutor-sv">ประโยคตัวอย่าง' not in gemini_style
+
+
+def test_gemini_quota_falls_back_to_another_model(monkeypatch):
+    import chat_agent
+
+    class QuotaError(Exception):
+        pass
+
+    class FakeResponse:
+        text = "คำว่า **Hej** ใช้ทักทายครับ"
+
+    class FakeChat:
+        def send_message(self, _message):
+            return FakeResponse()
+
+    class FakeChats:
+        def create(self, model, history, config):
+            if model in ("gemini-3-flash-preview", "gemini-3-flash"):
+                raise QuotaError(
+                    "429 RESOURCE_EXHAUSTED. Quota exceeded for metric: "
+                    "generate_content_free_tier_requests, model: gemini-3-flash"
+                )
+            return FakeChat()
+
+    class FakeClient:
+        def __init__(self, api_key):
+            self.chats = FakeChats()
+
+    chat_agent._resolved_model_name = "gemini-3-flash-preview"
+    monkeypatch.setattr(chat_agent.genai, "Client", FakeClient)
+
+    reply = chat_agent.get_ai_response("hej", api_key="AIzaSy-test-key-12345")
+    assert "Hej" in reply
+    assert "429" not in reply
+    assert chat_agent._resolved_model_name == "gemini-2.5-flash-lite"
+
+
+def test_gemini_quota_message_is_readable():
+    import chat_agent
+
+    message = chat_agent._friendly_gemini_error(
+        "429 RESOURCE_EXHAUSTED You exceeded your current quota"
+    )
+    assert "โควต้า" in message
+    assert "RESOURCE_EXHAUSTED" not in message
+    assert "Streamlit" not in message
 
 
 def test_admin_requires_admin(client):
@@ -401,6 +469,16 @@ def test_helpers_unit():
     lesson = next(l for l in lessons_data.LESSONS if l["id"] == 1)
     assert lesson_questions(lesson)
     assert lesson_vocab(lesson)
+    assert pronunciation_only("apelsin [อปเปลซีน]") == "อปเปลซีน"
+    assert is_redundant_vocab_example("apelsin [อปเปลซีน] แปลว่า ส้ม", "apelsin", "อปเปลซีน", "ส้ม")
+    cleaned = prepare_vocab_item({
+        "swedish": "apelsin",
+        "pronunciation": "apelsin [อปเปลซีน]",
+        "thai": "ส้ม",
+        "example_thai": "apelsin [อปเปลซีน] แปลว่า ส้ม",
+    })
+    assert cleaned["pronunciation"] == "อปเปลซีน"
+    assert cleaned["example_thai"] == ""
     assert asset_url("assets/lesson_1_1.png") == "/static/assets/lesson_1_1.png"
     html = render_markdown("**tack** และตาราง\n\n| a | b |\n| --- | --- |\n| 1 | 2 |")
     assert "<strong>tack</strong>" in html

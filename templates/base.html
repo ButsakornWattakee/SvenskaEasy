@@ -5,7 +5,7 @@
     <title>{% block title %}SvenskaEasy — เรียนภาษาสวีเดนออนไลน์{% endblock %}</title>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full mesh-bg text-sweden-ice antialiased" data-ui="20260826-nav-lock2" data-presence="{% if user and not user.is_guest %}1{% else %}0{% endif %}" data-admin="{% if is_admin %}1{% else %}0{% endif %}">
+<body class="h-full mesh-bg text-sweden-ice antialiased" data-ui="20260826-flash-read" data-presence="{% if user and not user.is_guest %}1{% else %}0{% endif %}" data-admin="{% if is_admin %}1{% else %}0{% endif %}">
 <div class="min-h-screen lg:flex">
 
     <!-- Mobile top bar -->
@@ -25,11 +25,11 @@
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar-panel fixed inset-y-0 left-0 z-50 flex -translate-x-full flex-col border-r border-white/10 bg-night-50/95 backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
         <div class="sidebar-head flex items-center justify-between gap-2 px-3 pt-5 pb-4 lg:px-4">
-            <div class="flex min-w-0 items-center gap-2">
-                <span class="shrink-0 text-lg leading-none">🇸🇪</span>
-                <div class="nav-label min-w-0">
-                    <div class="font-display text-xl font-extrabold tracking-tight text-sweden-gold">SvenskaEasy</div>
-                    <p class="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-white/40">Svenska som andraspråk</p>
+            <div class="sidebar-brand">
+                <span class="sidebar-flag" aria-hidden="true">🇸🇪</span>
+                <div class="sidebar-brand-copy">
+                    <p class="sidebar-wordmark"><span>Svenska</span><span class="sidebar-wordmark-easy">Easy</span></p>
+                    <p class="sidebar-tagline">Svenska som andraspråk</p>
                 </div>
             </div>
             <button type="button" id="closeSidebar" class="nav-toggle lg:hidden" aria-label="ปิดเมนู">
@@ -41,29 +41,24 @@
         </div>
         <div class="sidebar-wide flag-stripe mx-5 mb-4 rounded-full"></div>
 
-        <a href="/profile" class="sidebar-profile mx-4 mb-4 flex items-center gap-3 rounded-2xl border border-sweden-gold/20 bg-gradient-to-br from-sweden-blue/30 to-sweden-gold/5 p-3 hover:border-sweden-gold/40">
+        <a href="/profile" class="sidebar-profile">
             {% with size='md' %}{% include "partials/avatar_medal.html" %}{% endwith %}
-            <div class="sidebar-wide min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-1">
-                    <div class="truncate font-display text-sm font-semibold">{{ user.display_name if user else 'ผู้เรียนทั่วไป' }}</div>
+            <div class="sidebar-wide sidebar-profile-meta">
+                <div class="sidebar-profile-name">
+                    <span class="truncate">{{ user.display_name if user else 'ผู้เรียนทั่วไป' }}</span>
                     {% if is_admin %}
                     <span class="ach-pill" title="ผู้ดูแลระบบ">👑</span>
                     {% else %}
                     {% with items = earned_achievements %}{% include "partials/achievement_pills.html" %}{% endwith %}
                     {% endif %}
                 </div>
-                <div class="truncate text-[11px] {% if is_admin %}text-sweden-gold{% else %}text-white/50{% endif %}">{{ role_label or user.role }}</div>
+                <p class="sidebar-profile-role">{{ role_label or user.role }}</p>
+                {% if not is_admin %}
+                <div class="sidebar-profile-progress" aria-hidden="true">
+                    <span style="width: {{ progress_pct or 0 }}%"></span>
+                </div>
+                {% endif %}
             </div>
-            {% if not is_admin %}
-            <div class="sidebar-wide relative h-11 w-11 shrink-0">
-                <svg class="h-11 w-11 -rotate-90" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"></circle>
-                    <circle cx="18" cy="18" r="15" fill="none" stroke="#FECB00" stroke-width="3" stroke-linecap="round"
-                            stroke-dasharray="94.2" stroke-dashoffset="{{ 94.2 - (94.2 * (progress_pct or 0) / 100) }}"></circle>
-                </svg>
-                <span class="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-sweden-gold">{{ progress_pct or 0 }}%</span>
-            </div>
-            {% endif %}
         </a>
 
         {% if show_learner_tools %}
@@ -121,7 +116,7 @@
         {% block content %}{% endblock %}
     </main>
 </div>
-<script src="/static/js/main.js?v=20260826-nav-lock2"></script>
+<script src="/static/js/main.js?v=20260826-nav-comfort"></script>
 <script src="/static/js/password-toggle.js?v=1"></script>
 {% block extra_js %}{% endblock %}
 </body>
