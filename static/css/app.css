@@ -256,6 +256,10 @@ html, body {
   color: var(--prose);
   line-height: 1.75;
   font-size: 0.98rem;
+  -webkit-overflow-scrolling: touch;
+}
+.prose-sv table {
+  min-width: 28rem;
 }
 .prose-sv h1, .prose-sv h2, .prose-sv h3, .prose-sv h4 {
   font-family: Outfit, Kanit, sans-serif;
@@ -339,8 +343,13 @@ html, body {
 }
 .match-images {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1rem;
+}
+@media (min-width: 640px) {
+  .match-images {
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  }
 }
 .match-card {
   overflow: hidden;
@@ -387,6 +396,7 @@ html, body {
 }
 .match-choice {
   min-width: 7.5rem;
+  width: 100%;
   border-radius: 999px;
   border: 2px solid color-mix(in srgb, rgb(var(--text)) 14%, transparent);
   background: rgb(var(--night-200) / 0.95);
@@ -394,6 +404,9 @@ html, body {
   padding: 0.85rem 1.2rem;
   font-size: 1rem;
   font-weight: 600;
+}
+@media (min-width: 640px) {
+  .match-choice { width: auto; }
 }
 .match-tile {
   transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
@@ -846,4 +859,56 @@ input[type="tel"] {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: rgb(var(--text-muted));
+}
+
+.vocab-card {
+  border-radius: 1rem;
+  border: 1px solid color-mix(in srgb, rgb(var(--sweden-gold)) 22%, transparent);
+  background: color-mix(in srgb, rgb(var(--sweden-blue)) 12%, rgb(var(--night-100)));
+  padding: 0.95rem 1rem;
+}
+.vocab-sv {
+  font-family: Outfit, Kanit, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: rgb(var(--sweden-gold));
+}
+.vocab-pron {
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+  color: rgb(var(--text-muted));
+}
+.vocab-th {
+  margin-top: 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgb(var(--text));
+}
+.vocab-note {
+  margin-top: 0.45rem;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: rgb(var(--text-faint));
+}
+.vocab-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+.vocab-table th,
+.vocab-table td {
+  padding: 0.7rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid color-mix(in srgb, rgb(var(--text)) 10%, transparent);
+  vertical-align: top;
+}
+.vocab-table th {
+  color: rgb(var(--sweden-gold));
+  font-weight: 700;
+}
+.vocab-table .vocab-sv { font-size: 1rem; }
+
+@media (max-width: 640px) {
+  .match-board { padding: 0.85rem; }
+  .match-choices { gap: 0.5rem; }
 }

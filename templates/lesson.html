@@ -8,7 +8,7 @@
         <span>บทที่ {{ lesson.id }}</span>
     </div>
 
-    <header class="rounded-3xl border border-white/10 bg-night-100/80 p-6 sm:p-8 shadow-card">
+    <header class="rounded-3xl border border-white/10 bg-night-100/80 p-4 sm:p-8 shadow-card">
         <div class="flex flex-wrap gap-2">
             <span class="rounded-full bg-sweden-blue px-3 py-1 text-xs font-semibold text-sweden-gold">{{ lesson.cefr }}</span>
             <span class="rounded-full bg-sweden-gold px-3 py-1 text-xs font-bold text-sweden-navy">{{ lesson.level }}</span>
@@ -16,13 +16,13 @@
             <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-300">เรียนจบแล้ว</span>
             {% endif %}
         </div>
-        <h1 class="mt-4 font-display text-2xl font-extrabold sm:text-3xl">{{ lesson.title }}</h1>
+        <h1 class="mt-4 font-display text-xl font-extrabold leading-snug sm:text-3xl">{{ lesson.title }}</h1>
         <p class="mt-2 text-sm text-white/50">⏱️ {{ lesson.duration }} · {{ question_count }} ข้อควิซ</p>
-        <p class="mt-4 max-w-3xl text-white/70">{{ lesson.description }}</p>
-        <div class="mt-6 flex flex-wrap gap-3">
-            <a href="/quiz/{{ lesson.id }}" class="rounded-xl bg-sweden-blue px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110">ทำแบบทดสอบ</a>
-            <a href="/vocabulary?lesson_id={{ lesson.id }}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold hover:bg-white/10">คลังคำศัพท์บทนี้</a>
-            <a href="/ai-tutor?lesson_id={{ lesson.id }}" class="rounded-xl border border-sweden-gold/30 bg-sweden-gold/10 px-4 py-2.5 text-sm font-semibold text-sweden-gold hover:bg-sweden-gold/15">ถามครู AI</a>
+        <p class="mt-4 max-w-3xl text-sm text-white/70 sm:text-base">{{ lesson.description }}</p>
+        <div class="mt-6 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+            <a href="/quiz/{{ lesson.id }}" class="rounded-xl bg-sweden-blue px-4 py-3 text-center text-sm font-semibold text-white hover:brightness-110">ทำแบบทดสอบ</a>
+            <a href="/vocabulary?lesson_id={{ lesson.id }}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-semibold hover:bg-white/10">คลังคำศัพท์บทนี้</a>
+            <a href="/ai-tutor?lesson_id={{ lesson.id }}" class="rounded-xl border border-sweden-gold/30 bg-sweden-gold/10 px-4 py-3 text-center text-sm font-semibold text-sweden-gold hover:bg-sweden-gold/15">ถามครู AI</a>
         </div>
     </header>
 
@@ -35,21 +35,60 @@
         </ul>
     </section>
 
-    <div class="mt-6 flex flex-wrap gap-2" id="lessonTabs">
-        <button type="button" data-tab="contentPane" class="tab-btn active rounded-full px-4 py-2 text-sm font-semibold bg-sweden-gold text-sweden-navy">เนื้อหาบทเรียน</button>
+    <div class="mt-6 flex gap-2 overflow-x-auto pb-1 [-webkit-overflow-scrolling:touch]" id="lessonTabs">
+        <button type="button" data-tab="contentPane" class="tab-btn active shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold bg-sweden-gold text-sweden-navy">เนื้อหาบทเรียน</button>
         {% if lesson.typing_practice %}
-        <button type="button" data-tab="typingPane" class="tab-btn rounded-full px-4 py-2 text-sm font-semibold bg-white/5 text-white/70 hover:bg-white/10">ฝึกพิมพ์</button>
+        <button type="button" data-tab="typingPane" class="tab-btn shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold bg-white/5 text-white/70 hover:bg-white/10">ฝึกพิมพ์</button>
         {% endif %}
         {% if lesson.matching_practice %}
-        <button type="button" data-tab="matchPane" class="tab-btn rounded-full px-4 py-2 text-sm font-semibold bg-white/5 text-white/70 hover:bg-white/10">เกมจับคู่</button>
+        <button type="button" data-tab="matchPane" class="tab-btn shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold bg-white/5 text-white/70 hover:bg-white/10">เกมจับคู่</button>
         {% endif %}
     </div>
 
     <div id="contentPane" class="tab-pane mt-5 space-y-5">
         {% for sec in lesson.sections %}
-        <article class="rounded-2xl border border-white/10 border-l-4 border-l-sweden-blue bg-night-100/80 p-6 shadow-card">
-            <h3 class="font-display text-lg font-bold text-sweden-gold">{{ sec.subtitle }}</h3>
+        <article class="rounded-2xl border border-white/10 border-l-4 border-l-sweden-blue bg-night-100/80 p-4 shadow-card sm:p-6">
+            <h3 class="font-display text-base font-bold leading-snug text-sweden-gold sm:text-lg">{{ sec.subtitle }}</h3>
+            {% if sec.vocab_rows %}
+            <div class="vocab-summary mt-4">
+                <div class="space-y-3 md:hidden">
+                    {% for row in sec.vocab_rows %}
+                    <article class="vocab-card">
+                        <p class="vocab-sv">{{ row.swedish }}</p>
+                        <p class="vocab-pron">{{ row.pronunciation }}</p>
+                        <p class="vocab-th">{{ row.thai }}</p>
+                        {% if row.note %}
+                        <p class="vocab-note">{{ row.note }}</p>
+                        {% endif %}
+                    </article>
+                    {% endfor %}
+                </div>
+                <div class="hidden overflow-x-auto md:block">
+                    <table class="vocab-table">
+                        <thead>
+                            <tr>
+                                <th>คำสวีเดน</th>
+                                <th>คำอ่าน</th>
+                                <th>คำแปล</th>
+                                <th>หมายเหตุ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sec.vocab_rows %}
+                            <tr>
+                                <td class="vocab-sv">{{ row.swedish }}</td>
+                                <td>{{ row.pronunciation }}</td>
+                                <td>{{ row.thai }}</td>
+                                <td class="text-white/60">{{ row.note }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
             <div class="prose-sv mt-3 overflow-x-auto">{{ sec.content | md | safe }}</div>
+            {% endif %}
         </article>
         {% endfor %}
     </div>
@@ -99,26 +138,22 @@
     </div>
     {% endif %}
 
-    <footer class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-            {% if prev_lesson_id %}
-            <a href="/lessons/{{ prev_lesson_id }}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold hover:bg-white/10">← บทก่อนหน้า</a>
-            {% endif %}
-        </div>
-        <form action="/lessons/{{ lesson.id }}/complete" method="POST">
+    <footer class="mt-8 grid grid-cols-1 gap-2 sm:flex sm:flex-row sm:items-center sm:justify-between">
+        {% if prev_lesson_id %}
+        <a href="/lessons/{{ prev_lesson_id }}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-semibold hover:bg-white/10">← บทก่อนหน้า</a>
+        {% endif %}
+        <form action="/lessons/{{ lesson.id }}/complete" method="POST" class="w-full sm:w-auto">
             {% if is_completed %}
-            <button type="submit" disabled class="rounded-xl bg-emerald-600/40 px-5 py-2.5 text-sm font-semibold text-emerald-100">เรียนเสร็จสิ้นแล้ว</button>
+            <button type="submit" disabled class="w-full rounded-xl bg-emerald-600/40 px-5 py-3 text-sm font-semibold text-emerald-100">เรียนเสร็จสิ้นแล้ว</button>
             {% else %}
-            <button type="submit" class="rounded-xl bg-sweden-gold px-5 py-2.5 text-sm font-bold text-sweden-navy shadow-glow hover:brightness-105">ทำเครื่องหมายว่าเรียนจบ</button>
+            <button type="submit" class="w-full rounded-xl bg-sweden-gold px-5 py-3 text-sm font-bold text-sweden-navy shadow-glow hover:brightness-105">ทำเครื่องหมายว่าเรียนจบ</button>
             {% endif %}
         </form>
-        <div class="sm:text-right">
-            {% if next_lesson_id %}
-            <a href="/lessons/{{ next_lesson_id }}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold hover:bg-white/10">บทถัดไป →</a>
-            {% else %}
-            <a href="/quiz/exam" class="rounded-xl bg-sweden-blue px-4 py-2.5 text-sm font-semibold text-white">ไปข้อสอบวัดผลรวม →</a>
-            {% endif %}
-        </div>
+        {% if next_lesson_id %}
+        <a href="/lessons/{{ next_lesson_id }}" class="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-center text-sm font-semibold hover:bg-white/10">บทถัดไป →</a>
+        {% else %}
+        <a href="/quiz/exam" class="rounded-xl bg-sweden-blue px-4 py-3 text-center text-sm font-semibold text-white">ไปข้อสอบวัดผลรวม →</a>
+        {% endif %}
     </footer>
 </div>
 {% endblock %}

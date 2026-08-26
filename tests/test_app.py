@@ -65,7 +65,7 @@ def test_dashboard_uses_tailwind(client):
     assert "SvenskaEasy" in html
     assert "mesh-bg" in html
     assert "theme-on-dark" in html
-    assert "20260826-admin-frame" in html
+    assert "20260826-vocab-mobile" in html
 
 
 def test_login_page(client):
@@ -77,7 +77,7 @@ def test_login_page(client):
     assert "ลืมรหัสผ่าน" in response.text
     assert "/auth/forgot-password" in response.text
     assert "theme-on-dark" in response.text
-    css = client.get("/static/css/app.css?v=20260826-admin-frame")
+    css = client.get("/static/css/app.css?v=20260826-vocab-mobile")
     assert css.status_code == 200
     assert "--text-muted:" in css.text
     assert "[data-theme=\"aurora\"]" in css.text
@@ -170,6 +170,10 @@ def test_lesson_renders_markdown(client):
     assert response.status_code == 200
     assert "Å" in response.text or "åtta" in response.text
     assert "<table" in response.text or "tack" in response.text
+    title = "ตารางสรุปคำศัพท์ คำอ่าน และสำนวนสำคัญประจำบท"
+    assert response.text.count(title) == 1
+    assert "vocab-card" in response.text
+    assert "vocab-summary" in response.text
 
 
 def test_quiz_has_questions_and_grades(client, monkeypatch):

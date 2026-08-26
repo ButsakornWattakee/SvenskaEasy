@@ -3505,12 +3505,17 @@ for lesson in LESSONS:
                 }
 
     if vocab_map:
-        md_table = "\n\n| คำศัพท์ภาษาสวีเดน (Swedish) | คำอ่านภาษาไทย (Pronunciation) | คำแปลภาษาไทย (Thai) | คำอธิบาย / การใช้งาน (Description) |\n"
-        md_table += "| :--- | :--- | :--- | :--- |\n"
-        for sw, item in sorted(vocab_map.items()):
-            md_table += f"| **{item['swedish']}** | [{item['pronunciation']}] | {item['thai']} | {item['explanation']} |\n"
-            
-        lesson["sections"].append({
-            "subtitle": "ตารางสรุปคำศัพท์ คำอ่าน และสำนวนสำคัญประจำบท (Key Vocabulary & Phonetics)",
-            "content": md_table
-        })
+        already = any(
+            "ตารางสรุปคำศัพท์" in (sec.get("subtitle") or "")
+            or "Key Vocabulary" in (sec.get("subtitle") or "")
+            for sec in lesson.get("sections") or []
+        )
+        if not already:
+            md_table = "\n\n| คำศัพท์ภาษาสวีเดน (Swedish) | คำอ่านภาษาไทย (Pronunciation) | คำแปลภาษาไทย (Thai) | คำอธิบาย / การใช้งาน (Description) |\n"
+            md_table += "| :--- | :--- | :--- | :--- |\n"
+            for sw, item in sorted(vocab_map.items()):
+                md_table += f"| **{item['swedish']}** | [{item['pronunciation']}] | {item['thai']} | {item['explanation']} |\n"
+            lesson["sections"].append({
+                "subtitle": "ตารางสรุปคำศัพท์ คำอ่าน และสำนวนสำคัญประจำบท (Key Vocabulary & Phonetics)",
+                "content": md_table
+            })

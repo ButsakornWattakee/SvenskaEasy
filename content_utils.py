@@ -574,6 +574,49 @@ def thai_gloss_only(text: str | None) -> str:
     return raw
 
 
+def _is_vocab_summary_section(subtitle: str | None) -> bool:
+    text = subtitle or ""
+    return "ตารางสรุปคำศัพท์" in text or "Key Vocabulary" in text
+
+
+def parse_markdown_table(content: str | None) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for raw in (content or "").splitlines():
+        line = raw.strip()
+        if not line.startswith("|"):
+            continue
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if not cells or all(re.fullmatch(r":?-{3,}:?", cell or "") for cell in cells):
+            continue
+        rows.append(cells)
+    return rows
+
+
+def vocab_rows_from_table(content: str | None) -> list[dict]:
+    table = parse_markdown_table(content)
+    if len(table) < 2:
+        return []
+    body = table[1:]
+    items = []
+    seen: set[str] = set()
+    for cells in body:
+        padded = (cells + ["", "", "", ""])[:4]
+        swedish = re.sub(r"[*_`]", "", padded[0]).strip()
+        key = swedish.lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        items.append(
+            {
+                "swedish": swedish,
+                "pronunciation": padded[1].strip(" []"),
+                "thai": padded[2],
+                "note": padded[3],
+            }
+        )
+    return items
+
+
 def lesson_for_view(lesson: dict | None) -> dict:
     """Copy a lesson and attach display-only pronunciation/thai fields."""
     if not lesson:
@@ -593,6 +636,18 @@ def lesson_for_view(lesson: dict | None) -> dict:
         view["typing_practice"] = typing_rows
     if matching_rows:
         view["matching_practice"] = matching_rows
+
+    sections = []
+    seen_vocab = False
+    for sec in lesson.get("sections") or []:
+        item = dict(sec)
+        if _is_vocab_summary_section(item.get("subtitle")):
+            if seen_vocab:
+                continue
+            seen_vocab = True
+            item["vocab_rows"] = vocab_rows_from_table(item.get("content") or "")
+        sections.append(item)
+    view["sections"] = sections
     return view
 
 
