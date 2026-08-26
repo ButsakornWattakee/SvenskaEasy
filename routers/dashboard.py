@@ -3,13 +3,20 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 import db_helper
 import lessons_data
-from content_utils import is_admin, page_context, quiz_scores_for
+from content_utils import home_url_for, is_admin, page_context, quiz_scores_for
 from templating import templates
 
 router = APIRouter(tags=["dashboard"])
 
 
-@router.get("/", response_class=HTMLResponse)
+@router.get("/")
+def root_page(request: Request):
+    user = request.session.get("user") or {}
+    if user and not user.get("is_guest"):
+        return RedirectResponse(url=home_url_for(user), status_code=303)
+    return RedirectResponse(url="/auth/login", status_code=303)
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(request: Request):
     ctx = page_context(request, "dashboard")

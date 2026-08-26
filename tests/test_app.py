@@ -48,6 +48,15 @@ def test_health(client):
     assert response.json()["status"] == "ok"
 
 
+def test_root_redirects_to_login(client):
+    response = client.get("/", follow_redirects=False)
+    assert response.status_code in (303, 307)
+    assert response.headers["location"].endswith("/auth/login")
+    login = client.get("/auth/login")
+    assert login.status_code == 200
+    assert "เข้าสู่ระบบ" in login.text
+
+
 def test_dashboard_uses_tailwind(client):
     response = client.get("/dashboard")
     assert response.status_code == 200

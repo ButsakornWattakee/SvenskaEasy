@@ -46,6 +46,15 @@ os.makedirs("static", exist_ok=True)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(auth.router)
+
+
+@app.get("/")
+def root_entry(request: Request):
+    from routers.dashboard import root_page
+
+    return root_page(request)
+
+
 app.include_router(dashboard.router)
 
 
