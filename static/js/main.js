@@ -2,18 +2,43 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebar = document.getElementById("sidebar");
   const overlay = document.getElementById("sidebarOverlay");
   const openBtn = document.getElementById("openSidebar");
+  const closeBtn = document.getElementById("closeSidebar");
+  const toggleNav = document.getElementById("toggleNav");
+  const desktopNav = window.matchMedia("(min-width: 1024px)");
 
   const closeSidebar = () => {
     sidebar?.classList.add("-translate-x-full");
     overlay?.classList.add("opacity-0", "pointer-events-none");
+    openBtn?.setAttribute("aria-expanded", "false");
   };
   const openSidebar = () => {
     sidebar?.classList.remove("-translate-x-full");
     overlay?.classList.remove("opacity-0", "pointer-events-none");
+    openBtn?.setAttribute("aria-expanded", "true");
+  };
+  const setNavCollapsed = (collapsed) => {
+    document.body.classList.toggle("nav-collapsed", collapsed);
+    localStorage.setItem("ls_nav_collapsed", collapsed ? "1" : "0");
+    toggleNav?.setAttribute("aria-expanded", collapsed ? "false" : "true");
+  };
+  const syncNavMode = () => {
+    if (desktopNav.matches) {
+      sidebar?.classList.remove("-translate-x-full");
+      overlay?.classList.add("opacity-0", "pointer-events-none");
+      setNavCollapsed(localStorage.getItem("ls_nav_collapsed") === "1");
+    } else {
+      document.body.classList.remove("nav-collapsed");
+    }
   };
 
   openBtn?.addEventListener("click", openSidebar);
+  closeBtn?.addEventListener("click", closeSidebar);
   overlay?.addEventListener("click", closeSidebar);
+  toggleNav?.addEventListener("click", () => {
+    setNavCollapsed(!document.body.classList.contains("nav-collapsed"));
+  });
+  desktopNav.addEventListener("change", syncNavMode);
+  syncNavMode();
 
   document.querySelectorAll(".alert-banner").forEach((alert) => {
     setTimeout(() => {

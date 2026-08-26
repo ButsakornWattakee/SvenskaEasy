@@ -11,7 +11,7 @@
     <!-- Mobile top bar -->
     <header class="lg:hidden sticky top-0 z-40 glass border-b border-white/10">
         <div class="flex items-center justify-between px-4 py-3">
-            <button id="openSidebar" class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5" aria-label="เปิดเมนู">
+            <button id="openSidebar" class="nav-toggle" aria-label="เปิดเมนู" aria-expanded="false">
                 <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
             <div class="font-display text-lg font-bold text-sweden-gold">🇸🇪 SvenskaEasy</div>
@@ -23,16 +23,27 @@
     <div id="sidebarOverlay" class="fixed inset-0 z-40 bg-black/50 opacity-0 pointer-events-none transition lg:hidden"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 flex w-[280px] -translate-x-full flex-col border-r border-white/10 bg-night-50/95 backdrop-blur-xl transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
-        <div class="px-5 pt-6 pb-4">
-            <div class="font-display text-xl font-extrabold tracking-tight text-sweden-gold">🇸🇪 SvenskaEasy</div>
-            <p class="mt-1 text-[11px] uppercase tracking-[0.18em] text-white/40">Svenska som andraspråk</p>
+    <aside id="sidebar" class="sidebar-panel fixed inset-y-0 left-0 z-50 flex w-[280px] -translate-x-full flex-col border-r border-white/10 bg-night-50/95 backdrop-blur-xl lg:sticky lg:top-0 lg:h-screen lg:translate-x-0">
+        <div class="sidebar-head flex items-center justify-between gap-2 px-3 pt-5 pb-4 lg:px-4">
+            <div class="flex min-w-0 items-center gap-2">
+                <span class="shrink-0 text-lg leading-none">🇸🇪</span>
+                <div class="nav-label min-w-0">
+                    <div class="font-display text-xl font-extrabold tracking-tight text-sweden-gold">SvenskaEasy</div>
+                    <p class="mt-0.5 text-[11px] uppercase tracking-[0.18em] text-white/40">Svenska som andraspråk</p>
+                </div>
+            </div>
+            <button type="button" id="closeSidebar" class="nav-toggle lg:hidden" aria-label="ปิดเมนู">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+            <button type="button" id="toggleNav" class="nav-toggle hidden lg:inline-flex" aria-label="เปิดหรือปิดแถบเมนู" aria-expanded="true">
+                <svg class="nav-toggle-chevron h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+            </button>
         </div>
-        <div class="flag-stripe mx-5 mb-4 rounded-full"></div>
+        <div class="sidebar-wide flag-stripe mx-5 mb-4 rounded-full"></div>
 
-        <a href="/profile" class="mx-4 mb-4 flex items-center gap-3 rounded-2xl border border-sweden-gold/20 bg-gradient-to-br from-sweden-blue/30 to-sweden-gold/5 p-3 hover:border-sweden-gold/40">
+        <a href="/profile" class="sidebar-profile mx-4 mb-4 flex items-center gap-3 rounded-2xl border border-sweden-gold/20 bg-gradient-to-br from-sweden-blue/30 to-sweden-gold/5 p-3 hover:border-sweden-gold/40">
             {% with size='md' %}{% include "partials/avatar_medal.html" %}{% endwith %}
-            <div class="min-w-0 flex-1">
+            <div class="sidebar-wide min-w-0 flex-1">
                 <div class="flex flex-wrap items-center gap-1">
                     <div class="truncate font-display text-sm font-semibold">{{ user.display_name if user else 'ผู้เรียนทั่วไป' }}</div>
                     {% if is_admin %}
@@ -44,7 +55,7 @@
                 <div class="truncate text-[11px] {% if is_admin %}text-sweden-gold{% else %}text-white/50{% endif %}">{{ role_label or user.role }}</div>
             </div>
             {% if not is_admin %}
-            <div class="relative h-11 w-11 shrink-0">
+            <div class="sidebar-wide relative h-11 w-11 shrink-0">
                 <svg class="h-11 w-11 -rotate-90" viewBox="0 0 36 36">
                     <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"></circle>
                     <circle cx="18" cy="18" r="15" fill="none" stroke="#FECB00" stroke-width="3" stroke-linecap="round"
@@ -56,7 +67,7 @@
         </a>
 
         {% if show_learner_tools %}
-        <div class="px-4 pb-3">
+        <div class="sidebar-wide px-4 pb-3">
             <label class="mb-1.5 block text-[10px] font-semibold uppercase tracking-widest text-white/35" for="cefrLevelSelect">ระดับความยาก (CEFR)</label>
             <form action="/set-level" method="POST">
                 <select id="cefrLevelSelect" name="selected_level" onchange="this.form.submit()" class="w-full rounded-xl border border-white/10 bg-night-200 px-3 py-2 text-sm text-white outline-none focus:border-sweden-gold/60 focus:ring-2 focus:ring-sweden-gold/20">
@@ -69,42 +80,30 @@
             <a href="/vocabulary{% if current_level and current_level != 'all' %}?level={{ current_level }}{% endif %}" class="mt-2 block text-center text-[11px] font-semibold text-sweden-gold hover:underline">เปิดคลังคำศัพท์ระดับนี้</a>
         </div>
         {% else %}
-        <div class="mx-4 mb-3 rounded-xl border border-sweden-gold/25 bg-sweden-gold/10 px-3 py-2 text-center text-[11px] font-semibold text-sweden-gold">พื้นที่ผู้ดูแลระบบ</div>
+        <div class="sidebar-wide mx-4 mb-3 rounded-xl border border-sweden-gold/25 bg-sweden-gold/10 px-3 py-2 text-center text-[11px] font-semibold text-sweden-gold">พื้นที่ผู้ดูแลระบบ</div>
         {% endif %}
 
-        <nav id="appNav" data-nav="{% if is_admin %}admin-v3{% else %}student-v3{% endif %}" class="pretty-scroll flex-1 space-y-1 overflow-y-auto px-3 py-2">
-            {% if is_admin %}
-            <a href="/admin" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'admin' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">แดชบอร์ดผู้ดูแลระบบ</a>
-            <a href="/admin/users/new" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'admin_new' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">เพิ่มผู้ใช้งานใหม่เข้าระบบ</a>
-            <a href="/admin/users" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page in ['admin_users', 'admin_trash'] %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">จัดการลบผู้ใช้งานและกู้คืนข้อมูล</a>
-            <a href="/admin/game-images" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'admin_game_images' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">จัดการรูปภาพเกมจับคู่คำศัพท์</a>
-            <a href="/admin/vocab-images" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'admin_vocab_images' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">เพิ่ม/จัดการรูปภาพคลังคำศัพท์</a>
-            <a href="/profile" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'profile' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">โปรไฟล์ส่วนตัว</a>
-            {% else %}
-            <a href="/dashboard" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'dashboard' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">แดชบอร์ด</a>
-            <a href="/lessons" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'lessons' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">บทเรียน</a>
-            <a href="/quiz" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'quiz' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">แบบทดสอบ</a>
-            <a href="/vocabulary" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'vocabulary' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">คลังคำศัพท์</a>
-            <a href="/ai-tutor" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'ai_tutor' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">ครู AI</a>
-            <a href="/profile" class="block rounded-xl px-3 py-2.5 text-sm font-medium {% if current_page == 'profile' %}bg-sweden-blue/40 text-sweden-gold ring-1 ring-sweden-gold/30{% else %}text-white/70 hover:bg-white/5 hover:text-white{% endif %}">โปรไฟล์</a>
-            {% endif %}
+        <nav id="appNav" data-nav="{% if is_admin %}admin-v3{% else %}student-v3{% endif %}" class="pretty-scroll flex-1 space-y-1 overflow-y-auto px-2 py-2 sm:px-3">
+            {% for item in nav_items %}
+            {% include "partials/nav_link.html" %}
+            {% endfor %}
         </nav>
 
-        <div class="border-t border-white/10 p-4">
-            <div class="mb-4 flex flex-col items-center gap-3">
+        <div class="border-t border-white/10 p-3 sm:p-4">
+            <div class="sidebar-wide mb-4 flex flex-col items-center gap-3">
                 {% include "partials/theme_icons.html" %}
             </div>
             {% if is_admin %}
-            <p class="mb-3 text-center text-[11px] text-white/35">บัญชีผู้ดูแลระบบ</p>
+            <p class="sidebar-wide mb-3 text-center text-[11px] text-white/35">บัญชีผู้ดูแลระบบ</p>
             {% else %}
-            <p class="mb-3 text-center text-[11px] text-white/35">เรียนแล้ว {{ completed_count or 0 }} / {{ total_lessons or 0 }} บท</p>
+            <p class="sidebar-wide mb-3 text-center text-[11px] text-white/35">เรียนแล้ว {{ completed_count or 0 }} / {{ total_lessons or 0 }} บท</p>
             {% endif %}
             {% if user and not user.is_guest %}
-            <form action="/auth/logout" method="POST">
+            <form action="/auth/logout" method="POST" class="sidebar-wide">
                 <button type="submit" class="w-full rounded-xl border border-red-400/20 bg-red-500/10 px-3 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/20">ออกจากระบบ</button>
             </form>
             {% else %}
-            <a href="/auth/login" class="block w-full rounded-xl bg-gradient-to-r from-sweden-blue to-sweden-navy px-3 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-sweden-blue/30 transition hover:brightness-110">เข้าสู่ระบบ / สมัคร</a>
+            <a href="/auth/login" class="sidebar-wide block w-full rounded-xl bg-gradient-to-r from-sweden-blue to-sweden-navy px-3 py-2.5 text-center text-sm font-semibold text-white shadow-lg shadow-sweden-blue/30 transition hover:brightness-110">เข้าสู่ระบบ / สมัคร</a>
             {% endif %}
         </div>
     </aside>
@@ -122,7 +121,7 @@
         {% block content %}{% endblock %}
     </main>
 </div>
-<script src="/static/js/main.js?v=20260826-match-mobile"></script>
+<script src="/static/js/main.js?v=20260826-nav-smooth"></script>
 <script src="/static/js/password-toggle.js?v=1"></script>
 {% block extra_js %}{% endblock %}
 </body>
